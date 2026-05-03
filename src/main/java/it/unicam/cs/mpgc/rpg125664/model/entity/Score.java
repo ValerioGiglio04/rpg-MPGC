@@ -26,9 +26,9 @@ public final class Score implements Serializable {
     return points;
   }
 
-  public void add(int pointsToAd) {
-    ScoreValidator.requireNonNegativeDelta(pointsToAd);
-    this.points += pointsToAd;
+  public void add(int pointsToAdd) {
+    ScoreValidator.requireNonNegativeDelta(pointsToAdd);
+    this.points += pointsToAdd;
   }
 
   /** Spende punti gloria. Fallisce se {@code amount} eccede il totale corrente. */
