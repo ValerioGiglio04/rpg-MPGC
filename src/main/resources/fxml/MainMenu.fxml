@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" maxWidth="520.0" spacing="24.0" styleClass="menu-screen" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="42.0" left="24.0" right="24.0" top="42.0" />
+    </padding>
+
+    <Label styleClass="game-title" text="%menu.main.title" />
+    <Label styleClass="game-subtitle" text="%menu.main.subtitle" />
+
+    <VBox alignment="CENTER" maxWidth="520.0" spacing="14.0" styleClass="game-panel-highlight,menu-panel">
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        </padding>
+        <Label styleClass="panel-title" text="%menu.main.section.title" />
+        <VBox alignment="CENTER" maxWidth="260.0" spacing="14.0" styleClass="action-list">
+            <Button fx:id="newGameButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="game-button" text="%menu.start" />
+            <Button fx:id="loadButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="game-button,secondary-button" text="%menu.load" />
+            <Button fx:id="exitButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="game-button,danger-button" text="%menu.exit" />
+        </VBox>
+    </VBox>
+
+    <Label styleClass="muted-label" text="%menu.main.footer" />
+</VBox>
