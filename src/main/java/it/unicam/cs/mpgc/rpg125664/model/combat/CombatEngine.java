@@ -11,5 +11,3 @@ public interface CombatEngine {
 
   AttackOutcome execute(Creature attacker, Creature defender, Move move);
 }
-
-// turm-based
