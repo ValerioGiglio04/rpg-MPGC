@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
