@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" styleClass="battle-screen" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="20.0" left="22.0" right="22.0" top="16.0" />
+    </padding>
+    <top>
+        <VBox alignment="CENTER" spacing="6.0" styleClass="battle-header">
+            <Label fx:id="battleTitleLabel" styleClass="game-title,battle-title" text="%ui.placeholder.emdash" />
+            <Label fx:id="battleSubtitleLabel" styleClass="game-subtitle" text="%ui.placeholder.emdash" />
+        </VBox>
+    </top>
+    <center>
+        <StackPane fx:id="arenaHost" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" styleClass="battle-arena-host" BorderPane.alignment="CENTER" />
+    </center>
+    <bottom>
+        <HBox alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" styleClass="battle-footer">
+            <VBox fx:id="commandHost" maxHeight="1.7976931348623157E308" minHeight="200.0" styleClass="battle-command-host" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </bottom>
+</BorderPane>
