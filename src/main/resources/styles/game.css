@@ -1,0 +1,712 @@
+/* Oxanium + Source Sans 3 (OFL) — see /fonts/ */
+@font-face {
+  font-family: "Oxanium";
+  src: url("../fonts/Oxanium-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("../fonts/SourceSans3-Regular.ttf");
+}
+
+/* --- Design tokens (duel / handheld creature battle readability) --- */
+.game-root {
+  -duel-sky-top: #7eb8e8;
+  -duel-sky-mid: #b8daf0;
+  -duel-field: #5a9a6a;
+  -duel-field-shadow: #3d6b48;
+  -duel-navy: #1a2d42;
+  -duel-navy-panel: rgba(26, 45, 66, 0.96);
+  -duel-panel-border: rgba(255, 255, 255, 0.22);
+  -duel-gold: #f4d03f;
+  -duel-gold-soft: rgba(244, 208, 63, 0.35);
+  -duel-text: #f0f4f8;
+  -duel-text-muted: #9db4c8;
+  -duel-player-accent: #5ecf8a;
+  -duel-opponent-accent: #ff8a65;
+  -duel-danger: #e74c3c;
+  -duel-success: #58d68d;
+  -fx-font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  -fx-font-size: 14px;
+  -fx-text-fill: -duel-text;
+  -fx-background-image: url("/images/game_background.png");
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: center center;
+  -fx-background-size: cover;
+  -fx-background-color: linear-gradient(
+    to bottom,
+    rgba(18, 40, 58, 0.42) 0%,
+    rgba(18, 40, 58, 0.18) 38%,
+    rgba(18, 40, 58, 0.12) 55%,
+    rgba(12, 28, 22, 0.28) 78%,
+    rgba(8, 18, 14, 0.52) 100%
+  );
+}
+
+.game-root * {
+  -fx-scroll-behavior: smooth;
+}
+.game-root.theme-duel {
+  /* Hook for alternate skins; default duel tokens live on .game-root */
+}
+
+.game-title {
+  -fx-font-family: "Oxanium", "Source Sans 3", sans-serif;
+  -fx-font-size: 38px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -duel-navy;
+  -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.65), 6, 0.4, 0, 1);
+}
+
+.battle-title {
+  -fx-font-size: 32px;
+}
+
+.game-subtitle {
+  -fx-font-size: 15px;
+  -fx-font-style: italic;
+  -fx-text-fill: -duel-navy;
+  -fx-opacity: 0.92;
+}
+
+.menu-screen,
+.hub-screen,
+.battle-screen {
+  -fx-background-color: transparent;
+}
+
+.menu-screen {
+  -fx-padding: 28 20 40 20;
+}
+
+.hub-screen {
+  -fx-padding: 8 4 12 4;
+}
+
+.battle-arena-transcript-panel {
+  -fx-min-height: 200;
+  -fx-max-height: 440;
+  -fx-pref-width: 560;
+  -fx-max-width: 640;
+}
+
+.battle-arena-transcript-panel .battle-log-scroll {
+  -fx-min-height: 200;
+  -fx-pref-height: 360;
+  -fx-max-height: 380;
+}
+
+.battle-log-scroll {
+  -fx-background-color: #0d1520;
+  -fx-background-radius: 12px;
+  -fx-border-color: rgba(255, 255, 255, 0.2);
+  -fx-border-width: 2;
+  -fx-border-radius: 12px;
+  -fx-padding: 0;
+  -fx-scroll-behavior: smooth;
+}
+
+.battle-log-scroll > .viewport {
+  -fx-background-color: #0d1520;
+  -fx-scroll-behavior: smooth;
+}
+
+.battle-log-flow {
+  -fx-padding: 10 12 12 12;
+  -fx-font-family: "Consolas", "Source Code Pro", monospace;
+  -fx-font-size: 13px;
+  -fx-scroll-behavior: smooth;
+}
+
+.battle-log-player {
+  -fx-fill: #9fd4ff;
+}
+
+.battle-log-boss {
+  -fx-fill: #ffb89d;
+}
+
+.battle-log-neutral {
+  -fx-fill: #dce6f2;
+}
+
+.battle-screen {
+  -fx-padding: 0;
+}
+
+.battle-header {
+  -fx-padding: 8 0 12 0;
+}
+
+.battle-arena-host {
+  -fx-min-height: 280;
+  -fx-pref-height: 400;
+}
+
+.battle-arena-backdrop {
+  -fx-background-color:
+    radial-gradient(
+      center 50% 120%,
+      radius 95%,
+      rgba(255, 255, 255, 0.35) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(40, 90, 55, 0.25) 100%
+    );
+  -fx-background-radius: 20px;
+  -fx-border-color: rgba(255, 255, 255, 0.35);
+  -fx-border-width: 2;
+  -fx-border-radius: 20px;
+  -fx-effect: dropshadow(gaussian, rgba(0, 40, 30, 0.35), 18, 0.2, 0, 4);
+}
+
+.battle-footer {
+  -fx-padding: 14 8 8 8;
+  -fx-alignment: center;
+  -fx-min-height: 240;
+}
+
+.battle-command-host {
+  -fx-spacing: 12;
+  -fx-min-width: 0;
+}
+
+/* Centred end-of-battle message (victory / defeat) */
+.battle-end-backdrop {
+  -fx-background-color: rgba(8, 14, 22, 0.72);
+}
+
+.battle-end-body {
+  -fx-text-alignment: center;
+  -fx-alignment: center;
+  -fx-font-size: 14px;
+}
+
+.battle-end-overlay {
+  -fx-padding: 0;
+}
+
+.battle-end-title {
+  -fx-padding: 0 0 4 0;
+}
+
+.battle-end-card .game-title {
+  -fx-text-fill: -duel-gold;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 4, 0.3, 0, 1);
+  -fx-font-size: 26px;
+}
+
+.battle-end-card {
+  -fx-background-radius: 16px;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0.15, 0, 6);
+}
+
+.battle-end-card .game-button {
+  -fx-min-width: 220;
+  -fx-padding: 12 32 12 32;
+}
+
+.battle-arena-foe-name,
+.battle-arena-ally-name {
+  -fx-font-family: "Oxanium", sans-serif;
+  -fx-font-size: 16px;
+  -fx-font-weight: bold;
+}
+
+.battle-arena-foe-name {
+  -fx-text-fill: #5a1a12;
+}
+
+.battle-arena-ally-name {
+  -fx-text-fill: #0d3d24;
+}
+
+.game-panel {
+  -fx-background-color: -duel-navy-panel;
+  -fx-border-color: -duel-panel-border;
+  -fx-border-width: 2;
+  -fx-border-radius: 14px;
+  -fx-background-radius: 14px;
+  -fx-padding: 14;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 12, 0.2, 0, 3);
+}
+
+.game-panel-highlight {
+  -fx-background-color: rgba(22, 48, 72, 0.97);
+  -fx-border-color: -duel-gold;
+  -fx-border-width: 2;
+  -fx-border-radius: 14px;
+  -fx-background-radius: 14px;
+  -fx-padding: 16;
+  -fx-effect: dropshadow(gaussian, -duel-gold-soft, 14, 0.28, 0, 0);
+}
+
+.player-panel,
+.player-creature-card {
+  -fx-background-color: rgba(12, 52, 36, 0.94);
+  -fx-border-color: rgba(94, 207, 138, 0.55);
+  -fx-border-width: 2;
+  -fx-border-radius: 14px;
+  -fx-background-radius: 14px;
+  -fx-effect: dropshadow(gaussian, rgba(40, 120, 80, 0.4), 10, 0.25, 0, 2);
+}
+
+.player-panel .panel-title,
+.player-creature-card .panel-title {
+  -fx-text-fill: #a8f0c8;
+}
+
+.opponent-panel {
+  -fx-background-color: rgba(62, 28, 22, 0.95);
+  -fx-border-color: rgba(255, 138, 101, 0.65);
+  -fx-border-width: 2;
+  -fx-border-radius: 14px;
+  -fx-background-radius: 14px;
+  -fx-effect: dropshadow(gaussian, rgba(120, 40, 28, 0.45), 12, 0.25, 0, 2);
+}
+
+.opponent-panel .panel-title {
+  -fx-text-fill: #ffc4b0;
+}
+
+.panel-title {
+  -fx-font-family: "Oxanium", sans-serif;
+  -fx-font-size: 16px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -duel-gold;
+}
+
+.game-label {
+  -fx-text-fill: -duel-text;
+  -fx-font-size: 13px;
+}
+
+.muted-label {
+  -fx-text-fill: -duel-text-muted;
+  -fx-font-size: 12px;
+}
+
+.danger-label {
+  -fx-text-fill: -duel-danger;
+  -fx-font-weight: bold;
+}
+
+.success-label {
+  -fx-text-fill: -duel-success;
+  -fx-font-weight: bold;
+}
+
+.game-button {
+  -fx-background-color: linear-gradient(to bottom, #2e5a8a, #1a3d5c);
+  -fx-border-color: rgba(255, 255, 255, 0.35);
+  -fx-border-width: 2;
+  -fx-border-radius: 12px;
+  -fx-background-radius: 12px;
+  -fx-text-fill: #ffffff;
+  -fx-font-family: "Oxanium", sans-serif;
+  -fx-font-size: 13px;
+  -fx-font-weight: bold;
+  -fx-padding: 10 16;
+  -fx-cursor: hand;
+}
+
+.game-button:hover {
+  -fx-background-color: linear-gradient(to bottom, #3d6fa8, #244a70);
+  -fx-border-color: -duel-gold;
+  -fx-effect: dropshadow(gaussian, -duel-gold-soft, 10, 0.35, 0, 0);
+}
+
+.game-button:disabled {
+  -fx-opacity: 0.45;
+  -fx-cursor: default;
+}
+
+.secondary-button {
+  -fx-background-color: linear-gradient(to bottom, #3a4a58, #252f38);
+  -fx-border-color: rgba(255, 255, 255, 0.22);
+}
+
+.danger-button {
+  -fx-background-color: linear-gradient(to bottom, #8a3030, #5a1a1a);
+  -fx-border-color: rgba(255, 120, 100, 0.55);
+}
+
+.move-tile {
+  -fx-min-height: 76;
+  -fx-pref-height: 84;
+  -fx-font-size: 13px;
+  -fx-wrap-text: true;
+  -fx-text-alignment: center;
+  -fx-content-display: center;
+}
+
+.health-bar > .track {
+  -fx-background-color: rgba(0, 0, 0, 0.35);
+  -fx-background-radius: 10px;
+}
+
+.health-bar > .bar {
+  -fx-background-radius: 10px;
+}
+
+.health-bar.health-bar-high > .bar {
+  -fx-background-color: linear-gradient(to right, #2ecc71, #58d68d);
+}
+
+.health-bar.health-bar-mid > .bar {
+  -fx-background-color: linear-gradient(to right, #f39c12, #f7dc6f);
+}
+
+.health-bar.health-bar-low > .bar {
+  -fx-background-color: linear-gradient(to right, #c0392b, #e74c3c);
+}
+
+.health-bar-label {
+  -fx-text-fill: -duel-text;
+  -fx-font-weight: bold;
+  -fx-font-size: 13px;
+}
+
+.battle-arena-host .health-bar-label {
+  -fx-text-fill: #1a2d42;
+}
+
+.game-log {
+  -fx-control-inner-background: #0d1520;
+  -fx-background-color: #0d1520;
+  -fx-text-fill: #d5e5f5;
+  -fx-font-family: "Consolas", "Source Code Pro", monospace;
+  -fx-font-size: 13px;
+  -fx-border-color: rgba(255, 255, 255, 0.2);
+  -fx-border-width: 2;
+  -fx-border-radius: 12px;
+  -fx-background-radius: 12px;
+}
+
+.game-scroll {
+  -fx-background: transparent;
+  -fx-background-color: transparent;
+}
+
+.game-scroll > .viewport {
+  -fx-background-color: transparent;
+}
+
+.scroll-bar {
+  -fx-background-color: transparent;
+  -fx-padding: 2;
+}
+
+.scroll-bar:vertical {
+  -fx-pref-width: 10;
+}
+
+.scroll-bar:horizontal {
+  -fx-pref-height: 10;
+}
+
+.scroll-bar .track {
+  -fx-background-color: rgba(0, 0, 0, 0.25);
+  -fx-background-radius: 999;
+}
+
+.scroll-bar .thumb {
+  -fx-background-color: linear-gradient(to bottom, #5a8ab8, #3a5a78);
+  -fx-background-radius: 999;
+  -fx-border-color: rgba(255, 255, 255, 0.25);
+  -fx-border-radius: 999;
+}
+
+.scroll-bar .thumb:hover {
+  -fx-background-color: linear-gradient(to bottom, #6a9ac8, #4a6a88);
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+  -fx-shape: "";
+}
+
+.game-scroll .scroll-bar .track,
+.game-log .scroll-bar .track,
+.battle-log-scroll .scroll-bar .track {
+  -fx-background-color: rgba(0, 0, 0, 0.35);
+}
+
+.compact-creature-card {
+  -fx-padding: 8;
+}
+
+.screen-footer {
+  -fx-padding: 16 0 0 0;
+}
+
+.menu-panel {
+  -fx-max-width: 360;
+}
+
+.hub-center-panel {
+  -fx-min-width: 340;
+}
+
+.action-list {
+  -fx-fill-width: true;
+}
+
+.creature-portrait {
+  -fx-background-color: rgba(255, 255, 255, 0.2);
+  -fx-border-color: rgba(255, 255, 255, 0.55);
+  -fx-border-width: 3;
+  -fx-border-radius: 14px;
+  -fx-background-radius: 14px;
+  -fx-padding: 8;
+  -fx-effect: dropshadow(gaussian, rgba(0, 30, 40, 0.4), 10, 0.25, 0, 3);
+}
+
+.portrait-fallback {
+  -fx-font-size: 28px;
+}
+
+.move-button {
+  -fx-font-size: 12px;
+}
+
+.switch-button {
+  -fx-font-size: 12px;
+  -fx-padding: 8 12;
+}
+
+.player-portrait {
+  -fx-border-color: rgba(94, 207, 138, 0.85);
+  -fx-effect: dropshadow(gaussian, rgba(60, 180, 120, 0.45), 12, 0.28, 0, 0);
+}
+
+.overworld-grid {
+  -fx-padding: 8;
+}
+
+.overworld-tile {
+  -fx-border-color: rgba(40, 70, 50, 0.45);
+  -fx-border-width: 1;
+  -fx-background-radius: 8px;
+  -fx-border-radius: 8px;
+}
+
+.tile-ground {
+  -fx-background-color: rgba(40, 90, 55, 0.35);
+  -fx-background-image: url("/textures/grass.png");
+  -fx-background-repeat: repeat;
+  -fx-background-size: 32px 32px;
+  -fx-background-position: 0 0;
+}
+
+.tile-ground-decor {
+  -fx-background-color: rgb(46, 88, 58);
+  -fx-background-image: url("/textures/grass.png");
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: center;
+  -fx-background-size: cover;
+}
+
+.tile-wall {
+  -fx-background-color: linear-gradient(
+    to bottom,
+    rgba(55, 52, 48, 0.98),
+    rgba(32, 30, 28, 0.98)
+  );
+  -fx-border-color: rgba(90, 86, 78, 0.65);
+}
+
+.overworld-tile.tile-gym {
+  -fx-border-width: 2;
+  -fx-padding: 0;
+  -fx-background-insets: 0;
+  -fx-background-color: rgba(18, 42, 28, 0.94);
+}
+
+.tile-gym-building {
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 4, 0.35, 0, 1);
+}
+
+.tile-gym-current {
+  -fx-border-color: #7ec8f0;
+  -fx-effect: dropshadow(gaussian, rgba(126, 200, 240, 0.55), 10, 0.3, 0, 0);
+}
+
+.tile-gym-reachable {
+  -fx-border-color: #f4d03f;
+  -fx-effect: dropshadow(gaussian, rgba(244, 208, 63, 0.45), 8, 0.28, 0, 0);
+}
+
+.tile-gym-completed {
+  -fx-border-color: #58d68d;
+  -fx-effect: dropshadow(gaussian, rgba(88, 214, 141, 0.45), 8, 0.28, 0, 0);
+}
+
+.tile-gym-locked {
+  -fx-border-color: rgba(80, 88, 96, 0.95);
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.2, 0, 0);
+}
+
+.tile-gym-label {
+  -fx-text-fill: #fff8e0;
+  -fx-font-size: 9px;
+  -fx-font-weight: bold;
+  -fx-text-alignment: center;
+  -fx-alignment: center;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 5, 0.85, 1, 1);
+  -fx-wrap-text: true;
+  -fx-max-width: 52px;
+}
+
+.tile-player {
+  -fx-effect: dropshadow(gaussian, rgba(94, 207, 138, 0.55), 10, 0.28, 0, 0);
+}
+
+.tile-decor-tree,
+.tile-decor-bush {
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 4, 0.3, 1, 2);
+}
+
+.overworld-screen:focused .overworld-grid,
+.overworld-map:focused .overworld-grid {
+  -fx-border-color: rgba(126, 200, 240, 0.55);
+  -fx-border-width: 2;
+  -fx-border-radius: 10px;
+}
+
+.overworld-map {
+  -fx-min-height: 520;
+  -fx-pref-height: 600;
+}
+
+.overworld-modal-backdrop {
+  -fx-background-color: rgba(10, 20, 32, 0.62);
+}
+
+.overworld-modal {
+  -fx-background-color: linear-gradient(
+    to bottom,
+    rgba(30, 52, 72, 0.98),
+    rgba(16, 28, 42, 0.99)
+  );
+  -fx-border-color: -duel-gold;
+  -fx-border-width: 2;
+  -fx-border-radius: 16px;
+  -fx-background-radius: 16px;
+  -fx-padding: 22;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.65), 20, 0.25, 0, 6);
+}
+
+.overworld-modal .modal-title {
+  -fx-font-family: "Oxanium", sans-serif;
+  -fx-font-size: 18px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -duel-gold;
+}
+
+.overworld-modal .modal-actions {
+  -fx-padding: 6 0 0 0;
+}
+
+.overworld-scroll {
+  -fx-background-color: transparent;
+  -fx-background: transparent;
+  -fx-border-color: transparent;
+  -fx-padding: 0;
+}
+
+.overworld-scroll > .viewport {
+  -fx-background-color: transparent;
+}
+
+.zoom-controls {
+  -fx-padding: 4;
+}
+
+.zoom-button {
+  -fx-font-size: 18px;
+  -fx-font-weight: bold;
+  -fx-padding: 0;
+  -fx-min-width: 36;
+  -fx-min-height: 36;
+  -fx-pref-width: 36;
+  -fx-pref-height: 36;
+  -fx-max-width: 36;
+  -fx-max-height: 36;
+  -fx-background-radius: 18px;
+  -fx-border-radius: 18px;
+}
+
+.hamburger-menu {
+  -fx-background-color: rgba(26, 45, 66, 0.92);
+  -fx-border-color: rgba(255, 255, 255, 0.28);
+  -fx-border-width: 2;
+  -fx-border-radius: 12px;
+  -fx-background-radius: 12px;
+  -fx-text-fill: -duel-gold;
+  -fx-font-size: 22px;
+  -fx-font-weight: bold;
+  -fx-padding: 4 12;
+  -fx-cursor: hand;
+}
+
+.hamburger-menu:hover,
+.hamburger-menu:showing {
+  -fx-background-color: rgba(36, 62, 88, 0.96);
+  -fx-effect: dropshadow(gaussian, -duel-gold-soft, 10, 0.28, 0, 0);
+}
+
+.hamburger-menu > .arrow-button {
+  -fx-padding: 0;
+}
+
+.hamburger-menu > .arrow-button > .arrow {
+  -fx-padding: 0;
+  -fx-shape: "";
+  -fx-background-color: transparent;
+}
+
+.hamburger-menu .label {
+  -fx-text-fill: -duel-gold;
+}
+
+.hamburger-menu .context-menu {
+  -fx-background-color: rgba(18, 32, 48, 0.98);
+  -fx-border-color: rgba(255, 255, 255, 0.22);
+  -fx-border-width: 1;
+  -fx-border-radius: 10px;
+  -fx-background-radius: 10px;
+  -fx-padding: 6;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 14, 0.2, 0, 4);
+}
+
+.hamburger-menu .menu-item {
+  -fx-padding: 8 18;
+  -fx-background-radius: 6px;
+}
+
+.hamburger-menu .menu-item .label {
+  -fx-text-fill: -duel-text;
+  -fx-font-size: 14px;
+}
+
+.hamburger-menu .menu-item:focused,
+.hamburger-menu .menu-item:hover {
+  -fx-background-color: rgba(244, 208, 63, 0.2);
+}
+
+.hamburger-menu .menu-item:focused .label,
+.hamburger-menu .menu-item:hover .label {
+  -fx-text-fill: #ffffff;
+}
