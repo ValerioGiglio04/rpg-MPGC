@@ -3,7 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.service;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
 import it.unicam.cs.mpgc.rpg125664.model.combat.AttackOutcome;
 import it.unicam.cs.mpgc.rpg125664.model.combat.BossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.combat.CombatEngine;
+import it.unicam.cs.mpgc.rpg125664.model.combat.combatEngne;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.event.Side;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
