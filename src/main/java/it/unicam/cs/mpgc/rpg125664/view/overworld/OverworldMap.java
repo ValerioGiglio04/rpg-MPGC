@@ -358,7 +358,7 @@ public final class OverworldMap extends StackPane {
   }
 
   private void moveSessionToGymIfNeeded(GymRoom gym) {
-    GymRoom currentGymm = gameModel.gameState().currentGym();
+    GymRoom currentGym = gameModel.gameState().currentGym();
     if (currentGym.id() == gym.id()) return;
 
     gameModel.moveTo(gym.id());
