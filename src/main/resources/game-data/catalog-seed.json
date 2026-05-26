@@ -1,0 +1,368 @@
+{
+  "configurazione": {
+    "nomeGiocatore": "Allenatore",
+    "idPalestraIniziale": 1,
+    "percorsoSkinGiocatore": "/images/player/player-skin.png",
+    "starterTeamIds": [
+      1,
+      2,
+      3
+    ]
+  },
+  "creature": [
+    {
+      "id": 1,
+      "nome": "Flammino",
+      "ruolo": "Attaccante rapido",
+      "skinPath": "/images/creatures/flammino.png",
+      "saluteMassima": 38,
+      "attack": 8,
+      "defense": 3,
+      "speed": 8,
+      "mosse": [
+        {
+          "nome": "Scintilla",
+          "power": 6,
+          "accuracy": 95,
+          "descrizione": "Colpo rapido di fuoco leggero."
+        },
+        {
+          "nome": "Fiammata",
+          "power": 9,
+          "accuracy": 75,
+          "descrizione": "Attacco potente ma meno preciso."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "nome": "Gocciolo",
+      "ruolo": "Difensore stabile",
+      "skinPath": "/images/creatures/gocciolo.png",
+      "saluteMassima": 44,
+      "attack": 6,
+      "defense": 5,
+      "speed": 4,
+      "mosse": [
+        {
+          "nome": "Spruzzo",
+          "power": 6,
+          "accuracy": 100,
+          "descrizione": "Attacco affidabile ad acqua."
+        },
+        {
+          "nome": "Onda",
+          "power": 8,
+          "accuracy": 85,
+          "descrizione": "Spinta d'acqua più pesante."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "nome": "Foglietto",
+      "ruolo": "Tecnico equilibrato",
+      "skinPath": "/images/creatures/foglietto.png",
+      "saluteMassima": 40,
+      "attack": 7,
+      "defense": 4,
+      "speed": 6,
+      "mosse": [
+        {
+          "nome": "Frustata",
+          "power": 6,
+          "accuracy": 95,
+          "descrizione": "Colpo secco con liane."
+        },
+        {
+          "nome": "Radici",
+          "power": 8,
+          "accuracy": 90,
+          "descrizione": "Attacco preciso e controllato."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "nome": "Carboncino",
+      "ruolo": "Boss dominante della prima palestra",
+      "skinPath": "/images/creatures/carboncino.png",
+      "saluteMassima": 38,
+      "attack": 7,
+      "defense": 4,
+      "speed": 6,
+      "mosse": [
+        {
+          "nome": "Braciere",
+          "power": 6,
+          "accuracy": 95,
+          "descrizione": "Fiamma corta e costante."
+        },
+        {
+          "nome": "Tizzone",
+          "power": 9,
+          "accuracy": 80,
+          "descrizione": "Colpo più rischioso."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "nome": "Cenereon",
+      "ruolo": "Guardia veloce del braciere",
+      "skinPath": "/images/creatures/cenereon.png",
+      "saluteMassima": 28,
+      "attack": 6,
+      "defense": 3,
+      "speed": 9,
+      "mosse": [
+        {
+          "nome": "Scatto Ardente",
+          "power": 7,
+          "accuracy": 90,
+          "descrizione": "Attacco veloce."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "nome": "Schiuma",
+      "ruolo": "Boss tecnico avanzato",
+      "skinPath": "/images/creatures/schiuma.png",
+      "saluteMassima": 50,
+      "attack": 9,
+      "defense": 5,
+      "speed": 7,
+      "mosse": [
+        {
+          "nome": "Bolla",
+          "power": 8,
+          "accuracy": 95,
+          "descrizione": "Colpi d'acqua multipli."
+        },
+        {
+          "nome": "Marea",
+          "power": 11,
+          "accuracy": 80,
+          "descrizione": "Grande onda travolgente ma instabile."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "nome": "Gorgo",
+      "ruolo": "Difesa acquatica pesante",
+      "skinPath": "/images/creatures/gorgo.png",
+      "saluteMassima": 54,
+      "attack": 8,
+      "defense": 7,
+      "speed": 4,
+      "mosse": [
+        {
+          "nome": "Pressione",
+          "power": 9,
+          "accuracy": 90,
+          "descrizione": "Spinta continua d'acqua."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "nome": "Radichino",
+      "ruolo": "Boss finale resistente",
+      "skinPath": "/images/creatures/radichino.png",
+      "saluteMassima": 68,
+      "attack": 11,
+      "defense": 8,
+      "speed": 5,
+      "mosse": [
+        {
+          "nome": "Radice",
+          "power": 11,
+          "accuracy": 90,
+          "descrizione": "Colpo radicato e pesante."
+        },
+        {
+          "nome": "Spine",
+          "power": 14,
+          "accuracy": 75,
+          "descrizione": "Colpo forte con spine."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "nome": "Muschiotto",
+      "ruolo": "Supporto veloce del boss finale",
+      "skinPath": "/images/creatures/muschiotto.png",
+      "saluteMassima": 42,
+      "attack": 9,
+      "defense": 5,
+      "speed": 10,
+      "mosse": [
+        {
+          "nome": "Foglie",
+          "power": 10,
+          "accuracy": 90,
+          "descrizione": "Raffica veloce di foglie."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "nome": "Petron",
+      "ruolo": "Boss tenace della cava",
+      "skinPath": "/images/creatures/petron.png",
+      "saluteMassima": 58,
+      "attack": 9,
+      "defense": 8,
+      "speed": 3,
+      "mosse": [
+        {
+          "nome": "Frana",
+          "power": 10,
+          "accuracy": 85,
+          "descrizione": "Massi pesanti rotolano sull'avversario."
+        },
+        {
+          "nome": "Roccia",
+          "power": 8,
+          "accuracy": 95,
+          "descrizione": "Colpo solido e affidabile."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "nome": "Pietrino",
+      "ruolo": "Difensore minore della cava",
+      "skinPath": "/images/creatures/pietrino.png",
+      "saluteMassima": 46,
+      "attack": 7,
+      "defense": 7,
+      "speed": 4,
+      "mosse": [
+        {
+          "nome": "Pietra",
+          "power": 7,
+          "accuracy": 95,
+          "descrizione": "Lancia una pietra ben mirata."
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "nome": "Folgore",
+      "ruolo": "Boss elettrico fulmineo",
+      "skinPath": "/images/creatures/folgore.png",
+      "saluteMassima": 50,
+      "attack": 10,
+      "defense": 4,
+      "speed": 11,
+      "mosse": [
+        {
+          "nome": "Saetta",
+          "power": 9,
+          "accuracy": 95,
+          "descrizione": "Scarica rapida e precisa."
+        },
+        {
+          "nome": "Tuono",
+          "power": 12,
+          "accuracy": 75,
+          "descrizione": "Fulmine devastante ma instabile."
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "nome": "Scintilla",
+      "ruolo": "Supporto agile del boss elettrico",
+      "skinPath": "/images/creatures/scintilla.png",
+      "saluteMassima": 36,
+      "attack": 8,
+      "defense": 3,
+      "speed": 12,
+      "mosse": [
+        {
+          "nome": "Lampo",
+          "power": 8,
+          "accuracy": 95,
+          "descrizione": "Colpo elettrico veloce."
+        }
+      ]
+    }
+  ],
+  "palestre": [
+    {
+      "id": 1,
+      "nome": "Palestra del Fuoco",
+      "ordine": 0,
+      "puntiMinimi": 0,
+      "boss": {
+        "nome": "Bracius",
+        "ricompensaPunti": 135,
+        "creatureIds": [
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "nome": "Palestra dell'Acqua",
+      "ordine": 1,
+      "puntiMinimi": 100,
+      "boss": {
+        "nome": "Ondina",
+        "ricompensaPunti": 185,
+        "creatureIds": [
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "nome": "Palestra della Roccia",
+      "ordine": 2,
+      "puntiMinimi": 200,
+      "boss": {
+        "nome": "Petros",
+        "ricompensaPunti": 210,
+        "creatureIds": [
+          10,
+          11
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "nome": "Palestra del Fulmine",
+      "ordine": 3,
+      "puntiMinimi": 425,
+      "boss": {
+        "nome": "Voltis",
+        "ricompensaPunti": 235,
+        "creatureIds": [
+          12,
+          13
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "nome": "Palestra della Foresta",
+      "ordine": 4,
+      "puntiMinimi": 600,
+      "boss": {
+        "nome": "Selvan",
+        "ricompensaPunti": 285,
+        "creatureIds": [
+          8,
+          9
+        ]
+      }
+    }
+  ]
+}
