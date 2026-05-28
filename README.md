@@ -49,7 +49,7 @@ cd rpg-MPGC
 
 Come richiesto dalla specifica, qui sotto indico **dove** ho usato strumenti di AI durante il lavoro (spiegazioni, bozze, autocompletamento). Non è un elenco di tutto il progetto.
 
-- **ChatGPT** e **Claude**: spiegazioni su architettura, Hibernate e design; bozze dei diagrammi in Wiki; mi hanno suggerito il plugin **Spotless** e `spotlessApply`
+- **ChatGPT** e **Claude**: spiegazioni su architettura, Hibernate e design; **creazione di alcuni grafici Mermaid** nella Wiki (flowchart e diagrammi ER, poi rivisti da me); mi hanno suggerito il plugin **Spotless** e `spotlessApply`
 - **Gemini**: domande su JavaFX/FXML; alcune immagini e texture
 - **GitHub Copilot**: autocompletamento su classi Java, su `messages_it.properties` e bozze sui file Markdown della Wiki (formattazione e link tra le pagine)
 

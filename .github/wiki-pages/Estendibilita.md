@@ -1,0 +1,202 @@
+# Estendibilità
+
+> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) · [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza)
+
+La specifica del corso richiede che il progetto sia progettato per **future estensioni** (nuove funzionalità, altri dispositivi) anche se non tutto è presente nella prima release. Questa pagina descrive i **meccanismi già presenti nel codice** per integrare evoluzioni senza riscrivere il nucleo.
+
+---
+
+## Principio generale
+
+> Alcuni grafici Mermaid (flowchart e `erDiagram`) sono stati abbozzati con **ChatGPT / Claude** e poi integrati da me ([dettaglio](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dichiarazione-AI#grafici-mermaid-nella-wiki-chatgpt-e-claude)).
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
+flowchart LR
+  subgraph replaceable [Sostituibili]
+    UI[Presentation layer]
+    Adapters[Adapter layer]
+  end
+  subgraph stable [Stabile]
+    App[Application services]
+    Domain[Domain model e porte]
+  end
+  View --> Controller
+  Adapters --> Domain
+  Controller --> Model
+```
+
+- **Stabile:** dominio + casi d'uso (`model.service`).
+- **Sostituibile:** UI (`view`) e implementazioni concrete (`model.persistence`).
+
+---
+
+## Nuova interfaccia utente (web, mobile, altro desktop)
+
+| Passo | Azione |
+|-------|--------|
+| 1 | Creare un nuovo package presentation (es. `ui.web` o modulo separato) |
+| 2 | Chiamare **solo** `GameModel` (o estrarre un'interfaccia `GameApi` con gli stessi metodi) |
+| 3 | Non importare Hibernate, entità JPA o classi JavaFX nel nuovo layer |
+| 4 | Opzionale: esporre `GameModel` tramite controller REST che serializzano DTO |
+
+**Esempio futuro:** client React che invoca `POST /battle/attack?moveIndex=0` implementato da un model.persistence Spring che delega a `BattleService`.
+
+Il dominio e le regole di `canChallengeGym`, danno, gloria restano **identici**.
+
+---
+
+## Nuovo backend di persistenza
+
+| Passo | Azione |
+|-------|--------|
+| 1 | Implementare `GameStateRepository` (o estendere `AbstractHibernateAdapter` se si resta su Hibernate) |
+| 2 | Opzionale: implementare `GameCatalogLoader` se il catalogo non resta su H2 |
+| 3 | Registrare le implementazioni in `AppModule` (composition root) |
+
+**Oggi:** `HibernateGameStateRepository` persiste più partite in `sessioni_salvate` (colonna `dati_salvati_json`). La UI elenca gli slot in `LoadGame.fxml` e carica con `GameModel.loadSession(id)`.
+
+**Esempi futuri:** PostgreSQL cloud, API REST, sincronizzazione account.
+
+Il contratto `GameStateRepository` isola la UI dal dettaglio JPA/JSON.
+
+---
+
+## Nuove regole di combattimento
+
+| Estensione | Meccanismo |
+|------------|------------|
+| Danni diversi, status, critici | Nuova classe `CombatEngine` |
+| IA boss diversa | Nuova classe `BossMoveStrategy` |
+| Eventi aggiuntivi | Nuovi record in `BattleEvent` (sealed) + aggiornamento `BattleEventTranslator` |
+
+Wiring in `AppModule`:
+
+```java
+CombatEngine combatEngine = new TurnBasedCombatEngine();
+BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
+// Sostituibili con altre implementazioni senza toccare BattleService
+```
+
+---
+
+## Nuove creature, palestre, mosse
+
+| Passo | Azione |
+|-------|--------|
+| 1 | Aggiornare `catalog-seed.json` |
+| 2 | Resettare o migrare il DB catalogo (in sviluppo: cancellare `~/.rpg-palestre-creature/save.*`) |
+| 3 | Nessuna modifica obbligatoria al dominio se i template rispettano i validator esistenti |
+
+Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate` / `GymRoom` o introdurre policy nel dominio senza toccare la UI.
+
+---
+
+## Nuove funzionalità di gioco
+
+| Feature futura | Punto di integrazione suggerito |
+|----------------|--------------------------------|
+| Inventario oggetti | Nuovo servizio in `model.service` + modello in `model` |
+| Più slot di salvataggio | **Già presente** via `sessioni_salvate`; estendere con limite slot, autosave, cloud |
+| Autosave | Chiamare `repository.save()` da `ScreenNavigator` o listener |
+| Achievement | Listener su `BattleEvent` o hook in `GymCompletionHandler` |
+| Audio / effetti | Solo layer `ui`, nessun impatto su dominio |
+| Negozio | Nuovo caso d'uso + schermata FXML + voce in `ScreenNavigator` |
+
+---
+
+## Nuove schermate JavaFX
+
+1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
+2. Creare `NuovaSchermataController` che riceve `GameModel`
+3. Registrare transizione in `ScreenNavigator` / `FxmlScreens`
+4. Eventuale interfaccia callback in `view` (come `HubActions`, `MainMenuActions`, implementate da `ScreenNavigator`)
+
+---
+
+## Validazione e integrità
+
+Nuovi aggregati devono:
+
+- Passare da un `*Builder` o costruttore che invoca `Validators`
+- Rispettare `Rules` centralizzate dove applicabile
+- Per un nuovo tipo validabile: sottoclasse di `AbstractDomainValidator<T>` con `validateRules` e messaggio di null-check, poi registrazione in `Validators`
+
+Questo evita che estensioni introducano stati illegali difficili da debuggare.
+
+---
+
+## Login utente e salvataggi per account
+
+Oggi tutti i salvataggi locali hanno `id_utente IS NULL` in `sessioni_salvate`. In una **futura implementazione con login**:
+
+1. Dopo l'autenticazione, l'model.persistence auth fornisce `userId` all'applicazione (non al dominio).
+2. `HibernateGameStateRepository` filtra `WHERE id_utente = :userId` in `listSaves` / `save` / `load`.
+3. Ogni utente vede solo le proprie partite nella schermata Carica.
+4. Vincolo consigliato: `UNIQUE (id_utente, nome)` per evitare omonimie nello stesso account.
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
+flowchart LR
+  Auth[Adapter Auth futuro] --> UserId[id_utente]
+  UserId --> Repo[HibernateGameStateRepository]
+  Repo --> Table[sessioni_salvate]
+  UI[LoadGame UI] --> Repo
+```
+
+L'autenticazione resta fuori dal dominio: nuovo model.persistence + parametri nel repository, `GameModel` invariato nel contratto verso la UI.
+
+---
+
+## JSON in CLOB vs schema SQL normalizzato
+
+Salviamo `dati_salvati_json` per semplicità (snapshot = `UltimaSessioneSalvataDto`). In SQL “più proprio” si modellerebbero tabelle dedicate:
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
+erDiagram
+  SESSIONI_SALVATE ||--o{ SESSIONE_TEAM : ha
+  SESSIONI_SALVATE ||--o{ SESSIONE_PALESTRA : ha
+  SESSIONI_SALVATE {
+    long id_sessione PK
+    string nome
+    long id_utente FK
+  }
+  SESSIONE_TEAM {
+    long id_sessione FK
+    long id_creatura FK
+    int hp_corrente
+  }
+  SESSIONE_PALESTRA {
+    long id_sessione FK
+    long id_palestra FK
+    boolean completata
+  }
+```
+
+Il dominio (`GameState`) non cambierebbe; solo l'model.persistence mapperbbe righe SQL ↔ aggregati. Il CLOB potrebbe restare come backup o essere rimosso dopo la migrazione.
+
+| Evoluzione | Come si innesta |
+|------------|-----------------|
+| **Normalizzazione SQL** | Tabelle `sessione_*`; nuovo mapper in `model.persistence.session` |
+| **NoSQL** | MongoDB/Redis con lo stesso DTO documentale; catalogo può restare su H2 |
+| **Cloud sync** | REST che espone JSON o righe normalizzate |
+
+---
+
+## Versioning del salvataggio
+
+Il payload in `dati_salvati_json` usa `@JsonIgnoreProperties(ignoreUnknown = true)` sui DTO. La colonna `format_version` su `sessioni_salvate` permette migrazioni in `SessioneJsonMapper` quando la forma del JSON cambia in modo strutturale.
+
+---
+
+## Cosa non è obbligatorio nella v1
+
+La specifica sottolinea che **non tutte** le funzionalità devono essere nella prima release. L'importante è che il percorso di integrazione sia chiaro:
+
+- Porte (`GameStateRepository`, `GameCatalogLoader`, `CombatEngine`, `BossMoveStrategy`)
+- Facade (`GameModel`)
+- Composition root (`AppModule`)
+- Catalogo H2 + sessioni in tabella `sessioni_salvate` (JSON in CLOB per pragmatismo)
+
+Questi elementi documentano **come** il progetto può crescere senza diventare un monolite inseparabile.

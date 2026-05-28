@@ -7,7 +7,7 @@ La persistenza è organizzata in **due ambiti distinti**, coerenti con la separa
 | Ambito | Tecnologia | Percorso |
 |--------|------------|----------|
 | **Catalogo** (creature, mosse, palestre, giocatori/boss) | Hibernate 6 + H2 (file) | `~/.rpg-palestre-creature/save.*` |
-| **Sessioni di partita** (progresso, più slot) | Hibernate 6 + H2 (CLOB JSON) | tabella `sesioni_salvate` nello stesso file H2 del catalogo |
+| **Sessioni di partita** (progresso, più slot) | Hibernate 6 + H2 (CLOB JSON) | tabella `sessioni_salvate` nello stesso file H2 del catalogo |
 
 ### Identificatori numerici (`long`)
 
@@ -23,6 +23,8 @@ Un solo tipo di id su tutti i livelli: niente mappe `codice ↔ id` né colonne 
 ---
 
 ## Panoramica
+
+> Diagrammi Mermaid in questa pagina: bozze con **ChatGPT / Claude**, adattate al progetto ([dettaglio](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dichiarazione-AI#grafici-mermaid-nella-wiki-chatgpt-e-claude)).
 
 ```mermaid
 %%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
