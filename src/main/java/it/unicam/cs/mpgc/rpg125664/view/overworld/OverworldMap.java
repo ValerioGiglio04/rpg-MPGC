@@ -103,6 +103,7 @@ public final class OverworldMap extends StackPane {
     this.modalActions = new HBox(MODAL_ACTIONS_SPACING);
     this.modalLayer = OverworldModalShell.buildLayer(modalTitle, modalActions);
     modalLayer.setFocusTraversable(false);
+    modalLayer.setMouseTransparent(true);
     getChildren().addAll(mapScrollPane, zoomControls, legendLabel, modalLayer);
     ensureUiChromeVisible();
   }
@@ -329,9 +330,7 @@ public final class OverworldMap extends StackPane {
     GameButton cancelButton =
         modalButton(Messages.get("overworld.modal.cancel"), this::cancelChallenge).asSecondary();
     modalActions.getChildren().setAll(challengeButton, cancelButton.asSecondary());
-    modalOpen = true;
-    modalLayer.setVisible(true);
-    ensureUiChromeVisible();
+    openModal();
   }
 
   private static String challengePrompt(String gymName) {
@@ -344,7 +343,12 @@ public final class OverworldMap extends StackPane {
     GameButton closeButton =
         modalButton(Messages.get("overworld.modal.close"), this::cancelChallenge);
     modalActions.getChildren().setAll(closeButton.asSecondary());
+    openModal();
+  }
+
+  private void openModal() {
     modalOpen = true;
+    modalLayer.setMouseTransparent(false);
     modalLayer.setVisible(true);
     ensureUiChromeVisible();
   }
@@ -377,6 +381,7 @@ public final class OverworldMap extends StackPane {
     modalOpen = false;
     pendingGym = null;
     modalLayer.setVisible(false);
+    modalLayer.setMouseTransparent(true);
     ensureUiChromeVisible();
     requestFocus();
   }

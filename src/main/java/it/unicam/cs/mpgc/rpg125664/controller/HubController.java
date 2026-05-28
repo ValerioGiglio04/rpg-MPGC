@@ -64,7 +64,11 @@ public final class HubController implements Initializable {
     MenuItem saveAsNewItem = new MenuItem(Messages.get("hub.menu.saveAsNew"));
     saveAsNewItem.setOnAction(event -> actions.onSaveAsNew());
     MenuItem menuItem = new MenuItem(Messages.get("hub.menu.menu"));
-    menuItem.setOnAction(event -> actions.onBackToMenu());
+    menuItem.setOnAction(
+        event -> {
+          hamburgerMenu.hide();
+          Platform.runLater(actions::onBackToMenu);
+        });
     hamburgerMenu.getItems().setAll(saveItem, saveAsNewItem, menuItem);
   }
 
