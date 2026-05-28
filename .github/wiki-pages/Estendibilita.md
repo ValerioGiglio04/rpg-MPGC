@@ -114,6 +114,36 @@ Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate`
 
 ---
 
+## Lingua dell'interfaccia (file di traduzione)
+
+L'UI **non** incolla stringhe fisse nei controller: menu, hub, duello, dialoghi e messaggi di errore passano da un unico bundle di risorse. Per questo **cambiare lingua o riscrivere i testi** non richiede di modificare la logica di gioco.
+
+| Elemento | Ruolo |
+|----------|--------|
+| `src/main/resources/i18n/messages_it.properties` | File delle traduzioni (chiave → testo) usato nella v1 in italiano |
+| `Messages` (`view`) | Punto unico per `get` / `format` e per il `ResourceBundle` condiviso con FXML |
+| `FxmlScreens` | Passa lo stesso bundle a `FXMLLoader`, così i `%chiave` negli `.fxml` risolvono le stesse stringhe |
+| Controller Java | Usano `Messages.get("…")` e `Messages.format("…", argomenti)` per etichette dinamiche, log di battaglia, tooltip |
+
+**Modificare solo l'italiano:** editare `messages_it.properties` (es. `menu.start`, `battle.dialog.victory.title`). Placeholder come `{0}` e `{1}` vanno lasciati dove servono a `MessageFormat`.
+
+**Aggiungere un'altra lingua (es. inglese):**
+
+| Passo | Azione |
+|-------|--------|
+| 1 | Creare `messages_en.properties` nella stessa cartella `i18n/` con le stesse chiavi |
+| 2 | All'avvio (es. in `AppModule` o `Main`), chiamare `Messages.setLocale(Locale.ENGLISH)` prima di costruire la UI |
+| 3 | Riavviare l'app: FXML e controller useranno il nuovo bundle senza altre modifiche |
+
+```java
+// Esempio: lingua inglese all'avvio
+Messages.setLocale(Locale.ENGLISH);
+```
+
+**Nota:** nomi di creature, mosse e descrizioni in duello provengono dal **catalogo** (`catalog-seed.json` → H2), non da `messages_*.properties`. Per localizzare anche quelli si aggiorna il seed (o, in futuro, colonne/JSON multilingua nel catalogo) — la UI del menu e dei pannelli resta comunque estendibile solo via file di traduzione.
+
+---
+
 ## Validazione e integrità
 
 Nuovi aggregati devono:
