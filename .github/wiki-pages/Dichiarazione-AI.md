@@ -140,8 +140,4 @@ Nei flowchart compare spesso `curve: stepAfter` (frecce a **angolo retto**): sce
 
 ---
 
-## Impegno dello studente
-
-Dichiaro che quanto **non** compare in questa dichiarazione è opera mia (comprensione del codice, scelte progettuali, implementazione e verifica del gioco). L'AI non ha generato l'intero repository in modo automatico.
-
 **Valerio Giglio — matricola 125664**
