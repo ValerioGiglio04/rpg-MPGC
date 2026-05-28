@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import it.unicam.cs.mpgc.rpg125664.view.component.GameButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:controller="it.unicam.cs.mpgc.rpg125664.controller.BattleEndOverlayController" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="battle-end-overlay" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="battle-end-backdrop" />
+    <VBox alignment="CENTER" maxWidth="580.0" spacing="22.0" styleClass="game-panel,battle-end-card">
+        <StackPane.margin>
+            <Insets bottom="56.0" left="32.0" right="32.0" top="24.0" />
+        </StackPane.margin>
+        <padding>
+            <Insets bottom="40.0" left="44.0" right="44.0" top="36.0" />
+        </padding>
+        <Label fx:id="titleLabel" maxWidth="500.0" styleClass="game-title,battle-end-title" text="%battle.dialog.victory.title" wrapText="true" />
+        <Label fx:id="bodyLabel" maxWidth="480.0" styleClass="game-label,battle-end-body" text="%battle.dialog.victory.body" wrapText="true" />
+        <GameButton fx:id="okButton" defaultButton="true" maxWidth="1.7976931348623157E308" styleClass="game-button" text="%battle.dialog.ok" />
+    </VBox>
+</StackPane>

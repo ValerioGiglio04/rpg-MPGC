@@ -2,12 +2,14 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.TextFlow?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" styleClass="battle-screen" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" styleClass="game-root,theme-duel,battle-screen" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
         <Insets bottom="20.0" left="22.0" right="22.0" top="16.0" />
     </padding>
@@ -18,7 +20,16 @@
         </VBox>
     </top>
     <center>
-        <StackPane fx:id="arenaHost" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" styleClass="battle-arena-host" BorderPane.alignment="CENTER" />
+        <StackPane fx:id="arenaHost" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" styleClass="battle-arena-host" BorderPane.alignment="CENTER">
+            <StackPane fx:id="transcriptLayer" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="battle-arena-transcript">
+                <VBox fx:id="logPanel" alignment="TOP_CENTER" maxHeight="440.0" maxWidth="640.0" minHeight="200.0" prefWidth="560.0" spacing="12.0" styleClass="game-panel,battle-arena-transcript-panel">
+                    <Label styleClass="panel-title" text="%battle.panel.log" />
+                    <ScrollPane fx:id="logScroll" fitToWidth="true" hbarPolicy="NEVER" minViewportHeight="200.0" styleClass="battle-log-scroll" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
+                        <TextFlow fx:id="logFlow" styleClass="battle-log-flow" />
+                    </ScrollPane>
+                </VBox>
+            </StackPane>
+        </StackPane>
     </center>
     <bottom>
         <HBox alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" styleClass="battle-footer">

@@ -9,17 +9,12 @@ public final class HamburgerMenu extends MenuButton {
 
   public HamburgerMenu() {
     super(GLYPH);
-    applyChrome();
+    setFocusTraversable(false);
   }
 
   public HamburgerMenu(MenuItem... items) {
     super(GLYPH);
-    applyChrome();
-    getItems().addAll(items);
-  }
-
-  private void applyChrome() {
-    getStyleClass().add("hamburger-menu");
     setFocusTraversable(false);
+    getItems().addAll(items);
   }
 }

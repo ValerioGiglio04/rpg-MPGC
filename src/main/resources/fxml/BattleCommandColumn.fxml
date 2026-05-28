@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import it.unicam.cs.mpgc.rpg125664.view.component.GameButton?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:controller="it.unicam.cs.mpgc.rpg125664.controller.BattleCommandColumnController" fillWidth="true" spacing="12.0" styleClass="battle-command-host" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox fx:id="movesPanel" spacing="12.0" styleClass="game-panel,player-panel">
+        <Label styleClass="panel-title" text="%battle.panel.moves" />
+        <GridPane fx:id="moveGrid" hgap="10.0" styleClass="action-list" vgap="10.0" />
+    </VBox>
+    <VBox fx:id="teamPanel" spacing="12.0" styleClass="game-panel,player-panel">
+        <Label styleClass="panel-title" text="%battle.panel.team" />
+        <ScrollPane fitToWidth="true" maxHeight="180.0" prefViewportHeight="160.0" styleClass="game-scroll" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER">
+            <VBox fx:id="teamSwitches" spacing="10.0" styleClass="action-list" />
+        </ScrollPane>
+    </VBox>
+    <GameButton fx:id="backButton" maxWidth="1.7976931348623157E308" styleClass="game-button,secondary-button" text="%battle.button.hub" />
+</VBox>

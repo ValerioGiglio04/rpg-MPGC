@@ -13,7 +13,6 @@ import it.unicam.cs.mpgc.rpg125664.view.component.BattleArenaView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleCommandColumnView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleEndOverlay;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleUiErrorPane;
-import it.unicam.cs.mpgc.rpg125664.view.component.GamePanel;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
@@ -39,16 +37,9 @@ public final class BattleController implements Initializable {
   private static final double PORTRAIT_PLAYER = 200;
 
   // Costanti di layout per il pannello cronaca battaglia.
-  private static final int LOG_PANEL_MAX_WIDTH = 640;
-  private static final int LOG_PANEL_MAX_HEIGHT = 440;
-  private static final int LOG_PANEL_MIN_HEIGHT = 200;
-  private static final int LOG_PANEL_PREF_WIDTH = 560;
-
   private final GameModel gameModel;
   private final Runnable onBack;
 
-  private final TextFlow logFlow = new TextFlow();
-  private final ScrollPane logScroll = new ScrollPane(logFlow);
   private final List<BattleLogLine> battleLog = new ArrayList<>();
 
   @FXML private Label battleTitleLabel;
@@ -56,6 +47,14 @@ public final class BattleController implements Initializable {
   @FXML private Label battleSubtitleLabel;
 
   @FXML private StackPane arenaHost;
+
+  @FXML private StackPane transcriptLayer;
+
+  @FXML private VBox logPanel;
+
+  @FXML private ScrollPane logScroll;
+
+  @FXML private TextFlow logFlow;
 
   @FXML private VBox commandHost;
 
@@ -75,7 +74,6 @@ public final class BattleController implements Initializable {
 
   private void configureLogArea() {
     logFlow.setLineSpacing(4);
-    logFlow.getStyleClass().add("battle-log-flow");
     logFlow
         .maxWidthProperty()
         .bind(
@@ -85,10 +83,6 @@ public final class BattleController implements Initializable {
                   return w <= 16 ? 520 : w - 12;
                 },
                 logScroll.widthProperty()));
-    logScroll.setFitToWidth(true);
-    logScroll.setMinViewportHeight(200);
-    logScroll.getStyleClass().add("battle-log-scroll");
-    logScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     VBox.setVgrow(logScroll, Priority.ALWAYS);
   }
 
@@ -103,7 +97,7 @@ public final class BattleController implements Initializable {
   }
 
   private void clearHosts() {
-    arenaHost.getChildren().clear();
+    arenaHost.getChildren().removeIf(node -> node != transcriptLayer);
     commandHost.getChildren().clear();
   }
 
@@ -139,8 +133,9 @@ public final class BattleController implements Initializable {
     Creature bossCreature = gym.boss().holder().activeCreature();
     arenaHost
         .getChildren()
-        .add(BattleArenaView.create(playerCreature, bossCreature, PORTRAIT_FOE, PORTRAIT_PLAYER));
-    arenaHost.getChildren().add(centeredTranscriptLayer());
+        .add(
+            0, BattleArenaView.create(playerCreature, bossCreature, PORTRAIT_FOE, PORTRAIT_PLAYER));
+    transcriptLayer.toFront();
     commandHost
         .getChildren()
         .add(
@@ -151,21 +146,6 @@ public final class BattleController implements Initializable {
                 onBack,
                 this::playRound,
                 this::switchCreature));
-  }
-
-  /** Cronaca sopra l'arena, centrata nello spazio tra i due combattenti. */
-  private StackPane centeredTranscriptLayer() {
-    VBox logPanel = new GamePanel(Messages.get("battle.panel.log"), logScroll);
-    logPanel.setMaxWidth(LOG_PANEL_MAX_WIDTH);
-    logPanel.setMaxHeight(LOG_PANEL_MAX_HEIGHT);
-    logPanel.setMinHeight(LOG_PANEL_MIN_HEIGHT);
-    logPanel.setPrefWidth(LOG_PANEL_PREF_WIDTH);
-    logPanel.getStyleClass().add("battle-arena-transcript-panel");
-    StackPane layer = new StackPane(logPanel);
-    layer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-    layer.getStyleClass().add("battle-arena-transcript");
-    StackPane.setAlignment(logPanel, Pos.CENTER);
-    return layer;
   }
 
   private void appendCompletedNotice(GymRoom gym) {
