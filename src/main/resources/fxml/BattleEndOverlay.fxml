@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:controller="it.unicam.cs.mpgc.rpg125664.controller.BattleEndOverlayController" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="battle-end-overlay" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="battle-end-overlay" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <Region maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="battle-end-backdrop" />
     <VBox alignment="CENTER" maxWidth="580.0" spacing="22.0" styleClass="game-panel,battle-end-card">
         <StackPane.margin>

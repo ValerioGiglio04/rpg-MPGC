@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:controller="it.unicam.cs.mpgc.rpg125664.controller.BattleCommandColumnController" fillWidth="true" spacing="12.0" styleClass="battle-command-host" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fillWidth="true" spacing="12.0" styleClass="battle-command-host" stylesheets="@../styles/game.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="movesPanel" spacing="12.0" styleClass="game-panel,player-panel">
         <Label styleClass="panel-title" text="%battle.panel.moves" />
         <GridPane fx:id="moveGrid" hgap="10.0" styleClass="action-list" vgap="10.0" />
