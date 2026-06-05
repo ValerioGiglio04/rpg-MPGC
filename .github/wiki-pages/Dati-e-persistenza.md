@@ -109,7 +109,7 @@ Implementazione port: `HibernateGameCatalogLoader.load()` → `GameCatalog`.
 
 ### Porta
 
-`GameStateRepository` (package `model`):
+`GameStateRepository` (package `model.persistence`):
 
 - `hasAnySave()` — almeno una riga locale → abilita "Carica partita"
 - `listSaves()` — elenco metadati per la schermata di scelta

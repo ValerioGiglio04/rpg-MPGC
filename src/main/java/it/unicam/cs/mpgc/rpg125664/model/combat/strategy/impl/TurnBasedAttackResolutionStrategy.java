@@ -1,26 +1,29 @@
-package it.unicam.cs.mpgc.rpg125664.model.combat;
+package it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl;
 
+import it.unicam.cs.mpgc.rpg125664.model.combat.AttackOutcome;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import java.util.Objects;
 import java.util.Random;
 
 /**
- * {@link CombatEngine} di default: risolve un singolo attacco contro il difensore. Danno =
- * attaccante.attack + mossa.power - difensore.defense, con minimo a 1. La hit chance e' tirata su
- * 100. Il {@link Random} e' iniettato per controllare la casualita' dei tiri (es. seed fisso).
+ * {@link AttackResolutionStrategy} di default: risolve un singolo attacco contro il difensore.
+ * Danno = attaccante.attack + mossa.power - difensore.defense, con minimo a 1. La hit chance e'
+ * tirata su 100. Il {@link Random} e' iniettato per controllare la casualita' dei tiri (es. seed
+ * fisso).
  */
-public final class TurnBasedCombatEngine implements CombatEngine {
+public final class TurnBasedAttackResolutionStrategy implements AttackResolutionStrategy {
 
   private static final int ACCURACY_MAX = 100;
 
   private final Random random;
 
-  public TurnBasedCombatEngine() {
+  public TurnBasedAttackResolutionStrategy() {
     this(new Random());
   }
 
-  public TurnBasedCombatEngine(Random random) {
+  public TurnBasedAttackResolutionStrategy(Random random) {
     this.random = Objects.requireNonNull(random, "random");
   }
 

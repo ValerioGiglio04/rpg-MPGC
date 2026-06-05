@@ -1,5 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.combat;
 
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.event.Side;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
@@ -13,11 +15,13 @@ import java.util.Objects;
 /** Esegue un round di duello (ordine turni, due attacchi, switch su KO). */
 public final class BattleRoundExecutor {
 
-  private final CombatEngine combatEngine;
+  private final AttackResolutionStrategy attackResolutionStrategy;
   private final BossMoveStrategy bossMoveStrategy;
 
-  public BattleRoundExecutor(CombatEngine combatEngine, BossMoveStrategy bossMoveStrategy) {
-    this.combatEngine = Objects.requireNonNull(combatEngine, "combatEngine");
+  public BattleRoundExecutor(
+      AttackResolutionStrategy attackResolutionStrategy, BossMoveStrategy bossMoveStrategy) {
+    this.attackResolutionStrategy =
+        Objects.requireNonNull(attackResolutionStrategy, "attackResolutionStrategy");
     this.bossMoveStrategy = Objects.requireNonNull(bossMoveStrategy, "bossMoveStrategy");
   }
 
@@ -54,7 +58,7 @@ public final class BattleRoundExecutor {
             ? clampedPlayerMove(attacker, playerMoveIndex)
             : bossMoveStrategy.pickMove(attacker);
     events.add(new BattleEvent.MoveUsed(side, attacker.name(), move.name()));
-    AttackOutcome outcome = combatEngine.execute(attacker, defender, move);
+    AttackOutcome outcome = attackResolutionStrategy.execute(attacker, defender, move);
     if (!outcome.hit()) {
       events.add(new BattleEvent.AttackMissed(side));
       return;

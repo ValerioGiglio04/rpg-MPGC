@@ -10,17 +10,18 @@ import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
 import it.unicam.cs.mpgc.rpg125664.model.service.GymCompletionHandler;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
 import it.unicam.cs.mpgc.rpg125664.model.service.NewGameService;
-import it.unicam.cs.mpgc.rpg125664.model.service.GymStatusResolver;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.impl.DefaultGymStatusStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
 import it.unicam.cs.mpgc.rpg125664.model.service.SessionPersistenceFacade;
-import it.unicam.cs.mpgc.rpg125664.model.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
-import it.unicam.cs.mpgc.rpg125664.model.combat.AccuracyThresholdBossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.combat.BossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.combat.CombatEngine;
-import it.unicam.cs.mpgc.rpg125664.model.combat.TurnBasedCombatEngine;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl.AccuracyThresholdBossMoveStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl.TurnBasedAttackResolutionStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.GameStateRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -65,8 +66,7 @@ public final class AppModule implements AutoCloseable {
         em.close();
       }
     }
-    GameCatalog catalog =
-        new HibernateGameCatalogLoader(emf, seed.newGameSettings()).load();
+    GameCatalog catalog = new HibernateGameCatalogLoader(emf, seed.newGameSettings()).load();
     SessioneJsonMapper sessionMapper = new SessioneJsonMapper(catalog);
     return new AppModule(emf, catalog, sessionMapper);
   }
@@ -84,17 +84,17 @@ public final class AppModule implements AutoCloseable {
     GameStateHolder holder = new GameStateHolder(initialState);
 
     NewGameService newGame = new NewGameService(holder, catalog);
-    CombatEngine combatEngine = new TurnBasedCombatEngine();
+    AttackResolutionStrategy attackResolutionStrategy = new TurnBasedAttackResolutionStrategy();
     BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
     GymCompletionHandler gymCompletionHandler = new GymCompletionHandler(catalog);
     BattleService battle =
-        new BattleService(holder, combatEngine, bossMoveStrategy, gymCompletionHandler);
+        new BattleService(holder, attackResolutionStrategy, bossMoveStrategy, gymCompletionHandler);
     HealingService healing = new HealingService();
     SessionPersistenceFacade persistence = new SessionPersistenceFacade(repository);
-    GymStatusResolver gymStatusResolver = new GymStatusResolver();
+    GymStatusStrategy gymStatusStrategy = new DefaultGymStatusStrategy();
 
     this.gameModel =
-        new GameModel(holder, newGame, battle, healing, persistence, gymStatusResolver);
+        new GameModel(holder, newGame, battle, healing, persistence, gymStatusStrategy);
   }
 
   public GameModel gameModel() {

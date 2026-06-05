@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
 import it.unicam.cs.mpgc.rpg125664.model.overworld.OverworldSpawnPosition;
-import it.unicam.cs.mpgc.rpg125664.model.GameStateRepository;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;
@@ -33,10 +33,7 @@ public final class SessionPersistenceFacade {
             .orElseGet(() -> OverworldSpawnPosition.defaultFor(command.state()));
     return repository.save(
         new SaveSessionCommand(
-            command.state(),
-            Optional.of(position),
-            command.sessionId(),
-            command.name()));
+            command.state(), Optional.of(position), command.sessionId(), command.name()));
   }
 
   public LoadedSession load(long sessionId) {

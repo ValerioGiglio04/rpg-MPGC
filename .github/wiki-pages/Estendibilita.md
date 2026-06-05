@@ -50,9 +50,9 @@ Il dominio e le regole di `canChallengeGym`, danno, gloria restano **identici**.
 
 | Passo | Azione |
 |-------|--------|
-| 1 | Implementare `GameStateRepository` (o estendere `AbstractHibernateAdapter` se si resta su Hibernate) |
-| 2 | Opzionale: implementare `GameCatalogLoader` se il catalogo non resta su H2 |
-| 3 | Registrare le implementazioni in `AppModule` (composition root) |
+| 1 | Implementare `GameStateRepository` in `model.persistence.session` (o estendere `AbstractHibernateAdapter` se si resta su Hibernate) |
+| 2 | Opzionale: implementare `GameCatalogLoader` in `model.persistence.catalog` se il catalogo non resta su H2 |
+| 3 | Registrare le implementazioni in `AppModule` (composition root); contratti in `model.persistence` |
 
 **Oggi:** `HibernateGameStateRepository` persiste più partite in `sessioni_salvate` (colonna `dati_salvati_json`). La UI elenca gli slot in `LoadGame.fxml` e carica con `GameModel.loadSession(id)`.
 
@@ -66,18 +66,25 @@ Il contratto `GameStateRepository` isola la UI dal dettaglio JPA/JSON.
 
 | Estensione | Meccanismo |
 |------------|------------|
-| Danni diversi, status, critici | Nuova classe `CombatEngine` |
+| Danni diversi, status, critici | Nuova classe che implementa `AttackResolutionStrategy` |
 | IA boss diversa | Nuova classe `BossMoveStrategy` |
 | Eventi aggiuntivi | Nuovi record in `BattleEvent` (sealed) + aggiornamento `BattleEventTranslator` |
 
 Wiring in `AppModule`:
 
 ```java
-CombatEngine combatEngine = new TurnBasedCombatEngine();
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl.AccuracyThresholdBossMoveStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl.TurnBasedAttackResolutionStrategy;
+
+AttackResolutionStrategy attackResolution = new TurnBasedAttackResolutionStrategy();
 BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
-BattleRoundExecutor roundExecutor = new BattleRoundExecutor(combatEngine, bossMoveStrategy);
+BattleRoundExecutor roundExecutor = new BattleRoundExecutor(attackResolution, bossMoveStrategy);
 // Sostituibili con altre implementazioni senza toccare BattleService
 ```
+
+Nuova policy overworld: implementare `GymStatusStrategy` in `model.overworld.strategy.impl` e registrarla in `AppModule`.
 
 ---
 
@@ -229,7 +236,7 @@ Il payload in `dati_salvati_json` usa `@JsonIgnoreProperties(ignoreUnknown = tru
 
 La specifica sottolinea che **non tutte** le funzionalità devono essere nella prima release. L'importante è che il percorso di integrazione sia chiaro:
 
-- Porte (`GameStateRepository`, `GameCatalogLoader`, `CombatEngine`, `BossMoveStrategy`)
+- Porte (`model.persistence`: `GameStateRepository`, `GameCatalogLoader`) e Strategy (`model.combat.strategy`, `model.overworld.strategy`)
 - Facade (`GameModel`, `SessionPersistenceFacade`)
 - Controller UI (`*Controller`) separati dai controller FXML
 - Composition root (`AppModule` con `bootstrap()` e `create()` per wiring esplicito)

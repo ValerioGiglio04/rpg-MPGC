@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.service;
+package it.unicam.cs.mpgc.rpg125664.model.overworld;
 
 /**
  * Singola sorgente di verita' per lo stato di una palestra rispetto al giocatore. Le schermate UI

@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model;
+package it.unicam.cs.mpgc.rpg125664.model.persistence;
 
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 

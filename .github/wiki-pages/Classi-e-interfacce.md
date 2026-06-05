@@ -57,12 +57,22 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| I | `CombatEngine` | Contratto: esegue un attacco e restituisce `AttackOutcome` |
-| C | `TurnBasedCombatEngine` | Implementazione default: hit roll, formula danno, KO |
-| I | `BossMoveStrategy` | Contratto: sceglie la mossa del boss |
-| C | `AccuracyThresholdBossMoveStrategy` | IA boss basata su soglia di accuratezza delle mosse |
 | C | `BattleRoundExecutor` | Esecuzione di un round: turni, attacchi, switch, eventi |
 | R | `AttackOutcome` | Esito colpo: hit/miss, danno, difensore KO |
+
+### Strategy combattimento (`model.combat.strategy`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| I | `AttackResolutionStrategy` | Strategy: esegue un attacco e restituisce `AttackOutcome` |
+| I | `BossMoveStrategy` | Contratto: sceglie la mossa del boss |
+
+### Implementazioni Strategy (`model.combat.strategy.impl`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `TurnBasedAttackResolutionStrategy` | Implementazione default: hit roll, formula danno, KO |
+| C | `AccuracyThresholdBossMoveStrategy` | IA boss basata su soglia di accuratezza delle mosse |
 
 ---
 
@@ -76,16 +86,21 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 ---
 
-## Porte del dominio (package `model`)
+## Porte del dominio (`model.persistence`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | I | `GameStateRepository` | Multi-save: `listSaves`, `save`, `load`, `delete`, `markLastPlayed` |
+| I | `GameCatalogLoader` | Caricamento `GameCatalog` da sorgente esterna |
+
+### Tipi correlati (`model.session` e `model.entity`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | R | `SavedSessionSummary` | Metadati slot per lista UI |
 | R | `LoadedSession` | `GameState` + posizione overworld opzionale |
 | R | `SaveSessionCommand` | Parametri di salvataggio (stato, slot, nome) |
 | R | `OverworldPosition` | Coordinate mappa (dominio, senza JavaFX) |
-| I | `GameCatalogLoader` | Caricamento `GameCatalog` da sorgente esterna |
 | C | `SessionPersistenceException` | Errore unchecked di persistenza sessione (wrappa I/O nell'model.persistence) |
 
 ---
@@ -133,8 +148,6 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | C | `NewGameService` | Nuova partita e build stato iniziale da catalogo |
 | C | `HealingService` | Cura a pagamento e calcolo gloria spendibile |
 | C | `GymCompletionHandler` | Ricompense al completamento palestra (via `GameCatalog`) |
-| C | `GymStatusResolver` | Calcolo `GymStatus` da `GameState` |
-| E | `GymStatus` | Stato UI di una palestra sulla mappa |
 | E | `HealingError` | Codici errore cura (UI mappa → `Messages`) |
 | C | `HealingException` | Eccezione applicativa con `HealingError` |
 
@@ -142,15 +155,28 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
+| E | `GymStatus` | Stato UI di una palestra sulla mappa |
 | C | `OverworldGridLayout` | Griglia e celle candidate per layout palestre |
 | R | `GymCellPlacement` | Associazione cella ↔ palestra (dominio applicativo) |
 | C | `OverworldSpawnPosition` | Posizione di default al primo salvataggio |
+
+#### Strategy overworld (`model.overworld.strategy`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| I | `GymStatusStrategy` | Strategy: calcolo `GymStatus` da `GameState` e `GymRoom` |
+
+#### Implementazioni (`model.overworld.strategy.impl`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `DefaultGymStatusStrategy` | Implementazione default delle regole overworld |
 
 ### Sessione (`model.service`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `GameModel` | Facciata UI: delega a servizi, `SessionPersistenceFacade`, `GymStatusResolver` |
+| C | `GameModel` | Facciata UI: delega a servizi, `SessionPersistenceFacade`, `GymStatusStrategy` |
 | C | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
 | C | `SessionPersistenceFacade` | Save/load/delete/list; incapsula `GameStateRepository` |
 
@@ -266,6 +292,11 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | I | `UiTheme` | Contratto colori/stili hub |
+
+### Implementazioni tema (`view.theme.impl`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `DuelUiTheme` | Tema schermata battaglia |
 
 ---
@@ -274,13 +305,14 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 
 | Interfaccia | Layer | Base astratta | Implementazione/i tipiche |
 |-------------|-------|---------------|---------------------------|
-| `GameStateRepository` | model | `AbstractHibernateAdapter` | `HibernateGameStateRepository` |
-| `GameCatalogLoader` | model | `AbstractHibernateAdapter` | `HibernateGameCatalogLoader` |
-| `CombatEngine` | model.combat | — | `TurnBasedCombatEngine` |
-| `BossMoveStrategy` | model.combat | — | `AccuracyThresholdBossMoveStrategy` |
+| `GameStateRepository` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameStateRepository` |
+| `GameCatalogLoader` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameCatalogLoader` |
+| `AttackResolutionStrategy` | model.combat.strategy | — | `TurnBasedAttackResolutionStrategy` |
+| `BossMoveStrategy` | model.combat.strategy | — | `AccuracyThresholdBossMoveStrategy` |
+| `GymStatusStrategy` | model.overworld.strategy | — | `DefaultGymStatusStrategy` |
 | `Validator<T>` | model.validation | `AbstractDomainValidator<T>` | `*Validator` concreti |
 | `BattleEvent` | model.event | Record sealed annidati |
-| `UiTheme` | view.theme | `DuelUiTheme` (battaglia); stili hub inline |
+| `UiTheme` | view.theme | `DuelUiTheme` (`view.theme.impl`); stili hub inline |
 | `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | view | Implementate da `ScreenNavigator` |
 
 ---

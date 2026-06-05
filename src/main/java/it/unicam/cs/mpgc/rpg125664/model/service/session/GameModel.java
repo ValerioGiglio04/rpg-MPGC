@@ -1,10 +1,10 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
-import it.unicam.cs.mpgc.rpg125664.model.service.GymStatus;
-import it.unicam.cs.mpgc.rpg125664.model.service.GymStatusResolver;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
 import it.unicam.cs.mpgc.rpg125664.model.service.NewGameService;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
@@ -24,7 +24,7 @@ public final class GameModel {
   private final BattleService battle;
   private final HealingService healing;
   private final SessionPersistenceFacade persistence;
-  private final GymStatusResolver gymStatusResolver;
+  private final GymStatusStrategy gymStatusStrategy;
 
   public GameModel(
       GameStateHolder holder,
@@ -32,13 +32,13 @@ public final class GameModel {
       BattleService battle,
       HealingService healing,
       SessionPersistenceFacade persistence,
-      GymStatusResolver gymStatusResolver) {
+      GymStatusStrategy gymStatusStrategy) {
     this.holder = Objects.requireNonNull(holder, "holder");
     this.newGame = Objects.requireNonNull(newGame, "newGame");
     this.battle = Objects.requireNonNull(battle, "battle");
     this.healing = Objects.requireNonNull(healing, "healing");
     this.persistence = Objects.requireNonNull(persistence, "persistence");
-    this.gymStatusResolver = Objects.requireNonNull(gymStatusResolver, "gymStatusResolver");
+    this.gymStatusStrategy = Objects.requireNonNull(gymStatusStrategy, "gymStatusStrategy");
   }
 
   public GameState gameState() {
@@ -84,7 +84,7 @@ public final class GameModel {
   }
 
   public GymStatus statusOf(GymRoom gym) {
-    return gymStatusResolver.resolve(holder.current(), gym);
+    return gymStatusStrategy.resolve(holder.current(), gym);
   }
 
   public void beginCurrentBattle() {
@@ -131,10 +131,7 @@ public final class GameModel {
     long id =
         persistence.save(
             new SaveSessionCommand(
-                holder.current(),
-                holder.overworldPosition(),
-                Optional.empty(),
-                Optional.of(name)));
+                holder.current(), holder.overworldPosition(), Optional.empty(), Optional.of(name)));
     refreshSessionMeta(id);
     persistence.markLastPlayed(id);
   }

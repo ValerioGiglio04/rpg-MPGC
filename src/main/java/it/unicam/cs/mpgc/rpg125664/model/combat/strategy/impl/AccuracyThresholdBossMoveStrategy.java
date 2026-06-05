@@ -1,5 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.model.combat;
+package it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl;
 
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import java.util.Objects;

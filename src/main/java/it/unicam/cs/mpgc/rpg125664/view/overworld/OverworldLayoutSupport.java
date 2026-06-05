@@ -21,7 +21,10 @@ public final class OverworldLayoutSupport {
   public static Map<String, GymRoom> assignGymsDeterministic(List<GymRoom> gyms) {
     boolean[][] blockedTiles = OverworldMapConstants.createBlockedTiles();
     return GymCellPlacement.assignCells(
-        gyms, blockedTiles, new Random(OverworldGridLayout.LAYOUT_SEED), OverworldGridLayout.GYM_MIN_DISTANCE);
+        gyms,
+        blockedTiles,
+        new Random(OverworldGridLayout.LAYOUT_SEED),
+        OverworldGridLayout.GYM_MIN_DISTANCE);
   }
 
   /** Alberi e cespugli: stesso seed del posizionamento palestre, indipendente dal numero di gym. */

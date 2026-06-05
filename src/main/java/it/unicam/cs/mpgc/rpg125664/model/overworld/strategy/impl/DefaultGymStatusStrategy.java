@@ -1,10 +1,14 @@
-package it.unicam.cs.mpgc.rpg125664.model.service;
+package it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.impl;
 
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 
-public final class GymStatusResolver {
+/** Implementazione default delle regole {@link GymStatus} per la mappa overworld. */
+public final class DefaultGymStatusStrategy implements GymStatusStrategy {
 
+  @Override
   public GymStatus resolve(GameState state, GymRoom gym) {
     if (gym.completed()) {
       return GymStatus.COMPLETED;

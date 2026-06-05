@@ -16,21 +16,36 @@ Il codice è organizzato in **architettura MVC** (model al centro, model.persist
 
 ```
 it.unicam.cs.mpgc.rpg125664
-├── app/                          Main, RpgApplication, AppModule
-├── model.service/                  BattleService, NewGameService, HealingService, …
-├── model.service/          GameModel, GameStateHolder
-├── model/                       porte GameStateRepository, GameCatalogLoader
-├── model.entity|catalog|combat|event|validation|builder/
-│   └── validation/               AbstractDomainValidator + *Validator
-├── model.persistence.catalog/  JPA catalogo + seed JSON
-├── model.persistence/          AbstractHibernateAdapter
-├── model.persistence.session/  sessioni_salvate (JSON in H2)
-└── view/                    shell, ScreenNavigator, Messages
+├── app/                              Main, RpgApplication, AppModule
+├── model.service/                      BattleService, NewGameService, HealingService, …
+├── model.service/              GameModel, SessionPersistenceFacade (Facade), GameStateHolder
+├── model.overworld/
+│   ├── strategy/ + strategy.impl/    GymStatusStrategy, DefaultGymStatusStrategy
+│   └── GymStatus, layout mappa
+├── model.persistence/                      GameStateRepository, GameCatalogLoader
+├── model.entity|catalog|event|validation|builder/
+├── model.combat/
+│   ├── strategy/                     AttackResolutionStrategy, BossMoveStrategy
+│   └── strategy.impl/                TurnBased*, AccuracyThreshold*
+├── model.persistence.catalog/      JPA catalogo + seed JSON
+├── model.persistence/              AbstractHibernateAdapter
+├── model.persistence.session/      sessioni_salvate (JSON in H2)
+└── view/                        shell, ScreenNavigator, Messages
     ├── controller/
-    ├── component/                widget + viste battaglia
+    ├── component/                    widget + viste battaglia
     ├── overworld/
-    └── theme/
+    ├── controller/
+    └── theme/ + theme.impl/          UiTheme, DuelUiTheme
 ```
+
+| Cerchi… | Contratto (tipo) | Implementazione |
+|---------|------------------|-----------------|
+| Porta persistenza | `model.persistence` | `model.persistence.session` / `.catalog` |
+| Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.impl` |
+| Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.impl` |
+| Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
+| Tema UI | `view.theme` (`UiTheme`) | `view.theme.impl` |
+| Controller MVP | `controller` | controller in `controller` |
 
 ---
 

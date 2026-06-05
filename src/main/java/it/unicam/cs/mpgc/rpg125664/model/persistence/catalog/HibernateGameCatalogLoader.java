@@ -1,12 +1,12 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
-import it.unicam.cs.mpgc.rpg125664.model.GameCatalogLoader;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CreatureTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GymTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.NewGameSettings;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.GameCatalogLoader;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.ArrayList;

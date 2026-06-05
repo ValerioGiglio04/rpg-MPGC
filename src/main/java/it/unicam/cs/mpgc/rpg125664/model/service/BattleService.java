@@ -2,8 +2,8 @@ package it.unicam.cs.mpgc.rpg125664.model.service;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
 import it.unicam.cs.mpgc.rpg125664.model.combat.BattleRoundExecutor;
-import it.unicam.cs.mpgc.rpg125664.model.combat.BossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.combat.CombatEngine;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
@@ -22,13 +22,13 @@ public final class BattleService {
 
   public BattleService(
       GameStateHolder holder,
-      CombatEngine combatEngine,
+      AttackResolutionStrategy attackResolutionStrategy,
       BossMoveStrategy bossMoveStrategy,
       GymCompletionHandler gymCompletionHandler) {
     this.holder = Objects.requireNonNull(holder, "holder");
     this.roundExecutor =
         new BattleRoundExecutor(
-            Objects.requireNonNull(combatEngine, "combatEngine"),
+            Objects.requireNonNull(attackResolutionStrategy, "attackResolutionStrategy"),
             Objects.requireNonNull(bossMoveStrategy, "bossMoveStrategy"));
     this.gymCompletionHandler =
         Objects.requireNonNull(gymCompletionHandler, "gymCompletionHandler");

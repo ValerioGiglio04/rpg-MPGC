@@ -11,7 +11,7 @@ Il progetto segue un'**architettura MVC** (Model-View-Controller): il **dominio*
 | Layer | Package | Responsabilità principale |
 |-------|---------|---------------------------|
 | **app** | `it.unicam.cs.mpgc.rpg125664.app` | Composition root: bootstrap JPA, seed catalogo, wiring di servizi e `GameModel`, avvio JavaFX, rilascio risorse |
-| **model** | `...model` | Modello di gioco, regole, combattimento, validazione, eventi di battaglia, **porte** verso persistenza e catalogo |
+| **model** | `...model` (+ `model.persistence`, `model.combat.strategy`) | Modello di gioco, regole, combattimento, validazione, eventi di battaglia; **porte** in `model.persistence` |
 | **model.service** | `...model.service` (+ `model.service`) | Servizi di caso d'uso e `GameModel` come unico entry point per la UI |
 | **model.persistence** | `...model.persistence` | Catalogo su H2 (JPA), sessione su JSON, mapping entità/DTO ↔ dominio, seed catalogo da JSON |
 | **view** / **controller** | `...view` (+ `controller`, `controller`, `component`, `overworld`, `theme`) | Schermate FXML, controller sottili, controller (stato + comandi), componenti visivi, mappa overworld, temi, messaggi — **nessuna regola di business** |
@@ -43,7 +43,7 @@ flowchart TB
   subgraph model.service_layer [Applicazione]
     GS[GameModel]
     SPF[SessionPersistenceFacade]
-    GSR[GymStatusResolver]
+    GSS[GymStatusStrategy]
     BS[BattleService]
     NG[NewGameService]
     HS[HealingService]
@@ -54,7 +54,8 @@ flowchart TB
   subgraph model_layer [Dominio]
     Models[model catalog combat event]
     BRE[BattleRoundExecutor]
-    Ports[GameStateRepository GameCatalogLoader]
+    Ports[model.persistence]
+    Strat[combat.strategy]
     Valid[validation e builder]
   end
   subgraph infrastructure [Infrastruttura]
@@ -75,7 +76,7 @@ flowchart TB
   UI --> controllers
   controllers --> GS
   GS --> SPF
-  GS --> GSR
+  GS --> GSS
   GS --> BS
   GS --> NG
   GS --> HS
@@ -83,6 +84,7 @@ flowchart TB
   GS --> Ports
   SPF --> Ports
   BS --> BRE
+  BRE --> Strat
   BS --> GCH
   NG --> Models
   HS --> Models
@@ -103,9 +105,9 @@ flowchart TB
 
 | Componente | Cosa fa |
 |------------|---------|
-| `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusResolver` |
+| `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusStrategy` |
 | `SessionPersistenceFacade` | Save/load/delete/list slot; incapsula `GameStateRepository` |
-| `GymStatusResolver` | Regole `GymStatus` per la mappa overworld |
+| `DefaultGymStatusStrategy` | Implementazione default di `GymStatusStrategy` (`model.overworld.strategy.impl`) |
 | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
 | `BattleService` | Precondizioni battaglia, delega round a `BattleRoundExecutor`, completamento palestra |
 | `BattleRoundExecutor` | Un round: ordine turni, doppio attacco, switch su KO, assembly `BattleEvent` |
@@ -115,8 +117,8 @@ flowchart TB
 | `OverworldSpawnPosition` | Posizione di default al primo salvataggio (senza dipendere dalla UI) |
 | `GameState` | Invarianti di mondo: palestra corrente, raggiungibilità, possibilità di sfida |
 | `GameCatalog` | Lookup dati statici; istanze di dominio **mutabili** separate dal catalogo |
-| `TurnBasedCombatEngine` | Risoluzione matematica di un singolo attacco |
-| `BossMoveStrategy` | Scelta mossa del boss (implementazione: soglia accuratezza) |
+| `TurnBasedAttackResolutionStrategy` | Risoluzione matematica di un singolo attacco (`model.combat.strategy.impl`) |
+| `BossMoveStrategy` | Scelta mossa del boss (`model.combat.strategy`; impl: soglia accuratezza) |
 | `*Controller` (UI) | Stato schermata + comandi verso `GameModel`; controller FXML sottili |
 
 ---
@@ -125,11 +127,11 @@ flowchart TB
 
 ### Single Responsibility (SRP)
 
-- `CombatEngine` calcola solo l'esito di un attacco.
+- `AttackResolutionStrategy` calcola solo l'esito di un attacco.
 - `BattleRoundExecutor` esegue solo un round di battaglia.
 - `BossMoveStrategy` decide solo quale mossa usare il boss.
 - `GymCompletionHandler` gestisce solo le conseguenze del completamento palestra.
-- `SessionPersistenceFacade` gestisce solo persistenza slot; `GymStatusResolver` solo stato palestre sulla mappa.
+- `SessionPersistenceFacade` gestisce solo persistenza slot; `DefaultGymStatusStrategy` solo stato palestre sulla mappa.
 - `CatalogEntityMapper` mappa solo entità JPA → template di dominio.
 - I controller UI separano binding FXML da logica di schermata.
 - I validator (`CreatureValidator`, `GameStateValidator`, …) validano un solo aggregato ciascuno.
@@ -137,14 +139,15 @@ flowchart TB
 ### Open/Closed (OCP)
 
 - Nuova IA boss: nuova classe che implementa `BossMoveStrategy` senza modificare `BattleService`.
-- Nuovo motore di combattimento: nuova implementazione di `CombatEngine`.
+- Nuova strategy di risoluzione attacco: nuova implementazione di `AttackResolutionStrategy`.
+- Nuova policy overworld: nuova implementazione di `GymStatusStrategy`.
 - Nuovo backend di salvataggio: nuova implementazione di `GameStateRepository`.
 - Nuovo validator di dominio: sottoclasse di `AbstractDomainValidator` registrata in `Validators`, senza cambiare il contratto `Validator<T>`.
 - Nuovo model.persistence Hibernate: sottoclasse di `AbstractHibernateAdapter` che implementa una porta di dominio.
 
 ### Liskov Substitution (LSP)
 
-- Qualsiasi `CombatEngine` o `BossMoveStrategy` iniettata in `BattleService` è intercambiabile se rispetta il contratto delle interfacce.
+- Qualsiasi `AttackResolutionStrategy` o `BossMoveStrategy` iniettata in `BattleService` è intercambiabile se rispetta il contratto delle interfacce.
 - I validator concreti sostituiscono `AbstractDomainValidator` rispettando `validate(T)`; i loader/repository Hibernate sostituiscono la base astratta mantenendo le porte.
 
 ### Interface Segregation (ISP)
@@ -153,25 +156,38 @@ flowchart TB
 
 ### Dependency Inversion (DIP)
 
-- `BattleService` dipende da `CombatEngine` e `BossMoveStrategy` (astrazioni), non da classi concrete hard-coded oltre al wiring in `AppModule`.
+- `BattleService` dipende da `AttackResolutionStrategy` e `BossMoveStrategy` (`model.combat.strategy`), non da classi concrete hard-coded oltre al wiring in `AppModule`.
 - La UI dipende da `GameModel`, non da `HibernateGameStateRepository` né dalle entità JPA.
+
+---
+
+## Dove trovare contratto vs implementazione
+
+| Cerchi… | Contratto (tipo) | Implementazione |
+|---------|------------------|-----------------|
+| Porta persistenza | `model.persistence` | `model.persistence.session` / `.catalog` |
+| Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.impl` |
+| Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.impl` |
+| Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
+| Tema UI | `view.theme` (`UiTheme`) | `view.theme.impl` |
+| Controller MVP | `controller` | controller in `controller` |
 
 ---
 
 ## Pattern utilizzati
 
-| Pattern | Dove | Scopo |
-|---------|------|-------|
-| **Facade** | `GameModel`, `SessionPersistenceFacade` | API stabile per la UI |
-| **Controller** | `BattleController`, `HubController`, `OverworldController` | Controller sottili; stato e comandi verso `GameModel` |
-| **Builder** | `*Builder` nel dominio | Costruzione validata di aggregati |
-| **Strategy** | `BossMoveStrategy`, `CombatEngine` | Algoritmi intercambiabili |
-| **Template Method** | `AbstractDomainValidator`, `AbstractHibernateAdapter` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio nelle sottoclassi |
-| **Repository** | `GameStateRepository` | Astrazione persistenza stato dinamico |
-| **Composition root** | `AppModule` | Unico punto di creazione dipendenze |
-| **Sealed interface** | `BattleEvent` | Eventi di battaglia esaustivi per il translator UI |
+| Pattern | Package | Scopo |
+|---------|---------|-------|
+| **Facade** | `model.service` (`GameModel`, `SessionPersistenceFacade`) | API stabile per la UI |
+| **Controller** | `controller` | Controller sottili; stato e comandi verso `GameModel` |
+| **Builder** | `model.builder` | Costruzione validata di aggregati |
+| **Strategy** | `model.combat.strategy`, `model.overworld.strategy` | Algoritmi intercambiabili; impl in `*.strategy.impl` |
+| **Template Method** | `model.validation`, `model.persistence` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio nelle sottoclassi |
+| **Repository** | `model.persistence` (`GameStateRepository`) | Astrazione persistenza stato dinamico |
+| **Composition root** | `app` (`AppModule`) | Unico punto di creazione dipendenze |
+| **Sealed interface** | `model.event` (`BattleEvent`) | Eventi di battaglia esaustivi per il translator UI |
 
-Gerarchia tipica dove serve estensione: **interfaccia di dominio** → **classe astratta** (model.persistence o validator) → **implementazione concreta**. Le porte restano nel dominio; le classi astratte stanno in `validation` o in `model.persistence`.
+Gerarchia tipica dove serve estensione: **interfaccia** (in `model.persistence` o `*.strategy`) → **classe astratta** (model.persistence o validator) → **implementazione concreta** (in `model.persistence` o `*.strategy.impl`). Le porte restano in `model.persistence`; le classi astratte stanno in `validation` o in `model.persistence`.
 
 ---
 

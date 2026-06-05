@@ -80,8 +80,7 @@ public final class HubController implements Initializable {
     var holder = presenter.state().player().holder();
     for (int index = 0; index < holder.creatures().size(); index++) {
       var creature = holder.creatures().get(index);
-      TeamRowViewModel row =
-          presenter.teamRow(creature, holder.isActive(creature), spendable);
+      TeamRowViewModel row = presenter.teamRow(creature, holder.isActive(creature), spendable);
       CreatureCard card = CreatureCard.builder(creature).active(row.active()).build();
       wireCreatureCardSelection(card, row);
       GameButton healButton = buildHealButton(row);
@@ -95,10 +94,11 @@ public final class HubController implements Initializable {
     }
     card.setCursor(Cursor.HAND);
     Tooltip.install(card, new Tooltip(Messages.get("hub.team.select.tooltip")));
-    card.setOnMouseClicked(event -> {
-      presenter.selectCreature(row.catalogId());
-      refreshTeamAndSubtitle();
-    });
+    card.setOnMouseClicked(
+        event -> {
+          presenter.selectCreature(row.catalogId());
+          refreshTeamAndSubtitle();
+        });
   }
 
   private GameButton buildHealButton(TeamRowViewModel row) {

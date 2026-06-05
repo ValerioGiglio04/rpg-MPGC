@@ -1,9 +1,9 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
-import it.unicam.cs.mpgc.rpg125664.model.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;
@@ -101,32 +101,33 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
       OverworldPosition position =
           command
               .overworldPosition()
-              .orElseThrow(() -> new IllegalStateException("Save command missing overworld position"));
+              .orElseThrow(
+                  () -> new IllegalStateException("Save command missing overworld position"));
       json = serializer.toJson(command.state(), position);
     } catch (IOException ex) {
       throw wrapIo("Cannot serialize session", ex);
     }
     try {
       return inTransactionThrowing(
-        em -> {
-          SessioneSalvataEntity row;
-          if (command.sessionId().isPresent()) {
-            long id = command.sessionId().orElseThrow();
-            row = requireLocalSession(em, id);
-            row.setDatiSalvatiJson(json);
-            row.setDataSalvataggio(now);
-            command.name().ifPresent(row::setNome);
-            clearUltimaGiocata(em);
-            row.setUltimaGiocata(true);
-          } else {
-            String nome = command.name().filter(n -> !n.isBlank()).orElse(defaultName(now));
-            row = SessioneSalvataEntity.newRow(nome, now, json, CatalogIds.GIOCATORE_UMANO, true);
-            clearUltimaGiocata(em);
-            em.persist(row);
-          }
-          em.flush();
-          return row.getIdSessione();
-        });
+          em -> {
+            SessioneSalvataEntity row;
+            if (command.sessionId().isPresent()) {
+              long id = command.sessionId().orElseThrow();
+              row = requireLocalSession(em, id);
+              row.setDatiSalvatiJson(json);
+              row.setDataSalvataggio(now);
+              command.name().ifPresent(row::setNome);
+              clearUltimaGiocata(em);
+              row.setUltimaGiocata(true);
+            } else {
+              String nome = command.name().filter(n -> !n.isBlank()).orElse(defaultName(now));
+              row = SessioneSalvataEntity.newRow(nome, now, json, CatalogIds.GIOCATORE_UMANO, true);
+              clearUltimaGiocata(em);
+              em.persist(row);
+            }
+            em.flush();
+            return row.getIdSessione();
+          });
     } catch (IOException ex) {
       throw wrapIo("Cannot save session", ex);
     }
@@ -136,13 +137,13 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
   public LoadedSession load(long sessionId) {
     try {
       return withEntityManagerThrowing(
-        em -> {
-          SessioneSalvataEntity row = requireLocalSession(em, sessionId);
-          GameState state = serializer.toGameState(row.getDatiSalvatiJson());
-          Optional<OverworldPosition> position =
-              serializer.overworldPositionFromJson(row.getDatiSalvatiJson());
-          return new LoadedSession(state, position);
-        });
+          em -> {
+            SessioneSalvataEntity row = requireLocalSession(em, sessionId);
+            GameState state = serializer.toGameState(row.getDatiSalvatiJson());
+            Optional<OverworldPosition> position =
+                serializer.overworldPositionFromJson(row.getDatiSalvatiJson());
+            return new LoadedSession(state, position);
+          });
     } catch (IOException ex) {
       throw wrapIo("Cannot load session " + sessionId, ex);
     }
@@ -152,11 +153,11 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
   public void delete(long sessionId) {
     try {
       inTransactionThrowing(
-        em -> {
-          SessioneSalvataEntity row = requireLocalSession(em, sessionId);
-          em.remove(row);
-          return null;
-        });
+          em -> {
+            SessioneSalvataEntity row = requireLocalSession(em, sessionId);
+            em.remove(row);
+            return null;
+          });
     } catch (IOException ex) {
       throw wrapIo("Cannot delete session " + sessionId, ex);
     }
@@ -201,8 +202,7 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
 
   private static void clearUltimaGiocata(EntityManager em) {
     em.createQuery(
-            "update SessioneSalvataEntity s set s.ultimaGiocata = false where "
-                + LOCAL_SAVE_FILTER)
+            "update SessioneSalvataEntity s set s.ultimaGiocata = false where " + LOCAL_SAVE_FILTER)
         .executeUpdate();
   }
 

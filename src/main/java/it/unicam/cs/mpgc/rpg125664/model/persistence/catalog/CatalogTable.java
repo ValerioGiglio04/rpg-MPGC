@@ -32,7 +32,8 @@ public final class CatalogTable<T> {
   }
 
   public long count(EntityManager em) {
-    return em.createQuery("select count(e) from " + entityName + " e", Long.class).getSingleResult();
+    return em.createQuery("select count(e) from " + entityName + " e", Long.class)
+        .getSingleResult();
   }
 
   public int expectedRows(CatalogSeedBundle seed) {
@@ -46,7 +47,8 @@ public final class CatalogTable<T> {
     }
     for (int i = 0; i < rows.size(); i++) {
       em.persist(rows.get(i));
-      if ((i + 1) % INSERT_BATCH_SIZE == 0) {
+      boolean isEndOfBatch = (i + 1) % INSERT_BATCH_SIZE == 0;
+      if (isEndOfBatch) {
         em.flush();
         em.clear();
       }

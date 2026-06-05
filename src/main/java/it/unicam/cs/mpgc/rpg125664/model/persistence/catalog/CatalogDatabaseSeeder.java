@@ -79,8 +79,8 @@ public final class CatalogDatabaseSeeder {
     if (!existsHumanPlayer(em)) {
       return false;
     }
-    boolean someTableHasMoreRowsThanExpected = CATALOG_TABLES.stream()
-        .anyMatch(table -> table.count(em) != table.expectedRows(seed));
+    boolean someTableHasMoreRowsThanExpected =
+        CATALOG_TABLES.stream().anyMatch(table -> table.count(em) != table.expectedRows(seed));
     return !someTableHasMoreRowsThanExpected;
   }
 

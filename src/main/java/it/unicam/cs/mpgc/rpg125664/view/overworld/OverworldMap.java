@@ -1,12 +1,12 @@
 package it.unicam.cs.mpgc.rpg125664.view.overworld;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.GymStatus;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
-import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
+import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -111,8 +111,7 @@ public final class OverworldMap extends StackPane {
   }
 
   private void completeInitialPopulation() {
-    gymsByCell.putAll(
-        OverworldLayoutSupport.assignGymsDeterministic(presenter.gameState().gyms()));
+    gymsByCell.putAll(OverworldLayoutSupport.assignGymsDeterministic(presenter.gameState().gyms()));
     decorByCell.putAll(OverworldLayoutSupport.assignDecorDeterministic(gymsByCell, blockedTiles));
     initializePlayerPosition();
     redrawMap();
