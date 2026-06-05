@@ -4,7 +4,6 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymBoss;
 import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
-import it.unicam.cs.mpgc.rpg125664.model.validation.Validators;
 
 /**
  * Valida un {@link GymBoss}: nome, holder e reward. Si ottiene tramite {@link
