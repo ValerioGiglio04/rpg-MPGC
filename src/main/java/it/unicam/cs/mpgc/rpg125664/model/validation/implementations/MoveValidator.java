@@ -1,6 +1,9 @@
-package it.unicam.cs.mpgc.rpg125664.model.validation;
+package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
+import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.MoveRules;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 
 /**
  * Valida una {@link Move}: nome, potenza, limiti di accuracy, descrizione. Si ottiene tramite

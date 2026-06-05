@@ -1,8 +1,10 @@
-package it.unicam.cs.mpgc.rpg125664.model.validation;
+package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
+import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 
 /**
  * Valida un {@link Player}: nome, holder, score e skin path. Si ottiene tramite {@link

@@ -20,13 +20,15 @@ it.unicam.cs.mpgc.rpg125664
 ├── model.service/                      BattleService, NewGameService, HealingService, …
 ├── model.service/              GameModel, SessionPersistenceFacade (Facade), GameStateHolder
 ├── model.overworld/
-│   ├── strategy/ + strategy.impl/    GymStatusStrategy, DefaultGymStatusStrategy
+│   ├── strategy/ + strategy.implementations/    GymStatusStrategy, DefaultGymStatusStrategy
 │   └── GymStatus, layout mappa
 ├── model.persistence/                      GameStateRepository, GameCatalogLoader
-├── model.entity|catalog|event|validation|builder/
+├── model.entity|catalog|event|builder/
+├── model.validation/                  Validator, AbstractDomainValidator, Rules, MoveRules
+│   └── implementations/              Validators, CreatureValidator, MoveValidator, …
 ├── model.combat/
 │   ├── strategy/                     AttackResolutionStrategy, BossMoveStrategy
-│   └── strategy.impl/                TurnBased*, AccuracyThreshold*
+│   └── strategy.implementations/                TurnBased*, AccuracyThreshold*
 ├── model.persistence.catalog/
 │   ├── entities/ dto/ mapper/ seed/ support/
 │   └── HibernateGameCatalogLoader
@@ -40,7 +42,7 @@ it.unicam.cs.mpgc.rpg125664
     ├── controller/ controller/
     ├── component/ (+ component.builder/)
     ├── overworld/
-    └── theme/ + theme.impl/
+    └── theme/ + theme.implementations/
 ```
 
 | Cerchi… | Package / ruolo |
@@ -50,14 +52,15 @@ it.unicam.cs.mpgc.rpg125664
 | DTO / seed JSON catalogo | `model.persistence.catalog.dto` |
 | Mapper / seed catalogo | `catalog.mapper`, `catalog.seed`, `catalog.support` |
 | Entity + DTO + mapper sessione | `session.entities`, `session.dto`, `session.mapper`, `session.serializer` |
-| Strategy combattimento | `model.combat.strategy` / `.impl` |
-| Strategy mappa | `model.overworld.strategy` / `.impl` |
+| Validazione dominio | `model.validation` (contratto) → `validation.implementations` (`Validators`, `*Validator`) |
+| Strategy combattimento | `model.combat.strategy` / `.implementations` |
+| Strategy mappa | `model.overworld.strategy` / `.implementations` |
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) |
 | Shell e routing UI | `controller.navigation` |
 | Callback schermata | `controller.navigation` |
 | Controller MVP | `controller` + `controller` |
 | Builder widget UI | `view.component.builder` |
-| Tema UI | `view.theme` / `theme.impl` |
+| Tema UI | `view.theme` / `theme.implementations` |
 
 ---
 

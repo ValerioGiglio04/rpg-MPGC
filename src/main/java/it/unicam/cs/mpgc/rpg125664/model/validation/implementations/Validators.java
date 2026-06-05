@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.validation;
+package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
@@ -8,6 +8,8 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
+import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
 /**
  * Factory + registry per i validators del dominio. Tiene un'istanza in cache per ogni tipo e li

@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.MoveBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.MoveValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.MoveValidator;
 import java.io.Serializable;
 
 public record Move(String name, int power, int accuracy, String description)

@@ -62,7 +62,7 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
 - **Precondizione:** `GameState.canChallengeGym(gym)` (non completata, raggiungibile, punti sufficienti).
 - **Inizio battaglia** (`BattleService.begin`): cura completa di team giocatore e boss per un nuovo tentativo; selezione prima creatura disponibile per entrambi i lati.
 - **Turno:** il giocatore sceglie una mossa; l'ordine di esecuzione nel round dipende dalla **velocità** delle creature attive.
-- **Strategy:** `TurnBasedAttackResolutionStrategy` (`model.combat.strategy.impl`) risolve colpo/danno/miss; `AccuracyThresholdBossMoveStrategy` sceglie la mossa del boss. Contratti in `model.combat.strategy`.
+- **Strategy:** `TurnBasedAttackResolutionStrategy` (`model.combat.strategy.implementations`) risolve colpo/danno/miss; `AccuracyThresholdBossMoveStrategy` sceglie la mossa del boss. Contratti in `model.combat.strategy`.
 - **Switch:** cambio creatura attiva nel team del giocatore durante la battaglia.
 - **Eventi:** lista di `BattleEvent` (colpo, miss, KO, switch, sconfitta boss, acquisizione creature, wipe del team) tradotti in italiano per il log di battaglia.
 - **Fine palestra:** quando tutte le creature del boss sono KO, `GymCompletionHandler` marca la palestra completata, assegna gloria e aggiunge le creature del boss al party.

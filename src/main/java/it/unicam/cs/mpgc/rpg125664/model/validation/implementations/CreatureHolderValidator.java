@@ -1,7 +1,9 @@
-package it.unicam.cs.mpgc.rpg125664.model.validation;
+package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
+import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import java.util.List;
 
 /**
@@ -9,8 +11,6 @@ import java.util.List;
  * creatura del team. Si ottiene tramite {@link Validators#getCreatureHolderValidator()}.
  */
 public final class CreatureHolderValidator extends AbstractDomainValidator<CreatureHolder> {
-
-  CreatureHolderValidator() {}
 
   @Override
   protected String nullMessage() {

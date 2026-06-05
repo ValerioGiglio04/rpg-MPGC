@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.view.theme.impl;
+package it.unicam.cs.mpgc.rpg125664.view.theme;
 
 import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
 import javafx.scene.Parent;

@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.impl;
+package it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;

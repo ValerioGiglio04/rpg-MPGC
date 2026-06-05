@@ -1,8 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.ScoreBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.ScoreValidator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.Validators;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ScoreValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
 import java.io.Serializable;
 
 public final class Score implements Serializable {

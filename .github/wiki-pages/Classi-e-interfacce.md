@@ -67,7 +67,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | I | `AttackResolutionStrategy` | Strategy: esegue un attacco e restituisce `AttackOutcome` |
 | I | `BossMoveStrategy` | Contratto: sceglie la mossa del boss |
 
-### Implementazioni Strategy (`model.combat.strategy.impl`)
+### Implementazioni Strategy (`model.combat.strategy.implementations`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
@@ -107,12 +107,20 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 ## Layer `model.validation` — Validazione
 
+### Contratti e regole (`model.validation`)
+
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | I | `Validator<T>` | Contratto validazione generica |
 | AC | `AbstractDomainValidator<T>` | Template Method: null-check + `validateRules` nelle sottoclassi |
+| C | `Rules` | Regole condivise (`requireText`, `requirePositive`, …) |
+| C | `MoveRules` | Costanti accuratezza/potenza mosse |
+
+### Implementazioni (`model.validation.implementations`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `Validators` | Factory/registry dei validator di dominio |
-| C | `Rules` | Regole condivise (package-private) |
 | C | `CreatureValidator` | Invarianti su `Creature` |
 | C | `CreatureHolderValidator` | Invarianti su team |
 | C | `GameStateValidator` | Invarianti su stato mondo |
@@ -121,7 +129,6 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | C | `MoveValidator` | Invarianti su mossa |
 | C | `PlayerValidator` | Invarianti su giocatore |
 | C | `ScoreValidator` | Invarianti su punteggio |
-| C | `MoveRules` | Costanti accuratezza/potenza mosse |
 
 ---
 
@@ -166,7 +173,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 |------|------|----------------|
 | I | `GymStatusStrategy` | Strategy: calcolo `GymStatus` da `GameState` e `GymRoom` |
 
-#### Implementazioni (`model.overworld.strategy.impl`)
+#### Implementazioni (`model.overworld.strategy.implementations`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
@@ -350,7 +357,7 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 |------|------|----------------|
 | I | `UiTheme` | Contratto colori/stili hub |
 
-### Implementazioni tema (`view.theme.impl`)
+### Implementazioni tema (`view.theme`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
@@ -367,9 +374,9 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | `AttackResolutionStrategy` | model.combat.strategy | — | `TurnBasedAttackResolutionStrategy` |
 | `BossMoveStrategy` | model.combat.strategy | — | `AccuracyThresholdBossMoveStrategy` |
 | `GymStatusStrategy` | model.overworld.strategy | — | `DefaultGymStatusStrategy` |
-| `Validator<T>` | model.validation | `AbstractDomainValidator<T>` | `*Validator` concreti |
+| `Validator<T>` | model.validation | `AbstractDomainValidator<T>` | `*Validator` in `model.validation.implementations` |
 | `BattleEvent` | model.event | Record sealed annidati |
-| `UiTheme` | view.theme | `DuelUiTheme` (`view.theme.impl`); stili hub inline |
+| `UiTheme` | view.theme | `DuelUiTheme` (`view.theme`); stili hub inline |
 | `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | Implementate da `ScreenNavigator` (`controller.navigation`) |
 
 ---

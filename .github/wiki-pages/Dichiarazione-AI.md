@@ -37,7 +37,7 @@ Qui descrivo **solo** i punti in cui ho usato ChatGPT, Claude, Gemini o Copilot:
 
 **Strumenti:** ChatGPT, Claude, GitHub Copilot
 
-- Spiegazione del pattern Builder e del framework `Validator` / `Validators`.
+- Spiegazione del pattern Builder e del framework `Validator` (`model.validation`) / `Validators` (`validation.implementations`).
 - Bozze di metodi ripetitivi (getter, costruttori).
 - Spiegazione della sintassi delle sealed interface per `BattleEvent`.
 

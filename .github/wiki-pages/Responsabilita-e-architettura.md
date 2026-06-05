@@ -56,7 +56,7 @@ flowchart TB
     BRE[BattleRoundExecutor]
     Ports[model.persistence]
     Strat[combat.strategy]
-    Valid[validation e builder]
+    Valid[validation + implementations, builder]
   end
   subgraph infrastructure [Infrastruttura]
     subgraph catalog_model.persistence [catalog]
@@ -111,7 +111,7 @@ flowchart TB
 |------------|---------|
 | `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusStrategy` |
 | `SessionPersistenceFacade` | Save/load/delete/list slot; incapsula `GameStateRepository` |
-| `DefaultGymStatusStrategy` | Implementazione default di `GymStatusStrategy` (`model.overworld.strategy.impl`) |
+| `DefaultGymStatusStrategy` | Implementazione default di `GymStatusStrategy` (`model.overworld.strategy.implementations`) |
 | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
 | `BattleService` | Precondizioni battaglia, delega round a `BattleRoundExecutor`, completamento palestra |
 | `BattleRoundExecutor` | Un round: ordine turni, doppio attacco, switch su KO, assembly `BattleEvent` |
@@ -121,7 +121,7 @@ flowchart TB
 | `OverworldSpawnPosition` | Posizione di default al primo salvataggio (senza dipendere dalla UI) |
 | `GameState` | Invarianti di mondo: palestra corrente, raggiungibilità, possibilità di sfida |
 | `GameCatalog` | Lookup dati statici; istanze di dominio **mutabili** separate dal catalogo |
-| `TurnBasedAttackResolutionStrategy` | Risoluzione matematica di un singolo attacco (`model.combat.strategy.impl`) |
+| `TurnBasedAttackResolutionStrategy` | Risoluzione matematica di un singolo attacco (`model.combat.strategy.implementations`) |
 | `BossMoveStrategy` | Scelta mossa del boss (`model.combat.strategy`; impl: soglia accuratezza) |
 | `*Controller` (UI) | Stato schermata + comandi verso `GameModel`; controller FXML sottili |
 
@@ -138,7 +138,7 @@ flowchart TB
 - `SessionPersistenceFacade` gestisce solo persistenza slot; `DefaultGymStatusStrategy` solo stato palestre sulla mappa.
 - `CatalogEntityMapper` mappa solo entità JPA → template di dominio.
 - I controller UI separano binding FXML da logica di schermata.
-- I validator (`CreatureValidator`, `GameStateValidator`, …) validano un solo aggregato ciascuno.
+- I validator (`model.validation.implementations`: `CreatureValidator`, `GameStateValidator`, …) validano un solo aggregato ciascuno.
 
 ### Open/Closed (OCP)
 
@@ -146,7 +146,7 @@ flowchart TB
 - Nuova strategy di risoluzione attacco: nuova implementazione di `AttackResolutionStrategy`.
 - Nuova policy overworld: nuova implementazione di `GymStatusStrategy`.
 - Nuovo backend di salvataggio: nuova implementazione di `GameStateRepository`.
-- Nuovo validator di dominio: sottoclasse di `AbstractDomainValidator` registrata in `Validators`, senza cambiare il contratto `Validator<T>`.
+- Nuovo validator di dominio: sottoclasse di `AbstractDomainValidator` in `validation.implementations`, registrata in `Validators`, senza cambiare il contratto `Validator<T>`.
 - Nuovo model.persistence Hibernate: sottoclasse di `AbstractHibernateAdapter` che implementa una porta di dominio.
 
 ### Liskov Substitution (LSP)
@@ -170,10 +170,10 @@ flowchart TB
 | Cerchi… | Contratto (tipo) | Implementazione |
 |---------|------------------|-----------------|
 | Porta persistenza | `model.persistence` | `model.persistence.session` / `.catalog` |
-| Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.impl` |
-| Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.impl` |
+| Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.implementations` |
+| Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.implementations` |
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
-| Tema UI | `view.theme` (`UiTheme`) | `view.theme.impl` |
+| Tema UI | `view.theme` (`UiTheme`) | `view.theme` |
 | Controller MVP | `controller` | controller in `controller` |
 | Entity JPA catalogo | — | `model.persistence.catalog.entities` |
 | DTO / seed catalogo | `model.persistence.catalog.dto` | — |
@@ -182,6 +182,7 @@ flowchart TB
 | Shell e routing UI | — | `controller.navigation` |
 | Callback schermata | `controller.navigation` | implementate da `ScreenNavigator` |
 | Builder widget UI | — | `view.component.builder` |
+| Validazione dominio | `model.validation` (`Validator`, `AbstractDomainValidator`, `Rules`) | `model.validation.implementations` (`Validators`, `*Validator`) |
 
 ---
 
@@ -192,13 +193,13 @@ flowchart TB
 | **Facade** | `model.service` (`GameModel`, `SessionPersistenceFacade`) | API stabile per la UI |
 | **Controller** | `controller` | Controller sottili; stato e comandi verso `GameModel` |
 | **Builder** | `model.builder` | Costruzione validata di aggregati |
-| **Strategy** | `model.combat.strategy`, `model.overworld.strategy` | Algoritmi intercambiabili; impl in `*.strategy.impl` |
-| **Template Method** | `model.validation`, `model.persistence` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio nelle sottoclassi |
+| **Strategy** | `model.combat.strategy`, `model.overworld.strategy` | Algoritmi intercambiabili; implementazioni in `*.strategy.implementations` |
+| **Template Method** | `model.validation` + `.implementations`, `model.persistence` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio in `*Validator` / sottoclassi model.persistence |
 | **Repository** | `model.persistence` (`GameStateRepository`) | Astrazione persistenza stato dinamico |
 | **Composition root** | `app` (`AppModule`) | Unico punto di creazione dipendenze |
 | **Sealed interface** | `model.event` (`BattleEvent`) | Eventi di battaglia esaustivi per il translator UI |
 
-Gerarchia tipica dove serve estensione: **interfaccia** (in `model.persistence` o `*.strategy`) → **classe astratta** (model.persistence o validator) → **implementazione concreta** (in `model.persistence` o `*.strategy.impl`). Le porte restano in `model.persistence`; le classi astratte stanno in `validation` o in `model.persistence`.
+Gerarchia tipica dove serve estensione: **interfaccia** (in `model.persistence`, `*.strategy` o `model.validation`) → **classe astratta** (model.persistence o `AbstractDomainValidator`) → **implementazione concreta** (in `model.persistence`, `*.strategy.implementations` o `validation.implementations`). Le porte restano in `model.persistence`; i validator concreti in `validation.implementations`.
 
 ---
 

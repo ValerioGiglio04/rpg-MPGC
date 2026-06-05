@@ -1,6 +1,8 @@
-package it.unicam.cs.mpgc.rpg125664.model.validation;
+package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
+import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 
 /**
  * Valida uno {@link Score}: totale punti non negativo. Si ottiene tramite {@link

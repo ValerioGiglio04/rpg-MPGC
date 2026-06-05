@@ -75,8 +75,8 @@ Wiring in `AppModule`:
 ```java
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl.AccuracyThresholdBossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.impl.TurnBasedAttackResolutionStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.implementations.AccuracyThresholdBossMoveStrategy;
+import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.implementations.TurnBasedAttackResolutionStrategy;
 
 AttackResolutionStrategy attackResolution = new TurnBasedAttackResolutionStrategy();
 BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
@@ -84,7 +84,7 @@ BattleRoundExecutor roundExecutor = new BattleRoundExecutor(attackResolution, bo
 // Sostituibili con altre implementazioni senza toccare BattleService
 ```
 
-Nuova policy overworld: implementare `GymStatusStrategy` in `model.overworld.strategy.impl` e registrarla in `AppModule`.
+Nuova policy overworld: implementare `GymStatusStrategy` in `model.overworld.strategy.implementations` e registrarla in `AppModule`.
 
 ---
 
@@ -160,9 +160,9 @@ Messages.setLocale(Locale.ENGLISH);
 
 Nuovi aggregati devono:
 
-- Passare da un `*Builder` o costruttore che invoca `Validators`
-- Rispettare `Rules` centralizzate dove applicabile
-- Per un nuovo tipo validabile: sottoclasse di `AbstractDomainValidator<T>` con `validateRules` e messaggio di null-check, poi registrazione in `Validators`
+- Passare da un `*Builder` o costruttore che invoca `Validators` (`model.validation.implementations`)
+- Rispettare `Rules` (`model.validation`) dove applicabile
+- Per un nuovo tipo validabile: sottoclasse di `AbstractDomainValidator<T>` in `validation.implementations` con `validateRules` e messaggio di null-check, poi registrazione in `Validators`
 
 Questo evita che estensioni introducano stati illegali difficili da debuggare.
 

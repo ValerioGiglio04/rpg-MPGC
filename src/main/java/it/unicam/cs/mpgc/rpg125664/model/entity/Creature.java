@@ -1,8 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.CreatureBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.CreatureValidator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.Validators;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.CreatureValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;

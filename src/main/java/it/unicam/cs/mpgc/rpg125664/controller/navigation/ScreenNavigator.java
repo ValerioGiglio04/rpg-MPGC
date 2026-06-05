@@ -17,7 +17,7 @@ import it.unicam.cs.mpgc.rpg125664.controller.VictoryController;
 import it.unicam.cs.mpgc.rpg125664.controller.LoadGamePresenter;
 import it.unicam.cs.mpgc.rpg125664.controller.VictoryPresenter;
 import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
-import it.unicam.cs.mpgc.rpg125664.view.theme.impl.DuelUiTheme;
+import it.unicam.cs.mpgc.rpg125664.view.theme.DuelUiTheme;
 import java.util.Objects;
 import java.util.Optional;
 import javafx.application.Platform;
