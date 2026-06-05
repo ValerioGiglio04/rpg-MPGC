@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * {@link CombatEngine} di default: risolve un singolo attacco contro il difensore. Danno =
  * attaccante.attack + mossa.power - difensore.defense, con minimo a 1. La hit chance e' tirata su
- * 100. Il {@link Random} e' iniettato cosi' i test possono passargliene uno seeded.
+ * 100. Il {@link Random} e' iniettato per controllare la casualita' dei tiri (es. seed fisso).
  */
 public final class TurnBasedCombatEngine implements CombatEngine {
 

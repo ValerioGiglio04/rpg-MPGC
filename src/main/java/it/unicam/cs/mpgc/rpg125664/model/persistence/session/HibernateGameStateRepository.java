@@ -8,6 +8,7 @@ import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
+import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
@@ -24,6 +25,8 @@ import java.util.Optional;
 /** Persiste piu' partite in {@code sessioni_salvate.dati_salvati_json} su H2. */
 public final class HibernateGameStateRepository extends AbstractHibernateAdapter
     implements GameStateRepository {
+
+  private static final String LOCAL_SAVE_FILTER = "s.idUtente is null";
 
   private static final DateTimeFormatter DEFAULT_NAME_TIME =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").withLocale(Locale.ITALY);
@@ -48,11 +51,9 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
           em -> {
             TypedQuery<SessioneSalvataEntity> query =
                 em.createQuery(
-                    """
-                    select s from SessioneSalvataEntity s
-                    where s.idUtente is null
-                    order by s.dataSalvataggio desc
-                    """,
+                    "select s from SessioneSalvataEntity s where "
+                        + LOCAL_SAVE_FILTER
+                        + " order by s.dataSalvataggio desc",
                     SessioneSalvataEntity.class);
             List<SessioneSalvataEntity> rows = query.getResultList();
             List<SavedSessionSummary> summaries = new ArrayList<>(rows.size());
@@ -62,7 +63,7 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
             return summaries;
           });
     } catch (IOException ex) {
-      throw new IllegalStateException("Cannot read saved session summaries", ex);
+      throw wrapIo("Cannot read saved session summaries", ex);
     }
   }
 
@@ -72,10 +73,9 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
         em -> {
           TypedQuery<Long> query =
               em.createQuery(
-                  """
-                  select s.idSessione from SessioneSalvataEntity s
-                  where s.idUtente is null and s.ultimaGiocata = true
-                  """,
+                  "select s.idSessione from SessioneSalvataEntity s where "
+                      + LOCAL_SAVE_FILTER
+                      + " and s.ultimaGiocata = true",
                   Long.class);
           List<Long> ids = query.getResultList();
           if (!ids.isEmpty()) {
@@ -83,11 +83,9 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
           }
           TypedQuery<Long> fallback =
               em.createQuery(
-                  """
-                  select s.idSessione from SessioneSalvataEntity s
-                  where s.idUtente is null
-                  order by s.dataSalvataggio desc
-                  """,
+                  "select s.idSessione from SessioneSalvataEntity s where "
+                      + LOCAL_SAVE_FILTER
+                      + " order by s.dataSalvataggio desc",
                   Long.class);
           fallback.setMaxResults(1);
           List<Long> latest = fallback.getResultList();
@@ -96,18 +94,25 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
   }
 
   @Override
-  public long save(SaveSessionCommand command) throws IOException {
+  public long save(SaveSessionCommand command) {
     Instant now = Instant.now();
-    String json = serializer.toJson(command.state(), command.overworldPosition());
-    return inTransactionThrowing(
+    String json;
+    try {
+      OverworldPosition position =
+          command
+              .overworldPosition()
+              .orElseThrow(() -> new IllegalStateException("Save command missing overworld position"));
+      json = serializer.toJson(command.state(), position);
+    } catch (IOException ex) {
+      throw wrapIo("Cannot serialize session", ex);
+    }
+    try {
+      return inTransactionThrowing(
         em -> {
           SessioneSalvataEntity row;
           if (command.sessionId().isPresent()) {
             long id = command.sessionId().orElseThrow();
-            row = em.find(SessioneSalvataEntity.class, id);
-            if (row == null || row.getIdUtente() != null) {
-              throw new IOException("Saved session not found: " + id);
-            }
+            row = requireLocalSession(em, id);
             row.setDatiSalvatiJson(json);
             row.setDataSalvataggio(now);
             command.name().ifPresent(row::setNome);
@@ -122,34 +127,39 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
           em.flush();
           return row.getIdSessione();
         });
+    } catch (IOException ex) {
+      throw wrapIo("Cannot save session", ex);
+    }
   }
 
   @Override
-  public LoadedSession load(long sessionId) throws IOException {
-    return withEntityManagerThrowing(
+  public LoadedSession load(long sessionId) {
+    try {
+      return withEntityManagerThrowing(
         em -> {
-          SessioneSalvataEntity row = em.find(SessioneSalvataEntity.class, sessionId);
-          if (row == null || row.getIdUtente() != null) {
-            throw new IOException("Saved session not found: " + sessionId);
-          }
+          SessioneSalvataEntity row = requireLocalSession(em, sessionId);
           GameState state = serializer.toGameState(row.getDatiSalvatiJson());
           Optional<OverworldPosition> position =
               serializer.overworldPositionFromJson(row.getDatiSalvatiJson());
           return new LoadedSession(state, position);
         });
+    } catch (IOException ex) {
+      throw wrapIo("Cannot load session " + sessionId, ex);
+    }
   }
 
   @Override
-  public void delete(long sessionId) throws IOException {
-    inTransactionThrowing(
+  public void delete(long sessionId) {
+    try {
+      inTransactionThrowing(
         em -> {
-          SessioneSalvataEntity row = em.find(SessioneSalvataEntity.class, sessionId);
-          if (row == null || row.getIdUtente() != null) {
-            throw new IOException("Saved session not found: " + sessionId);
-          }
+          SessioneSalvataEntity row = requireLocalSession(em, sessionId);
           em.remove(row);
           return null;
         });
+    } catch (IOException ex) {
+      throw wrapIo("Cannot delete session " + sessionId, ex);
+    }
   }
 
   @Override
@@ -165,8 +175,13 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
         });
   }
 
-  SessionJsonSerializer serializer() {
-    return serializer;
+  private static SessioneSalvataEntity requireLocalSession(EntityManager em, long sessionId)
+      throws IOException {
+    SessioneSalvataEntity row = em.find(SessioneSalvataEntity.class, sessionId);
+    if (row == null || row.getIdUtente() != null) {
+      throw new IOException("Saved session not found: " + sessionId);
+    }
+    return row;
   }
 
   private SavedSessionSummary toSummary(SessioneSalvataEntity row) throws IOException {
@@ -179,21 +194,23 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
     return withEntityManager(
         em ->
             em.createQuery(
-                    "select count(s) from SessioneSalvataEntity s where s.idUtente is null",
+                    "select count(s) from SessioneSalvataEntity s where " + LOCAL_SAVE_FILTER,
                     Long.class)
                 .getSingleResult());
   }
 
   private static void clearUltimaGiocata(EntityManager em) {
     em.createQuery(
-            """
-            update SessioneSalvataEntity s set s.ultimaGiocata = false
-            where s.idUtente is null
-            """)
+            "update SessioneSalvataEntity s set s.ultimaGiocata = false where "
+                + LOCAL_SAVE_FILTER)
         .executeUpdate();
   }
 
   private static String defaultName(Instant instant) {
     return "Partita " + DEFAULT_NAME_TIME.format(instant.atZone(ZoneId.systemDefault()));
+  }
+
+  private static SessionPersistenceException wrapIo(String message, IOException cause) {
+    return new SessionPersistenceException(message, cause);
   }
 }

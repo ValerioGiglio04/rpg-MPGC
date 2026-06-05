@@ -44,6 +44,17 @@ public final class CreatureHolder implements Serializable {
     activeCatalogId = catalogId;
   }
 
+  /** Se la creatura attiva e' KO, passa alla prima ancora in piedi nel team. */
+  public void switchToFirstAliveIfNeeded() {
+    if (!activeCreature().isKnockedOut()) {
+      return;
+    }
+    creatures.stream()
+        .filter(creature -> !creature.isKnockedOut())
+        .findFirst()
+        .ifPresent(creature -> switchTo(creature.catalogId()));
+  }
+
   public boolean canSwitchTo(long catalogId) {
     return CreatureHolderValidator.canSwitchTo(creatures, catalogId);
   }
@@ -77,6 +88,6 @@ public final class CreatureHolder implements Serializable {
         return creature;
       }
     }
-    return creatures.getFirst();
+    throw new IllegalStateException("Active creature not in team: catalogId=" + catalogId);
   }
 }

@@ -87,7 +87,7 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
 
 ## Catalogo e nuova partita
 
-- All'avvio, `CatalogDatabaseSeeder` popola il catalogo da `catalog-seed.json` se il database è vuoto (operazione **idempotente**).
+- All'avvio `CatalogDatabaseSeeder` allinea il catalogo H2 a `catalog-seed.json` quando serve; se il DB è già completo non fa nulla.
 - `NewGameService` costruisce il primo `GameState` a partire da `GameCatalog` e `NewGameSettings`.
 
 ---

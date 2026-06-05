@@ -1,6 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.app;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.CatalogDatabaseSeeder;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.CatalogSeedBundle;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.CatalogSeedJsonLoader;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.HibernateGameCatalogLoader;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.HibernateGameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.SessioneJsonMapper;
@@ -8,8 +10,10 @@ import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
 import it.unicam.cs.mpgc.rpg125664.model.service.GymCompletionHandler;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
 import it.unicam.cs.mpgc.rpg125664.model.service.NewGameService;
+import it.unicam.cs.mpgc.rpg125664.model.service.GymStatusResolver;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
+import it.unicam.cs.mpgc.rpg125664.model.service.SessionPersistenceFacade;
 import it.unicam.cs.mpgc.rpg125664.model.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 import it.unicam.cs.mpgc.rpg125664.model.combat.AccuracyThresholdBossMoveStrategy;
@@ -20,7 +24,6 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -36,12 +39,20 @@ public final class AppModule implements AutoCloseable {
   private final GameStateRepository repository;
   private final GameModel gameModel;
 
-  public static AppModule bootstrap() throws IOException {
+  public static AppModule create(
+      EntityManagerFactory entityManagerFactory,
+      GameCatalog catalog,
+      SessioneJsonMapper sessionMapper) {
+    return new AppModule(entityManagerFactory, catalog, sessionMapper);
+  }
+
+  public static AppModule bootstrap() {
+    CatalogSeedBundle seed = CatalogSeedJsonLoader.load();
     EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
     EntityManager em = emf.createEntityManager();
     try {
       em.getTransaction().begin();
-      CatalogDatabaseSeeder.ensureCatalogPresent(em);
+      CatalogDatabaseSeeder.ensureCatalogPresent(em, seed);
       em.getTransaction().commit();
     } catch (RuntimeException ex) {
       if (em.getTransaction().isActive()) {
@@ -54,7 +65,8 @@ public final class AppModule implements AutoCloseable {
         em.close();
       }
     }
-    GameCatalog catalog = new HibernateGameCatalogLoader(emf).load();
+    GameCatalog catalog =
+        new HibernateGameCatalogLoader(emf, seed.newGameSettings()).load();
     SessioneJsonMapper sessionMapper = new SessioneJsonMapper(catalog);
     return new AppModule(emf, catalog, sessionMapper);
   }
@@ -74,12 +86,15 @@ public final class AppModule implements AutoCloseable {
     NewGameService newGame = new NewGameService(holder, catalog);
     CombatEngine combatEngine = new TurnBasedCombatEngine();
     BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
-    GymCompletionHandler gymCompletionHandler = new GymCompletionHandler();
+    GymCompletionHandler gymCompletionHandler = new GymCompletionHandler(catalog);
     BattleService battle =
         new BattleService(holder, combatEngine, bossMoveStrategy, gymCompletionHandler);
     HealingService healing = new HealingService();
+    SessionPersistenceFacade persistence = new SessionPersistenceFacade(repository);
+    GymStatusResolver gymStatusResolver = new GymStatusResolver();
 
-    this.gameModel = new GameModel(holder, newGame, battle, healing, repository);
+    this.gameModel =
+        new GameModel(holder, newGame, battle, healing, persistence, gymStatusResolver);
   }
 
   public GameModel gameModel() {

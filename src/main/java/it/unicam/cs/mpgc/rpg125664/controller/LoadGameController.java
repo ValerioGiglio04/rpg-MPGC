@@ -1,13 +1,9 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.LoadGameActions;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.controller.LoadGamePresenter;
 import java.net.URL;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -19,10 +15,7 @@ import javafx.util.Callback;
 
 public final class LoadGameController implements Initializable {
 
-  private static final DateTimeFormatter SAVED_AT_FORMAT =
-      DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").withLocale(Locale.ITALY);
-
-  private final GameModel gameModel;
+  private final LoadGamePresenter presenter;
   private final LoadGameActions actions;
 
   @FXML private ListView<SavedSessionSummary> savesList;
@@ -33,14 +26,14 @@ public final class LoadGameController implements Initializable {
 
   @FXML private Button backButton;
 
-  public LoadGameController(GameModel gameModel, LoadGameActions actions) {
-    this.gameModel = gameModel;
+  public LoadGameController(LoadGamePresenter presenter, LoadGameActions actions) {
+    this.presenter = presenter;
     this.actions = actions;
   }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    savesList.setItems(FXCollections.observableArrayList(gameModel.listSaves()));
+    savesList.setItems(FXCollections.observableArrayList(presenter.saves()));
     savesList.setCellFactory(summaryCellFactory());
     if (!savesList.getItems().isEmpty()) {
       savesList.getSelectionModel().selectFirst();
@@ -73,7 +66,7 @@ public final class LoadGameController implements Initializable {
     actions.onDeleteSelected(selected.id());
   }
 
-  private static Callback<ListView<SavedSessionSummary>, ListCell<SavedSessionSummary>>
+  private Callback<ListView<SavedSessionSummary>, ListCell<SavedSessionSummary>>
       summaryCellFactory() {
     return list ->
         new ListCell<>() {
@@ -84,8 +77,7 @@ public final class LoadGameController implements Initializable {
               setText(null);
               return;
             }
-            String when = SAVED_AT_FORMAT.format(item.savedAt().atZone(ZoneId.systemDefault()));
-            setText(Messages.format("load.screen.row", item.name(), when, item.gloryPoints()));
+            setText(presenter.formatSaveRow(item));
           }
         };
   }

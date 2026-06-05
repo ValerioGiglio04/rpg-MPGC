@@ -1,6 +1,6 @@
 # Responsabilità e architettura
 
-> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) · [Classi](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza)
+> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) · [Classi](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) · [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita)
 
 Il progetto segue un'**architettura MVC** (Model-View-Controller): il **dominio** è al centro e non dipende da JavaFX, Hibernate o dettagli di I/O. L'**applicazione** orchestra i casi d'uso. Gli **model.persistence** implementano le porte verso H2. La **UI** presenta i dati e inoltra le azioni dell'utente.
 
@@ -14,7 +14,7 @@ Il progetto segue un'**architettura MVC** (Model-View-Controller): il **dominio*
 | **model** | `...model` | Modello di gioco, regole, combattimento, validazione, eventi di battaglia, **porte** verso persistenza e catalogo |
 | **model.service** | `...model.service` (+ `model.service`) | Servizi di caso d'uso e `GameModel` come unico entry point per la UI |
 | **model.persistence** | `...model.persistence` | Catalogo su H2 (JPA), sessione su JSON, mapping entità/DTO ↔ dominio, seed catalogo da JSON |
-| **view** / **controller** | `...view` (+ `controller`, `component`, `overworld`, `theme`) | Schermate FXML, controller, componenti visivi, mappa overworld, temi, messaggi — **nessuna regola di business** |
+| **view** / **controller** | `...view` (+ `controller`, `controller`, `component`, `overworld`, `theme`) | Schermate FXML, controller sottili, controller (stato + comandi), componenti visivi, mappa overworld, temi, messaggi — **nessuna regola di business** |
 
 ### Regola di dipendenza
 
@@ -25,6 +25,8 @@ Le frecce vanno sempre **verso il dominio**:
 - `app` → tutti i layer (solo per composizione all'avvio)
 
 Il dominio **non importa** classi da `ui`, `model.persistence` o `model.service`.
+
+**Vietato:** `model.service` → `ui` e `model.persistence` → `ui`. Le coordinate overworld usano solo `OverworldPosition` (dominio); layout di spawn e posizione di default stanno in `model.overworld`, non nel package UI.
 
 ---
 
@@ -40,38 +42,54 @@ flowchart TB
   end
   subgraph model.service_layer [Applicazione]
     GS[GameModel]
+    SPF[SessionPersistenceFacade]
+    GSR[GymStatusResolver]
     BS[BattleService]
     NG[NewGameService]
     HS[HealingService]
     GCH[GymCompletionHandler]
     GSH[GameStateHolder]
+    OSP[OverworldSpawnPosition]
   end
   subgraph model_layer [Dominio]
     Models[model catalog combat event]
+    BRE[BattleRoundExecutor]
     Ports[GameStateRepository GameCatalogLoader]
     Valid[validation e builder]
   end
   subgraph infrastructure [Infrastruttura]
     JRepo[HibernateGameStateRepository]
     HCat[HibernateGameCatalogLoader]
+    CEM[CatalogEntityMapper]
     Seed[CatalogDatabaseSeeder]
     Mapper[SessioneJsonMapper]
   end
   subgraph bootstrap [Bootstrap]
     AM[AppModule]
   end
-  UI --> GS
+  subgraph controllers [Controller UI]
+    BP[BattleController]
+    HP[HubController]
+    OP[OverworldController]
+  end
+  UI --> controllers
+  controllers --> GS
+  GS --> SPF
+  GS --> GSR
   GS --> BS
   GS --> NG
   GS --> HS
   GS --> GSH
   GS --> Ports
-  BS --> Models
+  SPF --> Ports
+  BS --> BRE
   BS --> GCH
   NG --> Models
   HS --> Models
+  OSP --> GSH
   JRepo --> Ports
   HCat --> Ports
+  HCat --> CEM
   Mapper --> JRepo
   AM --> JRepo
   AM --> HCat
@@ -85,16 +103,21 @@ flowchart TB
 
 | Componente | Cosa fa |
 |------------|---------|
-| `GameModel` | Espone all'UI tutte le operazioni: nuova partita, navigazione palestre, stato palestra, battaglia, cura, save/load |
-| `GameStateHolder` | Mantiene il riferimento mutabile allo `GameState` corrente in memoria |
-| `BattleService` | Ciclo di vita battaglia: preparazione, round con `CombatEngine`, IA boss, switch, delega completamento palestra |
+| `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusResolver` |
+| `SessionPersistenceFacade` | Save/load/delete/list slot; incapsula `GameStateRepository` |
+| `GymStatusResolver` | Regole `GymStatus` per la mappa overworld |
+| `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
+| `BattleService` | Precondizioni battaglia, delega round a `BattleRoundExecutor`, completamento palestra |
+| `BattleRoundExecutor` | Un round: ordine turni, doppio attacco, switch su KO, assembly `BattleEvent` |
 | `NewGameService` | Costruisce e sostituisce lo stato iniziale da catalogo |
-| `HealingService` | Calcolo costo cura e gloria spendibile con riserva per palestre sfidabili |
-| `GymCompletionHandler` | Ricompense al KO di tutte le creature boss |
+| `HealingService` | Cura a pagamento; errori tipizzati via `HealingError` / `HealingException` |
+| `GymCompletionHandler` | Ricompense al KO boss; usa `GameCatalog.buildCreature()` |
+| `OverworldSpawnPosition` | Posizione di default al primo salvataggio (senza dipendere dalla UI) |
 | `GameState` | Invarianti di mondo: palestra corrente, raggiungibilità, possibilità di sfida |
 | `GameCatalog` | Lookup dati statici; istanze di dominio **mutabili** separate dal catalogo |
 | `TurnBasedCombatEngine` | Risoluzione matematica di un singolo attacco |
 | `BossMoveStrategy` | Scelta mossa del boss (implementazione: soglia accuratezza) |
+| `*Controller` (UI) | Stato schermata + comandi verso `GameModel`; controller FXML sottili |
 
 ---
 
@@ -103,8 +126,12 @@ flowchart TB
 ### Single Responsibility (SRP)
 
 - `CombatEngine` calcola solo l'esito di un attacco.
+- `BattleRoundExecutor` esegue solo un round di battaglia.
 - `BossMoveStrategy` decide solo quale mossa usare il boss.
 - `GymCompletionHandler` gestisce solo le conseguenze del completamento palestra.
+- `SessionPersistenceFacade` gestisce solo persistenza slot; `GymStatusResolver` solo stato palestre sulla mappa.
+- `CatalogEntityMapper` mappa solo entità JPA → template di dominio.
+- I controller UI separano binding FXML da logica di schermata.
 - I validator (`CreatureValidator`, `GameStateValidator`, …) validano un solo aggregato ciascuno.
 
 ### Open/Closed (OCP)
@@ -135,7 +162,8 @@ flowchart TB
 
 | Pattern | Dove | Scopo |
 |---------|------|-------|
-| **Facade** | `GameModel` | API stabile per la UI |
+| **Facade** | `GameModel`, `SessionPersistenceFacade` | API stabile per la UI |
+| **Controller** | `BattleController`, `HubController`, `OverworldController` | Controller sottili; stato e comandi verso `GameModel` |
 | **Builder** | `*Builder` nel dominio | Costruzione validata di aggregati |
 | **Strategy** | `BossMoveStrategy`, `CombatEngine` | Algoritmi intercambiabili |
 | **Template Method** | `AbstractDomainValidator`, `AbstractHibernateAdapter` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio nelle sottoclassi |

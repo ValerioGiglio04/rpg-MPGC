@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
-import it.unicam.cs.mpgc.rpg125664.view.overworld.MapCoordinate;
+import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,7 +12,7 @@ import java.util.Optional;
 public final class GameStateHolder {
 
   private GameState gameState;
-  private MapCoordinate overworldPosition;
+  private OverworldPosition overworldPosition;
   private Long currentSessionId;
   private String currentSessionName;
 
@@ -28,11 +28,11 @@ public final class GameStateHolder {
     this.gameState = Objects.requireNonNull(newState, "newState");
   }
 
-  public Optional<MapCoordinate> overworldPosition() {
+  public Optional<OverworldPosition> overworldPosition() {
     return Optional.ofNullable(overworldPosition);
   }
 
-  public void setOverworldPosition(MapCoordinate position) {
+  public void setOverworldPosition(OverworldPosition position) {
     this.overworldPosition = Objects.requireNonNull(position, "position");
   }
 

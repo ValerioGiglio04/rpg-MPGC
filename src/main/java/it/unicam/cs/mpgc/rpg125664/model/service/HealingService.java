@@ -51,15 +51,15 @@ public final class HealingService {
     Creature creature = creatureByCatalogId(state, creatureCatalogId);
     int missingHp = creature.maxHealth() - creature.currentHealth();
     if (missingHp <= 0) {
-      throw new IllegalStateException("hub.heal.error.fullHp");
+      throw new HealingException(HealingError.FULL_HP);
     }
     int cost = healCostForMissingHp(missingHp);
     int spendable = spendableGlory(state);
     if (cost > state.player().score().points()) {
-      throw new IllegalStateException("hub.heal.error.insufficientGlory");
+      throw new HealingException(HealingError.INSUFFICIENT_GLORY);
     }
     if (cost > spendable) {
-      throw new IllegalStateException("hub.heal.error.gymFloor");
+      throw new HealingException(HealingError.GYM_FLOOR);
     }
     state.player().score().spend(cost);
     creature.healToFull();

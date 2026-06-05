@@ -10,8 +10,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
-import it.unicam.cs.mpgc.rpg125664.view.overworld.MapCoordinate;
-import it.unicam.cs.mpgc.rpg125664.view.overworld.OverworldLayoutSupport;
+import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +26,8 @@ public final class SessioneJsonMapper {
     this.catalog = Objects.requireNonNull(catalog, "catalog");
   }
 
-  public UltimaSessioneSalvataDto toDto(GameState state) {
-    return toDto(state, Optional.empty());
-  }
-
-  public UltimaSessioneSalvataDto toDto(
-      GameState state, Optional<MapCoordinate> overworldPosition) {
+  public UltimaSessioneSalvataDto toDto(GameState state, OverworldPosition overworldPosition) {
+    Objects.requireNonNull(overworldPosition, "overworldPosition");
     Player player = state.player();
     List<Creature> creatures = player.holder().creatures();
     Creature active = player.holder().activeCreature();
@@ -49,10 +44,8 @@ public final class SessioneJsonMapper {
         state.gyms().stream()
             .map(gym -> new PalestraProgressoDto(gym.id(), gym.completed()))
             .toList());
-    MapCoordinate position =
-        overworldPosition.orElseGet(
-            () -> OverworldLayoutSupport.defaultPlayerPosition(state.gyms(), state.currentGymId()));
-    dto.setPosizioneGiocatoreMappa(new PosizioneMappaDto(position.column(), position.row()));
+    dto.setPosizioneGiocatoreMappa(
+        new PosizioneMappaDto(overworldPosition.column(), overworldPosition.row()));
     return dto;
   }
 
@@ -78,12 +71,12 @@ public final class SessioneJsonMapper {
     return GameState.builder().player(player).gyms(gyms).currentGymId(currentGymId).build();
   }
 
-  public MapCoordinate mapPositionFromDto(UltimaSessioneSalvataDto dto) {
+  public OverworldPosition mapPositionFromDto(UltimaSessioneSalvataDto dto) {
     PosizioneMappaDto pos = dto.getPosizioneGiocatoreMappa();
     if (pos == null) {
       return null;
     }
-    return new MapCoordinate(pos.getY(), pos.getX());
+    return new OverworldPosition(pos.getY(), pos.getX());
   }
 
   private List<Creature> rebuildTeam(List<CreaturaTeamDto> stored) {

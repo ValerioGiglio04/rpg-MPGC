@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
-import it.unicam.cs.mpgc.rpg125664.view.overworld.MapCoordinate;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,10 +25,8 @@ final class SessionJsonSerializer {
     this.mapper = Objects.requireNonNull(mapper, "mapper");
   }
 
-  String toJson(GameState state, Optional<OverworldPosition> overworldPosition) throws IOException {
-    Optional<MapCoordinate> mapCoord =
-        overworldPosition.map(p -> new MapCoordinate(p.row(), p.column()));
-    UltimaSessioneSalvataDto dto = mapper.toDto(state, mapCoord);
+  String toJson(GameState state, OverworldPosition overworldPosition) throws IOException {
+    UltimaSessioneSalvataDto dto = mapper.toDto(state, overworldPosition);
     return MAPPER.writeValueAsString(dto);
   }
 
@@ -43,10 +40,7 @@ final class SessionJsonSerializer {
 
   Optional<OverworldPosition> overworldPositionFromJson(String json) throws IOException {
     UltimaSessioneSalvataDto dto = fromJson(json);
-    MapCoordinate coord = mapper.mapPositionFromDto(dto);
-    if (coord == null) {
-      return Optional.empty();
-    }
-    return Optional.of(new OverworldPosition(coord.row(), coord.column()));
+    OverworldPosition position = mapper.mapPositionFromDto(dto);
+    return Optional.ofNullable(position);
   }
 }

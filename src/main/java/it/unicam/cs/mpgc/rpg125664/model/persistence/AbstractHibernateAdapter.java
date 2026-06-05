@@ -19,73 +19,90 @@ public abstract class AbstractHibernateAdapter {
         Objects.requireNonNull(entityManagerFactory, "entityManagerFactory");
   }
 
-  /** Esegue lavoro in sola lettura o senza transazione esplicita; chiude sempre l'EntityManager. */
   protected <T> T withEntityManager(Function<EntityManager, T> work) {
-    EntityManager em = entityManagerFactory.createEntityManager();
-    try {
-      return work.apply(em);
-    } finally {
-      em.close();
-    }
+    return runWithEntityManager(work, false);
   }
 
-  /** Come {@link #withEntityManager(Function)} ma consente {@link IOException} dal lavoro. */
   protected <T> T withEntityManagerThrowing(IoEntityWork<T> work) throws IOException {
-    EntityManager em = entityManagerFactory.createEntityManager();
     try {
-      return work.apply(em);
-    } finally {
-      em.close();
+      return runWithEntityManager(
+          em -> {
+            try {
+              return work.apply(em);
+            } catch (IOException ex) {
+              throw new IoRuntimeException(ex);
+            }
+          },
+          false);
+    } catch (IoRuntimeException ex) {
+      throw ex.cause();
     }
   }
 
-  /** Come {@link #inTransaction(Function)} ma consente {@link IOException} dal lavoro. */
-  protected <T> T inTransactionThrowing(IoEntityWork<T> work) throws IOException {
-    EntityManager em = entityManagerFactory.createEntityManager();
-    try {
-      em.getTransaction().begin();
-      try {
-        T result = work.apply(em);
-        em.getTransaction().commit();
-        return result;
-      } catch (IOException ex) {
-        if (em.getTransaction().isActive()) {
-          em.getTransaction().rollback();
-        }
-        throw ex;
-      } catch (RuntimeException ex) {
-        if (em.getTransaction().isActive()) {
-          em.getTransaction().rollback();
-        }
-        throw ex;
-      }
-    } finally {
-      em.close();
-    }
-  }
-
-  /** Apre una transazione, esegue il lavoro, fa commit o rollback in caso di errore. */
   protected <T> T inTransaction(Function<EntityManager, T> work) {
+    return runWithEntityManager(work, true);
+  }
+
+  protected <T> T inTransactionThrowing(IoEntityWork<T> work) throws IOException {
+    try {
+      return runWithEntityManager(
+          em -> {
+            try {
+              return work.apply(em);
+            } catch (IOException ex) {
+              throw new IoRuntimeException(ex);
+            }
+          },
+          true);
+    } catch (IoRuntimeException ex) {
+      throw ex.cause();
+    }
+  }
+
+  private <T> T runWithEntityManager(Function<EntityManager, T> work, boolean transactional) {
     EntityManager em = entityManagerFactory.createEntityManager();
     try {
+      if (!transactional) {
+        return work.apply(em);
+      }
       em.getTransaction().begin();
       try {
         T result = work.apply(em);
         em.getTransaction().commit();
         return result;
+      } catch (IoRuntimeException ex) {
+        rollbackIfActive(em);
+        throw ex;
       } catch (RuntimeException ex) {
-        if (em.getTransaction().isActive()) {
-          em.getTransaction().rollback();
-        }
+        rollbackIfActive(em);
         throw ex;
       }
     } finally {
       em.close();
+    }
+  }
+
+  private static void rollbackIfActive(EntityManager em) {
+    if (em.getTransaction().isActive()) {
+      em.getTransaction().rollback();
     }
   }
 
   @FunctionalInterface
   protected interface IoEntityWork<T> {
     T apply(EntityManager em) throws IOException;
+  }
+
+  private static final class IoRuntimeException extends RuntimeException {
+    private final IOException cause;
+
+    IoRuntimeException(IOException cause) {
+      super(cause);
+      this.cause = cause;
+    }
+
+    IOException cause() {
+      return cause;
+    }
   }
 }

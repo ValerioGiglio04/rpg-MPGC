@@ -82,7 +82,7 @@ Apre la console web H2 con le stesse credenziali del `persistence.xml`.
 
 - File JSON: `src/main/resources/game-data/catalog-seed.json`
 - Caricato da `CatalogSeedJsonLoader` (package `model.persistence.catalog`)
-- `CatalogDatabaseSeeder.ensureCatalogPresent()` esegue il seed **solo se** le tabelle catalogo sono vuote (idempotente ad ogni avvio)
+- `CatalogDatabaseSeeder.ensureCatalogPresent()` all'avvio controlla che H2 coincida con il seed (giocatore umano con id 1 e stesso numero di righe per tabella). Se manca qualcosa svuota le tabelle catalogo e le ricarica; se è già a posto non tocca il DB
 
 ### Tabelle H2
 

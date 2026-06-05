@@ -1,18 +1,22 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
+import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * Applica i premi di completamento palestra: marca la palestra come done, assegna il punteggio,
- * clona le creature del boss nel team del giocatore, ed appende i {@link BattleEvent}
- * corrispondenti.
- */
+/** Applica i premi di completamento palestra dopo la sconfitta del boss. */
 public final class GymCompletionHandler {
+
+  private final GameCatalog catalog;
+
+  public GymCompletionHandler(GameCatalog catalog) {
+    this.catalog = Objects.requireNonNull(catalog, "catalog");
+  }
 
   public void awardGymCompletion(List<BattleEvent> events, GameState state, GymRoom gym) {
     gym.markCompleted();
@@ -29,24 +33,10 @@ public final class GymCompletionHandler {
     CreatureHolder playerHolder = state.player().holder();
     List<Creature> rewards =
         gym.boss().holder().creatures().stream()
-            .map(this::cloneHealed)
+            .map(creature -> catalog.buildCreature(creature.catalogId()))
             .peek(Creature::healToFull)
             .toList();
     rewards.forEach(playerHolder::addCreature);
     return rewards;
-  }
-
-  private Creature cloneHealed(Creature creature) {
-    return Creature.builder()
-        .catalogId(creature.catalogId())
-        .name(creature.name())
-        .role(creature.role())
-        .skinPath(creature.skinPath())
-        .maxHealth(creature.maxHealth())
-        .attack(creature.attack())
-        .defense(creature.defense())
-        .speed(creature.speed())
-        .moves(creature.moves())
-        .build();
   }
 }

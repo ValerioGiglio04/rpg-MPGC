@@ -2,7 +2,6 @@ package it.unicam.cs.mpgc.rpg125664.app;
 
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.MainView;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
-import java.io.IOException;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -22,11 +21,7 @@ public final class RpgApplication extends Application {
 
   @Override
   public void start(Stage stage) {
-    try {
-      appModule = AppModule.bootstrap();
-    } catch (IOException error) {
-      throw new IllegalStateException("Cannot bootstrap application", error);
-    }
+    appModule = AppModule.bootstrap();
     MainView mainView = new MainView(appModule.gameModel());
 
     stage.setTitle(Messages.get("app.title"));

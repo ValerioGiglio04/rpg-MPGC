@@ -1,6 +1,6 @@
 # Classi e interfacce
 
-> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza)
+> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) · [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita)
 
 Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, raggruppate per layer, con la **responsabilità** associata a ciascuna.
 
@@ -21,7 +21,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 |------|------|----------------|
 | C | `Main` | Entry point Gradle; avvia `RpgApplication` |
 | C | `RpgApplication` | Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura risorse JPA |
-| C | `AppModule` | Composition root: EMF, seed catalogo, repository, servizi, `GameModel`; `close()` rilascia EMF |
+| C | `AppModule` | Composition root: EMF, seed catalogo (una sola lettura JSON), repository, servizi, `GameModel`; factory `create(emf, catalog, mapper)` per wiring esplicito; `close()` rilascia EMF |
 
 ---
 
@@ -61,6 +61,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | C | `TurnBasedCombatEngine` | Implementazione default: hit roll, formula danno, KO |
 | I | `BossMoveStrategy` | Contratto: sceglie la mossa del boss |
 | C | `AccuracyThresholdBossMoveStrategy` | IA boss basata su soglia di accuratezza delle mosse |
+| C | `BattleRoundExecutor` | Esecuzione di un round: turni, attacchi, switch, eventi |
 | R | `AttackOutcome` | Esito colpo: hit/miss, danno, difensore KO |
 
 ---
@@ -85,6 +86,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | R | `SaveSessionCommand` | Parametri di salvataggio (stato, slot, nome) |
 | R | `OverworldPosition` | Coordinate mappa (dominio, senza JavaFX) |
 | I | `GameCatalogLoader` | Caricamento `GameCatalog` da sorgente esterna |
+| C | `SessionPersistenceException` | Errore unchecked di persistenza sessione (wrappa I/O nell'model.persistence) |
 
 ---
 
@@ -127,18 +129,30 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `BattleService` | Ciclo battaglia: begin, prepare, attack, switch |
+| C | `BattleService` | Ciclo battaglia: begin, prepare, attack, switch; delega round a `BattleRoundExecutor` |
 | C | `NewGameService` | Nuova partita e build stato iniziale da catalogo |
 | C | `HealingService` | Cura a pagamento e calcolo gloria spendibile |
-| C | `GymCompletionHandler` | Ricompense al completamento palestra |
+| C | `GymCompletionHandler` | Ricompense al completamento palestra (via `GameCatalog`) |
+| C | `GymStatusResolver` | Calcolo `GymStatus` da `GameState` |
 | E | `GymStatus` | Stato UI di una palestra sulla mappa |
+| E | `HealingError` | Codici errore cura (UI mappa → `Messages`) |
+| C | `HealingException` | Eccezione applicativa con `HealingError` |
+
+### Overworld applicativo (`model.overworld`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `OverworldGridLayout` | Griglia e celle candidate per layout palestre |
+| R | `GymCellPlacement` | Associazione cella ↔ palestra (dominio applicativo) |
+| C | `OverworldSpawnPosition` | Posizione di default al primo salvataggio |
 
 ### Sessione (`model.service`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `GameModel` | Entry point per la UI: delega a servizi e repository |
-| C | `GameStateHolder` | `GameState` corrente, `currentSessionId`, posizione overworld |
+| C | `GameModel` | Facciata UI: delega a servizi, `SessionPersistenceFacade`, `GymStatusResolver` |
+| C | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
+| C | `SessionPersistenceFacade` | Save/load/delete/list; incapsula `GameStateRepository` |
 
 ---
 
@@ -152,8 +166,10 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `HibernateGameCatalogLoader` | Implementazione `GameCatalogLoader`; costruisce `GameCatalog` da H2 |
-| C | `CatalogDatabaseSeeder` | Seed idempotente tabelle catalogo da JSON |
+| C | `HibernateGameCatalogLoader` | Implementazione `GameCatalogLoader`; costruisce `GameCatalog` da H2 + `NewGameSettings` già noti |
+| C | `CatalogEntityMapper` | Mapping entità JPA → template di dominio (`toMove`, `toCreature`, `toGym`) |
+| C | `CatalogDatabaseSeeder` | Orchestrazione seed catalogo (ordine wipe/insert, check completezza) |
+| C | `CatalogTable` | Operazioni JPA su una tabella catalogo (count, delete bulk, persist) |
 | C | `PalestraCollegamentiSupport` | Collegamenti palestre da `ordine` (catena lineare) |
 | C | `CatalogIds` (dominio) | Costanti catalogo (es. `GIOCATORE_UMANO = 1`) |
 | C | `GiocatoreEntity` | Tabella `giocatore` |
@@ -183,7 +199,9 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `MainView` | Stage principale JavaFX |
-| C | `ScreenNavigator` | Transizioni tra schermate FXML |
+| C | `ScreenNavigator` | Routing tra schermate FXML; delega dialoghi a `DialogHelper` |
+| C | `DialogHelper` | Alert e dialoghi save/load (isolati dal navigator) |
+| C | `UiErrorReporter` | Log + `Alert` per errori UI via `Messages` |
 | C | `FxmlScreens` | Caricamento FXML e binding controller |
 | I | `MainMenuActions` | Callback menu (nuova partita, carica, esci) |
 | I | `LoadGameActions` | Callback schermata caricamento (carica, elimina, indietro) |
@@ -201,6 +219,16 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | C | `HubController` | Logica hub: mappa, team, cura, save |
 | C | `BattleController` | Logica battaglia: mosse, log, overlay fine |
 | C | `VictoryController` | Logica schermata vittoria |
+
+### Controller (`controller`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `BattleController` | Comandi battaglia, log, overlay fine scontro |
+| C | `HubController` | Team hub, cura, tooltip gloria |
+| C | `OverworldController` | Movimento mappa, sfida palestra, motivo blocco |
+
+I controller FXML restano sottili: binding visivo + delega al controller.
 
 ### Componenti UI (`view.component`)
 
@@ -224,16 +252,14 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `OverworldMap` | Mappa overworld interattiva |
+| C | `OverworldMap` | Rendering mappa + input; delega regole a `OverworldController` |
 | C | `OverworldLayoutSupport` | Posizionamento deterministico palestre e decor (seed `LAYOUT_SEED`) |
 | C | `OverworldTileRenderer` | Rendering tile mappa |
 | C | `OverworldTextures` | Caricamento texture |
 | C | `OverworldMapConstants` | Costanti griglia mappa |
 | C | `OverworldModalShell` | Modale interazione palestra |
 | C | `OverworldDecor` | Tipi decorazione mappa |
-| C | `GymCellAssignment` | Associazione cella ↔ palestra |
-| R | `MapCoordinate` | Coordinate riga/colonna |
-| R | `MapOffset` | Delta movimento sulla griglia |
+| R | `MapOffset` | Delta movimento sulla griglia (usa `OverworldPosition` del dominio) |
 
 ### Tema (`view.theme`)
 
@@ -261,6 +287,6 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 ## Conteggio
 
-Circa **108** file sorgente Java nel package principale, più risorse FXML, JSON, immagini e `persistence.xml`.
+Circa **120** file sorgente Java nel package principale, più risorse FXML, JSON, immagini e `persistence.xml`.
 
 Per il significato dei layer e le dipendenze vedere [Responsabilità e architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).

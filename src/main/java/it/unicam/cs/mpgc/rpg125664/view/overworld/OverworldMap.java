@@ -1,8 +1,10 @@
 package it.unicam.cs.mpgc.rpg125664.view.overworld;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GymStatus;
-import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
+import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
 import java.util.HashMap;
@@ -42,7 +44,7 @@ public final class OverworldMap extends StackPane {
           OverworldTextures.TREE,
           OverworldTextures.BUSH);
 
-  private final GameModel gameModel;
+  private final OverworldPresenter presenter;
   private final Runnable onStartBattle;
   private final GridPane mapGrid;
   private final Map<String, GymRoom> gymsByCell;
@@ -63,8 +65,8 @@ public final class OverworldMap extends StackPane {
   private boolean modalOpen;
   private GymRoom pendingGym;
 
-  public OverworldMap(GameModel gameModel, Runnable onStartBattle) {
-    this.gameModel = gameModel;
+  public OverworldMap(OverworldPresenter presenter, Runnable onStartBattle) {
+    this.presenter = presenter;
     this.onStartBattle = onStartBattle;
     this.mapGrid = new GridPane();
     this.gymsByCell = new HashMap<>();
@@ -110,7 +112,7 @@ public final class OverworldMap extends StackPane {
 
   private void completeInitialPopulation() {
     gymsByCell.putAll(
-        OverworldLayoutSupport.assignGymsDeterministic(gameModel.gameState().gyms()));
+        OverworldLayoutSupport.assignGymsDeterministic(presenter.gameState().gyms()));
     decorByCell.putAll(OverworldLayoutSupport.assignDecorDeterministic(gymsByCell, blockedTiles));
     initializePlayerPosition();
     redrawMap();
@@ -285,41 +287,18 @@ public final class OverworldMap extends StackPane {
   }
 
   private void syncOverworldPositionToSession() {
-    gameModel.setOverworldPosition(new MapCoordinate(playerRow, playerCol));
+    presenter.syncPosition(playerRow, playerCol);
   }
 
   private void maybeEnterGym() {
-    GymRoom gym = gymsByCell.get(GymCellAssignment.cellKey(playerRow, playerCol));
+    GymRoom gym = gymsByCell.get(GymCellPlacement.cellKey(playerRow, playerCol));
     if (gym == null) return;
-    GymStatus status = gameModel.statusOf(gym);
+    GymStatus status = presenter.statusOf(gym);
     if (status == GymStatus.AVAILABLE) {
       showChallengeModal(gym);
       return;
     }
-    showBlockedModal(blockedReason(gym, status));
-  }
-
-  private String blockedReason(GymRoom gym, GymStatus status) {
-    int playerPoints = gameModel.gameState().player().score().points();
-    return switch (status) {
-      case COMPLETED -> reasonCompleted(gym);
-      case UNREACHABLE -> reasonUnreachable(gym);
-      case NEEDS_POINTS -> reasonNeedsPoints(gym, playerPoints);
-      case CURRENT, AVAILABLE -> "";
-    };
-  }
-
-  private static String reasonCompleted(GymRoom gym) {
-    return Messages.format("overworld.blocked.completed", gym.name());
-  }
-
-  private static String reasonUnreachable(GymRoom gym) {
-    return Messages.format("overworld.blocked.unreachable", gym.name());
-  }
-
-  private static String reasonNeedsPoints(GymRoom gym, int playerPoints) {
-    return Messages.format(
-        "overworld.blocked.needs.points", gym.name(), gym.requiredPoints(), playerPoints);
+    showBlockedModal(presenter.blockedReason(gym, status));
   }
 
   private void showChallengeModal(GymRoom gym) {
@@ -362,10 +341,10 @@ public final class OverworldMap extends StackPane {
   }
 
   private void moveSessionToGymIfNeeded(GymRoom gym) {
-    GymRoom currentGym = gameModel.gameState().currentGym();
+    GymRoom currentGym = presenter.gameState().currentGym();
     if (currentGym.id() == gym.id()) return;
 
-    gameModel.moveTo(gym.id());
+    presenter.moveToGym(gym.id());
   }
 
   private void cancelChallenge() {
@@ -388,7 +367,7 @@ public final class OverworldMap extends StackPane {
 
   private void redrawMap() {
     mapGrid.getChildren().clear();
-    var player = gameModel.gameState().player();
+    var player = presenter.gameState().player();
     for (int row = 0; row < OverworldMapConstants.MAP_ROWS; row++) {
       for (int col = 0; col < OverworldMapConstants.MAP_COLS; col++) {
         addTileForCell(row, col, player.name(), player.skinPath());
@@ -406,7 +385,7 @@ public final class OverworldMap extends StackPane {
             .tile(row, col)
             .gridState(gymsByCell, decorByCell, blockedTiles)
             .playerOverlay(playerRow, playerCol, playerName, skinPath)
-            .statusOf(gameModel::statusOf)
+            .statusOf(presenter::statusOf)
             .build();
     mapGrid.add(tile, col, row);
   }
@@ -429,8 +408,8 @@ public final class OverworldMap extends StackPane {
   }
 
   private void initializePlayerPosition() {
-    if (gameModel.overworldPosition().isPresent()) {
-      MapCoordinate saved = gameModel.overworldPosition().orElseThrow();
+    if (presenter.savedPosition().isPresent()) {
+      OverworldPosition saved = presenter.savedPosition().orElseThrow();
       playerRow = saved.row();
       playerCol = saved.column();
       lastRow = playerRow;
@@ -448,7 +427,7 @@ public final class OverworldMap extends StackPane {
 
   private Entry<String, GymRoom> findCurrentGymEntry() {
     return gymsByCell.entrySet().stream()
-        .filter(e -> e.getValue().id() == gameModel.gameState().currentGym().id())
+        .filter(e -> e.getValue().id() == presenter.gameState().currentGym().id())
         .findFirst()
         .orElse(null);
   }
@@ -457,8 +436,8 @@ public final class OverworldMap extends StackPane {
     String[] coords = cellKey.split(":");
     int gymRow = Integer.parseInt(coords[0]);
     int gymCol = Integer.parseInt(coords[1]);
-    MapCoordinate home =
-        GymCellAssignment.findHomeTile(
+    OverworldPosition home =
+        GymCellPlacement.findHomeTile(
             gymRow,
             gymCol,
             blockedTiles,

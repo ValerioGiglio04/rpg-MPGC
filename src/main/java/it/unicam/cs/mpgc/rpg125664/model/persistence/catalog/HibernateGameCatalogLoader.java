@@ -2,12 +2,10 @@ package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
 import it.unicam.cs.mpgc.rpg125664.model.GameCatalogLoader;
-import it.unicam.cs.mpgc.rpg125664.model.catalog.BossTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CreatureTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GymTemplate;
-import it.unicam.cs.mpgc.rpg125664.model.catalog.MoveTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.NewGameSettings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -15,13 +13,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** Costruisce {@link GameCatalog} dalle tabelle catalogo su H2. */
 public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
     implements GameCatalogLoader {
 
-  public HibernateGameCatalogLoader(EntityManagerFactory entityManagerFactory) {
+  private final NewGameSettings newGameSettings;
+
+  public HibernateGameCatalogLoader(
+      EntityManagerFactory entityManagerFactory, NewGameSettings newGameSettings) {
     super(entityManagerFactory);
+    this.newGameSettings = Objects.requireNonNull(newGameSettings, "newGameSettings");
   }
 
   @Override
@@ -53,17 +56,17 @@ public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
         creatureRows.stream()
             .map(
                 row ->
-                    toCreature(row, movesByCreature.getOrDefault(row.getIdCreatura(), List.of())))
+                    CatalogEntityMapper.toCreature(
+                        row, movesByCreature.getOrDefault(row.getIdCreatura(), List.of())))
             .toList();
     List<GymTemplate> gyms =
         gymRows.stream()
             .map(
                 row ->
-                    toGym(
+                    CatalogEntityMapper.toGym(
                         row, bossNamesById, bossCreatureIdsByGiocatoreId, collegamentiByPalestraId))
             .toList();
-    NewGameSettings settings = CatalogSeedJsonLoader.load().newGameSettings();
-    return new GameCatalog(settings, creatures, gyms);
+    return new GameCatalog(newGameSettings, creatures, gyms);
   }
 
   private Map<Long, List<MossaEntity>> groupMovesByCreature(List<MossaEntity> moveRows) {
@@ -96,25 +99,6 @@ public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
     }
   }
 
-  private MoveTemplate toMove(MossaEntity row) {
-    return new MoveTemplate(
-        row.getNome(), row.getPotenza(), row.getPrecisione(), row.getDescrizione());
-  }
-
-  private CreatureTemplate toCreature(CreaturaEntity row, List<MossaEntity> moves) {
-    List<MoveTemplate> moveTemplates = moves.stream().map(this::toMove).toList();
-    return new CreatureTemplate(
-        row.getIdCreatura(),
-        row.getNome(),
-        row.getRuolo(),
-        row.getPercorsoSkin(),
-        row.getHp(),
-        row.getAttacco(),
-        row.getDifesa(),
-        row.getVelocita(),
-        moveTemplates);
-  }
-
   private Map<Long, String> loadBossNames(EntityManager em) {
     Map<Long, String> names = new HashMap<>();
     em.createQuery("select g from GiocatoreEntity g where g.boss = true", GiocatoreEntity.class)
@@ -135,25 +119,5 @@ public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
                     .computeIfAbsent(row.getIdGiocatore(), ignored -> new ArrayList<>())
                     .add(row.getIdCreatura()));
     return byBossGiocatoreId;
-  }
-
-  private GymTemplate toGym(
-      PalestraEntity row,
-      Map<Long, String> bossNamesById,
-      Map<Long, List<Long>> bossCreatureIdsByGiocatoreId,
-      Map<Long, List<Long>> collegamentiByPalestraId) {
-    String bossName = bossNamesById.getOrDefault(row.getIdBoss(), "Boss");
-    List<Long> bossTeam =
-        List.copyOf(bossCreatureIdsByGiocatoreId.getOrDefault(row.getIdBoss(), List.of()));
-    BossTemplate boss = new BossTemplate(bossName, row.getPuntiRicompensaBoss(), bossTeam);
-    List<Long> collegamenti =
-        List.copyOf(collegamentiByPalestraId.getOrDefault(row.getIdPalestra(), List.of()));
-    return new GymTemplate(
-        row.getIdPalestra(),
-        row.getNome(),
-        row.getOrdine(),
-        row.getPuntiRichiesti(),
-        collegamenti,
-        boss);
   }
 }

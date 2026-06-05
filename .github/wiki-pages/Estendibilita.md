@@ -75,6 +75,7 @@ Wiring in `AppModule`:
 ```java
 CombatEngine combatEngine = new TurnBasedCombatEngine();
 BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
+BattleRoundExecutor roundExecutor = new BattleRoundExecutor(combatEngine, bossMoveStrategy);
 // Sostituibili con altre implementazioni senza toccare BattleService
 ```
 
@@ -85,8 +86,8 @@ BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
 | Passo | Azione |
 |-------|--------|
 | 1 | Aggiornare `catalog-seed.json` |
-| 2 | Resettare o migrare il DB catalogo (in sviluppo: cancellare `~/.rpg-palestre-creature/save.*`) |
-| 3 | Nessuna modifica obbligatoria al dominio se i template rispettano i validator esistenti |
+| 2 | Riavviare l'app: `AppModule.bootstrap()` legge il JSON **una volta**, il seeder riallinea H2 e `HibernateGameCatalogLoader` usa H2 + `NewGameSettings` già in memoria |
+| 3 | Mapping entità → dominio in `CatalogEntityMapper`; nessuna modifica obbligatoria al dominio se i template rispettano i validator esistenti |
 
 Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate` / `GymRoom` o introdurre policy nel dominio senza toccare la UI.
 
@@ -107,10 +108,14 @@ Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate`
 
 ## Nuove schermate JavaFX
 
+Pattern consigliato (come hub, battaglia, overworld):
+
 1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
-2. Creare `NuovaSchermataController` che riceve `GameModel`
-3. Registrare transizione in `ScreenNavigator` / `FxmlScreens`
-4. Eventuale interfaccia callback in `view` (come `HubActions`, `MainMenuActions`, implementate da `ScreenNavigator`)
+2. Creare `NuovaSchermataController` in `controller` (stato + comandi verso `GameModel`)
+3. Creare `NuovaSchermataController` sottile: binding FXML + delega al controller
+4. Registrare transizione in `ScreenNavigator` / `FxmlScreens`
+5. Eventuale interfaccia callback in `view` (come `HubActions`, `MainMenuActions`, implementate da `ScreenNavigator`)
+6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
 
 ---
 
@@ -225,8 +230,10 @@ Il payload in `dati_salvati_json` usa `@JsonIgnoreProperties(ignoreUnknown = tru
 La specifica sottolinea che **non tutte** le funzionalità devono essere nella prima release. L'importante è che il percorso di integrazione sia chiaro:
 
 - Porte (`GameStateRepository`, `GameCatalogLoader`, `CombatEngine`, `BossMoveStrategy`)
-- Facade (`GameModel`)
-- Composition root (`AppModule`)
-- Catalogo H2 + sessioni in tabella `sessioni_salvate` (JSON in CLOB per pragmatismo)
+- Facade (`GameModel`, `SessionPersistenceFacade`)
+- Controller UI (`*Controller`) separati dai controller FXML
+- Composition root (`AppModule` con `bootstrap()` e `create()` per wiring esplicito)
+- Catalogo: seed JSON una volta + H2; sessioni in `sessioni_salvate` (JSON in CLOB)
+- Coordinate overworld solo come `OverworldPosition` (dominio), mai tipi UI in model.service/model.persistence
 
 Questi elementi documentano **come** il progetto può crescere senza diventare un monolite inseparabile.

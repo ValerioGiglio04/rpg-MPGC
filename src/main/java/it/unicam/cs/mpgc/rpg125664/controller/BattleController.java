@@ -1,21 +1,20 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
-import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.BattleEventTranslator;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.BattleLogLine;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.ui.javafx.UiErrorReporter;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleArenaView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleCommandColumnView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleEndOverlay;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleUiErrorPane;
+import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter;
+import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter.RoundOutcome;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -36,39 +35,27 @@ public final class BattleController implements Initializable {
   private static final double PORTRAIT_FOE = 168;
   private static final double PORTRAIT_PLAYER = 200;
 
-  // Costanti di layout per il pannello cronaca battaglia.
-  private final GameModel gameModel;
+  private final BattlePresenter presenter;
   private final Runnable onBack;
 
-  private final List<BattleLogLine> battleLog = new ArrayList<>();
-
   @FXML private Label battleTitleLabel;
-
   @FXML private Label battleSubtitleLabel;
-
   @FXML private StackPane arenaHost;
-
   @FXML private StackPane transcriptLayer;
-
   @FXML private VBox logPanel;
-
   @FXML private ScrollPane logScroll;
-
   @FXML private TextFlow logFlow;
-
   @FXML private VBox commandHost;
 
   public BattleController(GameModel gameModel, Runnable onBack) {
-    this.gameModel = gameModel;
+    this.presenter = new BattlePresenter(gameModel);
     this.onBack = onBack;
   }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     configureLogArea();
-    if (!gameModel.gameState().currentGym().completed()) {
-      gameModel.beginCurrentBattle();
-    }
+    presenter.startBattleIfNeeded();
     build();
   }
 
@@ -91,7 +78,7 @@ public final class BattleController implements Initializable {
     try {
       populateBattleUi();
     } catch (RuntimeException error) {
-      error.printStackTrace(System.err);
+      UiErrorReporter.reportActionError("battle ui build failed", error);
       arenaHost.getChildren().add(BattleUiErrorPane.labelFor(error));
     }
   }
@@ -102,18 +89,12 @@ public final class BattleController implements Initializable {
   }
 
   private void populateBattleUi() {
-    prepareBattleIfNeeded();
-    GameState state = gameModel.gameState();
-    GymRoom gym = state.currentGym();
+    presenter.prepareBattleIfNeeded();
+    GameState state = presenter.state();
+    GymRoom gym = presenter.currentGym();
     applyHeader(gym);
     refreshNotices(state, gym);
     mountArenaAndCommands(state, gym);
-  }
-
-  private void prepareBattleIfNeeded() {
-    if (!gameModel.gameState().currentGym().completed()) {
-      gameModel.prepareCurrentBattle();
-    }
   }
 
   private void applyHeader(GymRoom gym) {
@@ -123,8 +104,13 @@ public final class BattleController implements Initializable {
   }
 
   private void refreshNotices(GameState state, GymRoom gym) {
-    appendCompletedNotice(gym);
-    appendTeamWipeNotice(state.player().holder());
+    if (gym.completed()) {
+      presenter.appendNoticeIfMissing(Messages.get("battle.completed"));
+    }
+    CreatureHolder playerHolder = state.player().holder();
+    if (playerHolder.allKnockedOut()) {
+      presenter.appendNoticeIfMissing(Messages.get("battle.team.wiped"));
+    }
     refreshLogArea();
   }
 
@@ -148,136 +134,56 @@ public final class BattleController implements Initializable {
                 this::switchCreature));
   }
 
-  private void appendCompletedNotice(GymRoom gym) {
-    if (gym.completed()
-        && battleLog.stream()
-            .noneMatch(line -> line.text().equals(Messages.get("battle.completed")))) {
-      appendLog(Messages.get("battle.completed"));
-    }
-  }
-
-  private void appendTeamWipeNotice(CreatureHolder playerHolder) {
-    if (playerHolder.allKnockedOut()
-        && battleLog.stream()
-            .noneMatch(line -> line.text().equals(Messages.get("battle.team.wiped")))) {
-      appendLog(Messages.get("battle.team.wiped"));
-    }
-  }
-
   private void playRound(int moveIndex) {
-    List<BattleEvent> events = tryAttack(moveIndex);
-    if (events == null) return;
-    List<BattleLogLine> lines = BattleEventTranslator.translate(events);
-    battleLog.addAll(lines);
+    RoundOutcome outcome = presenter.playRound(moveIndex);
     refreshLogArea();
-    afterSuccessfulRound(gameModel.gameState(), events);
-  }
-
-  private List<BattleEvent> tryAttack(int moveIndex) {
-    try {
-      return gameModel.attack(moveIndex);
-    } catch (RuntimeException error) {
-      String message =
-          error.getMessage() != null ? error.getMessage() : Messages.get("battle.unknown.error");
-      String formattedMessage = Messages.format("battle.invalid.action", message);
-      appendLog(formattedMessage);
+    if (!outcome.success()) {
       build();
-      return null;
-    }
-  }
-
-  private void afterSuccessfulRound(GameState state, List<BattleEvent> events) {
-    if (defeatDialogNeeded(state)) {
-      build();
-      showDefeatDialogAndReturn(state.currentGym().name());
       return;
     }
-    if (state.currentGym().completed()) {
+    if (outcome.defeat()) {
       build();
-      showVictoryDialogAndReturn(state, extractAcquiredCreatureNames(events));
+      showEndBattleDialog(
+          Messages.get("battle.dialog.defeat.title"),
+          Messages.format("battle.dialog.defeat.body", presenter.currentGym().name()));
+      return;
+    }
+    if (outcome.gymCompleted()) {
+      build();
+      GameState state = presenter.state();
+      showEndBattleDialog(
+          presenter.victoryDialogTitle(state),
+          presenter.victoryDialogBody(state, outcome.acquiredCreatureNames()));
       return;
     }
     build();
   }
 
-  private static List<String> extractAcquiredCreatureNames(List<BattleEvent> events) {
-    for (BattleEvent event : events) {
-      if (event instanceof BattleEvent.CreaturesAcquired acquired) {
-        return List.copyOf(acquired.creatureNames());
-      }
-    }
-    return List.of();
+  private void switchCreature(long creatureCatalogId) {
+    presenter.switchCreature(creatureCatalogId);
+    refreshLogArea();
+    build();
   }
 
-  private boolean defeatDialogNeeded(GameState state) {
-    return state.player().holder().allKnockedOut() && !state.currentGym().completed();
-  }
-
-  private void showDefeatDialogAndReturn(String gymName) {
-    showEndBattleDialog(
-        Messages.get("battle.dialog.defeat.title"),
-        Messages.format("battle.dialog.defeat.body", gymName));
-  }
-
-  private void showVictoryDialogAndReturn(GameState state, List<String> acquiredCreatureNames) {
-    GymRoom gym = state.currentGym();
-    String extra =
-        acquiredCreatureNames.isEmpty()
-            ? ""
-            : Messages.format(
-                "battle.dialog.victory.body.creatures.extra",
-                String.join(", ", acquiredCreatureNames));
-    String body = Messages.format("battle.dialog.victory.body", gym.boss().pointsReward(), extra);
-    showEndBattleDialog(
-        Messages.format("battle.dialog.victory.title", gym.boss().name(), gym.name()), body);
-  }
-
-  /**
-   * Fine duello: overlay in-scena sopra l'arena (stessi fogli di stile della schermata duello),
-   * senza {@link javafx.stage.Stage} o {@link javafx.scene.control.Alert} aggiuntivi.
-   */
   private void showEndBattleDialog(String title, String message) {
     Platform.runLater(
         () -> {
           try {
             arenaHost.getChildren().add(BattleEndOverlay.create(title, message, onBack));
           } catch (RuntimeException ex) {
-            ex.printStackTrace(System.err);
+            UiErrorReporter.reportActionError("battle end overlay failed", ex);
             onBack.run();
           }
         });
   }
 
-  private void switchCreature(long creatureCatalogId) {
-    try {
-      gameModel.switchPlayerCreature(creatureCatalogId);
-      appendLog(Messages.get("battle.switch.message"));
-    } catch (RuntimeException error) {
-      appendLog(
-          Messages.format(
-              "battle.invalid.switch",
-              error.getMessage() != null
-                  ? error.getMessage()
-                  : Messages.get("battle.unknown.error")));
-    }
-    build();
-  }
-
-  private void appendLog(String message) {
-    appendLogLine(BattleLogLine.neutral(message));
-  }
-
-  private void appendLogLine(BattleLogLine line) {
-    battleLog.add(line);
-    refreshLogArea();
-  }
-
   private void refreshLogArea() {
     logFlow.getChildren().clear();
     String gap = System.lineSeparator() + System.lineSeparator();
-    for (int i = 0; i < battleLog.size(); i++) {
-      BattleLogLine line = battleLog.get(i);
-      String suffix = i < battleLog.size() - 1 ? gap : "";
+    var lines = presenter.logLines();
+    for (int i = 0; i < lines.size(); i++) {
+      BattleLogLine line = lines.get(i);
+      String suffix = i < lines.size() - 1 ? gap : "";
       Text chunk = new Text(line.text() + suffix);
       chunk.getStyleClass().add(styleClassFor(line.kind()));
       logFlow.getChildren().add(chunk);
@@ -285,12 +191,10 @@ public final class BattleController implements Initializable {
     scrollCronacaToLatest();
   }
 
-  /**
-   * Snap dello scroll verticale alle righe piu' recenti dopo che il {@link TextFlow} ha fatto il
-   * layout (il wrapping cambia altezza dopo il primo pulse).
-   */
   private void scrollCronacaToLatest() {
-    if (battleLog.isEmpty()) return;
+    if (presenter.logLines().isEmpty()) {
+      return;
+    }
     Runnable snapBottom =
         () -> {
           logScroll.applyCss();

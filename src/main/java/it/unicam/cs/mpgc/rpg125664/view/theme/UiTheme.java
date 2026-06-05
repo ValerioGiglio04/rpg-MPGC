@@ -1,12 +1,11 @@
 package it.unicam.cs.mpgc.rpg125664.view.theme;
 
-import javafx.scene.layout.StackPane;
+import javafx.scene.Parent;
 
 /**
- * Punto di estensione per skin di presentazione alternative (es. futuri client mobile/web possono
- * applicare uno stack di classi tema diverso agli stessi host FXML).
+ * Strategy per skin di presentazione alternative: stesso FXML, classi CSS diverse sulla root.
  */
 public interface UiTheme {
 
-  void applyTo(StackPane root);
+  void applyTo(Parent root);
 }

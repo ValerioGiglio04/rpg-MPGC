@@ -3,7 +3,6 @@ package it.unicam.cs.mpgc.rpg125664.model;
 import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,19 +14,17 @@ import java.util.Optional;
  */
 public interface GameStateRepository {
 
-  /** Se esiste almeno un salvataggio (es. per abilitare "Continua" nel menu principale). */
   boolean hasAnySave();
 
-  /** Salvataggi locali pre-login ({@code id_utente} nullo nel DB). */
   List<SavedSessionSummary> listSaves();
 
   Optional<Long> findLastPlayedSessionId();
 
-  long save(SaveSessionCommand command) throws IOException;
+  long save(SaveSessionCommand command);
 
-  LoadedSession load(long sessionId) throws IOException;
+  LoadedSession load(long sessionId);
 
-  void delete(long sessionId) throws IOException;
+  void delete(long sessionId);
 
   void markLastPlayed(long sessionId);
 }

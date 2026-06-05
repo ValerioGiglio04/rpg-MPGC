@@ -2,9 +2,9 @@ package it.unicam.cs.mpgc.rpg125664.model.service;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
 import it.unicam.cs.mpgc.rpg125664.model.service.GymStatus;
+import it.unicam.cs.mpgc.rpg125664.model.service.GymStatusResolver;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
 import it.unicam.cs.mpgc.rpg125664.model.service.NewGameService;
-import it.unicam.cs.mpgc.rpg125664.model.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
@@ -12,36 +12,33 @@ import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
-import it.unicam.cs.mpgc.rpg125664.view.overworld.MapCoordinate;
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Singolo entry point con cui parla la UI. Compone i servizi ({@link NewGameService}, {@link
- * BattleService}, {@link HealingService}) ed espone wrapper sottili per navigazione, save/load e
- * stato palestre -- operazioni one-liner di per se' che non giustificano una loro classe.
- */
+/** Singolo entry point con cui parla la UI. */
 public final class GameModel {
 
   private final GameStateHolder holder;
   private final NewGameService newGame;
   private final BattleService battle;
   private final HealingService healing;
-  private final GameStateRepository repository;
+  private final SessionPersistenceFacade persistence;
+  private final GymStatusResolver gymStatusResolver;
 
   public GameModel(
       GameStateHolder holder,
       NewGameService newGame,
       BattleService battle,
       HealingService healing,
-      GameStateRepository repository) {
+      SessionPersistenceFacade persistence,
+      GymStatusResolver gymStatusResolver) {
     this.holder = Objects.requireNonNull(holder, "holder");
     this.newGame = Objects.requireNonNull(newGame, "newGame");
     this.battle = Objects.requireNonNull(battle, "battle");
     this.healing = Objects.requireNonNull(healing, "healing");
-    this.repository = Objects.requireNonNull(repository, "repository");
+    this.persistence = Objects.requireNonNull(persistence, "persistence");
+    this.gymStatusResolver = Objects.requireNonNull(gymStatusResolver, "gymStatusResolver");
   }
 
   public GameState gameState() {
@@ -49,11 +46,11 @@ public final class GameModel {
   }
 
   public boolean hasAnySave() {
-    return repository.hasAnySave();
+    return persistence.hasAnySave();
   }
 
   public List<SavedSessionSummary> listSaves() {
-    return repository.listSaves();
+    return persistence.listSaves();
   }
 
   public Optional<String> currentSessionName() {
@@ -66,11 +63,11 @@ public final class GameModel {
     newGame.start();
   }
 
-  public Optional<MapCoordinate> overworldPosition() {
+  public Optional<OverworldPosition> overworldPosition() {
     return holder.overworldPosition();
   }
 
-  public void setOverworldPosition(MapCoordinate position) {
+  public void setOverworldPosition(OverworldPosition position) {
     holder.setOverworldPosition(position);
   }
 
@@ -87,12 +84,7 @@ public final class GameModel {
   }
 
   public GymStatus statusOf(GymRoom gym) {
-    GameState state = holder.current();
-    if (gym.completed()) return GymStatus.COMPLETED;
-    if (state.canChallengeGym(gym)) return GymStatus.AVAILABLE;
-    if (state.currentGym().id() == gym.id()) return GymStatus.CURRENT;
-    if (state.isGymReachable(gym)) return GymStatus.NEEDS_POINTS;
-    return GymStatus.UNREACHABLE;
+    return gymStatusResolver.resolve(holder.current(), gym);
   }
 
   public void beginCurrentBattle() {
@@ -123,34 +115,34 @@ public final class GameModel {
     return healing.healCostForCreature(holder.current(), creatureCatalogId);
   }
 
-  public void saveCurrent() throws IOException {
+  public void saveCurrent() {
     long id =
-        repository.save(
+        persistence.save(
             new SaveSessionCommand(
                 holder.current(),
-                toOverworldPosition(holder.overworldPosition()),
+                holder.overworldPosition(),
                 holder.currentSessionId(),
                 holder.currentSessionName()));
     refreshSessionMeta(id);
-    repository.markLastPlayed(id);
+    persistence.markLastPlayed(id);
   }
 
-  public void saveAsNew(String name) throws IOException {
+  public void saveAsNew(String name) {
     long id =
-        repository.save(
+        persistence.save(
             new SaveSessionCommand(
                 holder.current(),
-                toOverworldPosition(holder.overworldPosition()),
+                holder.overworldPosition(),
                 Optional.empty(),
                 Optional.of(name)));
     refreshSessionMeta(id);
-    repository.markLastPlayed(id);
+    persistence.markLastPlayed(id);
   }
 
-  public void loadSession(long sessionId) throws IOException {
-    LoadedSession loaded = repository.load(sessionId);
+  public void loadSession(long sessionId) {
+    LoadedSession loaded = persistence.load(sessionId);
     applyLoadedSession(loaded);
-    repository.markLastPlayed(sessionId);
+    persistence.markLastPlayed(sessionId);
     SavedSessionSummary meta =
         listSaves().stream()
             .filter(s -> s.id() == sessionId)
@@ -159,8 +151,8 @@ public final class GameModel {
     holder.setCurrentSession(sessionId, meta.name());
   }
 
-  public void deleteSession(long sessionId) throws IOException {
-    repository.delete(sessionId);
+  public void deleteSession(long sessionId) {
+    persistence.delete(sessionId);
     if (holder.currentSessionId().filter(id -> id == sessionId).isPresent()) {
       holder.clearCurrentSession();
     }
@@ -169,9 +161,7 @@ public final class GameModel {
   private void applyLoadedSession(LoadedSession loaded) {
     holder.replace(loaded.state());
     holder.clearOverworldPosition();
-    loaded
-        .overworldPosition()
-        .ifPresent(pos -> holder.setOverworldPosition(new MapCoordinate(pos.row(), pos.column())));
+    loaded.overworldPosition().ifPresent(holder::setOverworldPosition);
   }
 
   private void refreshSessionMeta(long sessionId) {
@@ -179,9 +169,5 @@ public final class GameModel {
         .filter(s -> s.id() == sessionId)
         .findFirst()
         .ifPresent(s -> holder.setCurrentSession(sessionId, s.name()));
-  }
-
-  private static Optional<OverworldPosition> toOverworldPosition(Optional<MapCoordinate> coord) {
-    return coord.map(c -> new OverworldPosition(c.row(), c.column()));
   }
 }

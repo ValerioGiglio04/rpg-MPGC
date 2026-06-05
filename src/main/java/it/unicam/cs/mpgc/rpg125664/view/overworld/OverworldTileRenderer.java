@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.overworld;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GymStatus;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.view.component.PlayerPortrait;
 import java.util.Map;
@@ -128,7 +129,7 @@ public final class OverworldTileRenderer {
       String playerName,
       String playerSkinPath,
       Function<GymRoom, GymStatus> statusOf) {
-    String key = GymCellAssignment.cellKey(row, col);
+    String key = GymCellPlacement.cellKey(row, col);
     GymRoom gym = gymsByCell.get(key);
     StackPane tile = newBaseTile();
     applyGroundStyle(tile, blockedTiles[row][col], gym, key, decorByCell);

@@ -8,7 +8,7 @@ Questa pagina espande la dichiarazione breve presente nel [README](https://githu
 
 ## Premessa
 
-Qui descrivo **solo** i punti in cui ho usato ChatGPT, Claude, Gemini o Copilot: bozze, suggerimenti, pezzi di testo o codice che poi ho rivisto io. Il gioco, l'architettura e la maggior parte della Wiki sono stati scritti e testati da me; in questa pagina trovi cosa mi ha aiutato l'AI e in che modo.
+Qui descrivo **solo** i punti in cui ho usato ChatGPT, Claude, Gemini o Copilot: bozze, suggerimenti, pezzi di testo o codice che poi ho rivisto io. Il gioco, l'architettura e la maggior parte della Wiki sono stati scritti e verificati da me; in questa pagina trovi cosa mi ha aiutato l'AI e in che modo.
 
 ---
 
