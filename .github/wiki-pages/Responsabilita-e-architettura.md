@@ -14,7 +14,7 @@ Il progetto segue un'**architettura MVC** (Model-View-Controller): il **dominio*
 | **model** | `...model` (+ `model.persistence`, `model.combat.strategy`) | Modello di gioco, regole, combattimento, validazione, eventi di battaglia; **porte** in `model.persistence` |
 | **model.service** | `...model.service` (+ `model.service`) | Servizi di caso d'uso e `GameModel` come unico entry point per la UI |
 | **model.persistence** | `...model.persistence` | Catalogo su H2 (JPA), sessione su JSON, mapping entità/DTO ↔ dominio, seed catalogo da JSON |
-| **view** / **controller** | `...view` (+ `controller`, `controller`, `component`, `overworld`, `theme`) | Schermate FXML, controller sottili, controller (stato + comandi), componenti visivi, mappa overworld, temi, messaggi — **nessuna regola di business** |
+| **view** / **controller** | `...view` (+ `navigation`, `actions`, `controller`, `controller`, `component`, `overworld`, `theme`) | Navigazione FXML, callback schermata, controller, componenti, mappa overworld, temi, i18n — **nessuna regola di business** |
 
 ### Regola di dipendenza
 
@@ -59,11 +59,15 @@ flowchart TB
     Valid[validation e builder]
   end
   subgraph infrastructure [Infrastruttura]
-    JRepo[HibernateGameStateRepository]
-    HCat[HibernateGameCatalogLoader]
-    CEM[CatalogEntityMapper]
-    Seed[CatalogDatabaseSeeder]
-    Mapper[SessioneJsonMapper]
+    subgraph catalog_model.persistence [catalog]
+      HCat[HibernateGameCatalogLoader]
+      CEM[catalog.mapper]
+      Seed[catalog.seed]
+    end
+    subgraph session_model.persistence [session]
+      JRepo[HibernateGameStateRepository]
+      Mapper[session.mapper]
+    end
   end
   subgraph bootstrap [Bootstrap]
     AM[AppModule]
@@ -171,6 +175,13 @@ flowchart TB
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
 | Tema UI | `view.theme` (`UiTheme`) | `view.theme.impl` |
 | Controller MVP | `controller` | controller in `controller` |
+| Entity JPA catalogo | — | `model.persistence.catalog.entities` |
+| DTO / seed catalogo | `model.persistence.catalog.dto` | — |
+| Mapper / seed catalogo | `model.persistence.catalog.mapper` | `model.persistence.catalog.seed`, `.support` |
+| DTO / mapper sessione | `model.persistence.session.dto` | `session.mapper`, `session.serializer` |
+| Shell e routing UI | — | `controller.navigation` |
+| Callback schermata | `controller.navigation` | implementate da `ScreenNavigator` |
+| Builder widget UI | — | `view.component.builder` |
 
 ---
 

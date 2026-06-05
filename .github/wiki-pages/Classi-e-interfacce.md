@@ -193,47 +193,99 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `HibernateGameCatalogLoader` | Implementazione `GameCatalogLoader`; costruisce `GameCatalog` da H2 + `NewGameSettings` già noti |
-| C | `CatalogEntityMapper` | Mapping entità JPA → template di dominio (`toMove`, `toCreature`, `toGym`) |
-| C | `CatalogDatabaseSeeder` | Orchestrazione seed catalogo (ordine wipe/insert, check completezza) |
-| C | `CatalogTable` | Operazioni JPA su una tabella catalogo (count, delete bulk, persist) |
-| C | `PalestraCollegamentiSupport` | Collegamenti palestre da `ordine` (catena lineare) |
 | C | `CatalogIds` (dominio) | Costanti catalogo (es. `GIOCATORE_UMANO = 1`) |
+
+#### Entity JPA (`model.persistence.catalog.entities`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `GiocatoreEntity` | Tabella `giocatore` |
 | C | `CreaturaEntity` | Tabella `creatura` |
 | C | `MossaEntity` | Tabella `mosse` |
 | C | `PalestraEntity` | Tabella `palestra` |
-| C | `CatalogSeedJsonLoader` | Lettura `catalog-seed.json` e persistenza entità |
+
+#### DTO seed (`model.persistence.catalog.dto`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | R | `CatalogSeedBundle` | Dati seed in memoria prima del persist |
-| F | `CatalogSeedJsonDtos` | Record DTO Jackson (package-private) |
+| R | `CatalogSeedFileDto`, `CreatureDto`, `GymDto`, … | Forma JSON di `catalog-seed.json` |
+
+#### Mapper catalogo (`model.persistence.catalog.mapper`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `CatalogEntityMapper` | Mapping entità JPA → template di dominio |
+
+#### Seed catalogo (`model.persistence.catalog.seed`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `CatalogSeedJsonLoader` | Lettura `catalog-seed.json` |
+| C | `CatalogDatabaseSeeder` | Orchestrazione seed (wipe/insert) |
+| C | `CatalogTable` | Operazioni JPA su tabella catalogo |
+
+#### Support catalogo (`model.persistence.catalog.support`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `PalestraCollegamentiSupport` | Collegamenti palestre da `ordine` (catena lineare) |
 
 ### Sessione H2 (`model.persistence.session`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `HibernateGameStateRepository` | `GameStateRepository` su tabella `sessioni_salvate` |
+
+#### Entity JPA (`model.persistence.session.entities`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `SessioneSalvataEntity` | JPA: `dati_salvati_json`, metadati slot, `id_utente` futuro |
+
+#### DTO sessione (`model.persistence.session.dto`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `UltimaSessioneSalvataDto` | Forma del payload JSON in `dati_salvati_json` |
+
+#### Mapper / serializer (`model.persistence.session.mapper` / `.serializer`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `SessioneJsonMapper` | `GameState` ↔ `UltimaSessioneSalvataDto` |
 | C | `SessionJsonSerializer` | Serializza il DTO nel CLOB |
-| C | `UltimaSessioneSalvataDto` | Forma del payload JSON in `dati_salvati_json` |
 
 ---
 
 ## Layer `view` — Presentazione
 
-### Shell e navigazione (`view`)
+### Infra UI (`view`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `MainView` | Stage principale JavaFX |
-| C | `ScreenNavigator` | Routing tra schermate FXML; delega dialoghi a `DialogHelper` |
-| C | `DialogHelper` | Alert e dialoghi save/load (isolati dal navigator) |
-| C | `UiErrorReporter` | Log + `Alert` per errori UI via `Messages` |
-| C | `FxmlScreens` | Caricamento FXML e binding controller |
-| I | `MainMenuActions` | Callback menu (nuova partita, carica, esci) |
-| I | `LoadGameActions` | Callback schermata caricamento (carica, elimina, indietro) |
-| I | `HubActions` | Callback hub (battaglia, menu, vittoria) |
-| I | `VictoryActions` | Callback schermata vittoria |
 | C | `Messages` | Bundle `messages_it.properties` |
+| C | `UiErrorReporter` | Log + `Alert` per errori UI via `Messages` |
+
+### Navigazione (`controller.navigation`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `MainView` | Layout root JavaFX |
+| C | `ScreenNavigator` | Routing tra schermate FXML; implementa `*Actions` |
+| C | `DialogHelper` | Alert e dialoghi save/load |
+| C | `FxmlScreens` | Caricamento FXML e binding controller |
+
+### Callback schermata (`controller.navigation`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| I | `MainMenuActions` | Callback menu (nuova partita, carica, esci) |
+| I | `LoadGameActions` | Callback schermata caricamento |
+| I | `HubActions` | Callback hub (battaglia, save, menu) |
+| I | `VictoryActions` | Callback schermata vittoria |
+
+### Battaglia / log (`view`)
 | C | `BattleEventTranslator` | `BattleEvent` → righe log localizzate |
 | R | `BattleLogLine` | Riga di log (tipo + testo) |
 
@@ -271,6 +323,11 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | C | `BattleCommandColumnView` | Colonna comandi (mosse, switch) |
 | C | `BattleEndOverlay` | Overlay fine battaglia / ricompense |
 | C | `BattleUiErrorPane` | Messaggio errore (es. palestra non sfidabile) |
+
+#### Builder componenti (`view.component.builder`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `CreatureCardBuilder` | Costruzione card creatura |
 | C | `PlayerPortraitBuilder` | Costruzione ritratto giocatore |
 
@@ -313,7 +370,7 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | `Validator<T>` | model.validation | `AbstractDomainValidator<T>` | `*Validator` concreti |
 | `BattleEvent` | model.event | Record sealed annidati |
 | `UiTheme` | view.theme | `DuelUiTheme` (`view.theme.impl`); stili hub inline |
-| `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | view | Implementate da `ScreenNavigator` |
+| `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | Implementate da `ScreenNavigator` (`controller.navigation`) |
 
 ---
 

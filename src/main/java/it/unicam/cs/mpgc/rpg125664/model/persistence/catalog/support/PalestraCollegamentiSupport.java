@@ -1,5 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.support;
 
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

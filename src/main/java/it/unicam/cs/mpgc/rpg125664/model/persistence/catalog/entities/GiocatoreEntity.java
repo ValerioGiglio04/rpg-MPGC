@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

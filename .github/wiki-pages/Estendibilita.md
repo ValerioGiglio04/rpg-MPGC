@@ -50,8 +50,8 @@ Il dominio e le regole di `canChallengeGym`, danno, gloria restano **identici**.
 
 | Passo | Azione |
 |-------|--------|
-| 1 | Implementare `GameStateRepository` in `model.persistence.session` (o estendere `AbstractHibernateAdapter` se si resta su Hibernate) |
-| 2 | Opzionale: implementare `GameCatalogLoader` in `model.persistence.catalog` se il catalogo non resta su H2 |
+| 1 | Implementare `GameStateRepository` in `model.persistence.session` (mapper in `session.mapper`, DTO in `session.dto`) |
+| 2 | Opzionale: implementare `GameCatalogLoader` in `model.persistence.catalog` (seed in `catalog.seed`, mapping in `catalog.mapper`) se il catalogo non resta su H2 |
 | 3 | Registrare le implementazioni in `AppModule` (composition root); contratti in `model.persistence` |
 
 **Oggi:** `HibernateGameStateRepository` persiste più partite in `sessioni_salvate` (colonna `dati_salvati_json`). La UI elenca gli slot in `LoadGame.fxml` e carica con `GameModel.loadSession(id)`.
@@ -93,8 +93,8 @@ Nuova policy overworld: implementare `GymStatusStrategy` in `model.overworld.str
 | Passo | Azione |
 |-------|--------|
 | 1 | Aggiornare `catalog-seed.json` |
-| 2 | Riavviare l'app: `AppModule.bootstrap()` legge il JSON **una volta**, il seeder riallinea H2 e `HibernateGameCatalogLoader` usa H2 + `NewGameSettings` già in memoria |
-| 3 | Mapping entità → dominio in `CatalogEntityMapper`; nessuna modifica obbligatoria al dominio se i template rispettano i validator esistenti |
+| 2 | Riavviare l'app: `AppModule.bootstrap()` legge il JSON **una volta** (`catalog.seed.CatalogSeedJsonLoader`), il seeder (`catalog.seed.CatalogDatabaseSeeder`) riallinea H2 e `HibernateGameCatalogLoader` usa H2 + `NewGameSettings` già in memoria |
+| 3 | Mapping entità → dominio in `CatalogEntityMapper` (`model.persistence.catalog.mapper`); nessuna modifica obbligatoria al dominio se i template rispettano i validator esistenti |
 
 Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate` / `GymRoom` o introdurre policy nel dominio senza toccare la UI.
 
@@ -106,10 +106,10 @@ Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate`
 |----------------|--------------------------------|
 | Inventario oggetti | Nuovo servizio in `model.service` + modello in `model` |
 | Più slot di salvataggio | **Già presente** via `sessioni_salvate`; estendere con limite slot, autosave, cloud |
-| Autosave | Chiamare `repository.save()` da `ScreenNavigator` o listener |
+| Autosave | Chiamare `repository.save()` da `ScreenNavigator` (`controller.navigation`) o listener |
 | Achievement | Listener su `BattleEvent` o hook in `GymCompletionHandler` |
 | Audio / effetti | Solo layer `ui`, nessun impatto su dominio |
-| Negozio | Nuovo caso d'uso + schermata FXML + voce in `ScreenNavigator` |
+| Negozio | Nuovo caso d'uso + schermata FXML + voce in `controller.navigation.ScreenNavigator` |
 
 ---
 
@@ -120,8 +120,8 @@ Pattern consigliato (come hub, battaglia, overworld):
 1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
 2. Creare `NuovaSchermataController` in `controller` (stato + comandi verso `GameModel`)
 3. Creare `NuovaSchermataController` sottile: binding FXML + delega al controller
-4. Registrare transizione in `ScreenNavigator` / `FxmlScreens`
-5. Eventuale interfaccia callback in `view` (come `HubActions`, `MainMenuActions`, implementate da `ScreenNavigator`)
+4. Registrare transizione in `controller.navigation` (`ScreenNavigator`, `FxmlScreens`)
+5. Eventuale interfaccia callback in `controller.navigation` (implementate da `ScreenNavigator`)
 6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
 
 ---
@@ -134,7 +134,7 @@ L'UI **non** incolla stringhe fisse nei controller: menu, hub, duello, dialoghi 
 |----------|--------|
 | `src/main/resources/i18n/messages_it.properties` | File delle traduzioni (chiave → testo) usato nella v1 in italiano |
 | `Messages` (`view`) | Punto unico per `get` / `format` e per il `ResourceBundle` condiviso con FXML |
-| `FxmlScreens` | Passa lo stesso bundle a `FXMLLoader`, così i `%chiave` negli `.fxml` risolvono le stesse stringhe |
+| `FxmlScreens` (`controller.navigation`) | Passa lo stesso bundle a `FXMLLoader`, così i `%chiave` negli `.fxml` risolvono le stesse stringhe |
 | Controller Java | Usano `Messages.get("…")` e `Messages.format("…", argomenti)` per etichette dinamiche, log di battaglia, tooltip |
 
 **Modificare solo l'italiano:** editare `messages_it.properties` (es. `menu.start`, `battle.dialog.victory.title`). Placeholder come `{0}` e `{1}` vanno lasciati dove servono a `MessageFormat`.
@@ -228,7 +228,7 @@ Il dominio (`GameState`) non cambierebbe; solo l'model.persistence mapperbbe rig
 
 ## Versioning del salvataggio
 
-Il payload in `dati_salvati_json` usa `@JsonIgnoreProperties(ignoreUnknown = true)` sui DTO. La colonna `format_version` su `sessioni_salvate` permette migrazioni in `SessioneJsonMapper` quando la forma del JSON cambia in modo strutturale.
+Il payload in `dati_salvati_json` usa `@JsonIgnoreProperties(ignoreUnknown = true)` sui DTO (`session.dto`). La colonna `format_version` su `sessioni_salvate` permette migrazioni in `SessioneJsonMapper` (`session.mapper`) quando la forma del JSON cambia in modo strutturale.
 
 ---
 

@@ -1,6 +1,7 @@
-package it.unicam.cs.mpgc.rpg125664.view.component;
+package it.unicam.cs.mpgc.rpg125664.view.component.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
+import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
 
 public final class CreatureCardBuilder {
 

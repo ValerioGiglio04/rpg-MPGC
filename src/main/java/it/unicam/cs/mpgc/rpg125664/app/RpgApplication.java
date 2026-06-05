@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.app;
 
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.MainView;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;

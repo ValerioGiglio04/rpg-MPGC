@@ -1,5 +1,10 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed;
 
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBundle;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.GiocatoreEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -14,10 +19,6 @@ import java.util.stream.Collectors;
  *
  * <p>Il chiamante deve eseguire {@link #ensureCatalogPresent(EntityManager)} dentro una transazione
  * attiva (commit/rollback a carico del chiamante).
- *
- * <p>Per aggiungere una tabella: dichiarare una voce nel registry e aggiornare {@link
- * #PERSIST_ORDER} e {@link #WIPE_ORDER} in modo esplicito (genitori in persist, figli per primi in
- * wipe).
  */
 public final class CatalogDatabaseSeeder {
 
@@ -32,16 +33,9 @@ public final class CatalogDatabaseSeeder {
   private static final CatalogTable<PalestraEntity> PALESTRE =
       CatalogTable.of("palestre", PalestraEntity.class, CatalogSeedBundle::palestre);
 
-  /** Ordine di insert: genitori prima dei figli (FK-safe). */
   private static final List<CatalogTable<?>> PERSIST_ORDER =
       List.of(GIOCATORI, CREATURE, MOSSE, PALESTRE);
 
-  /**
-   * Ordine di delete: figli prima dei genitori.
-   *
-   * <p>Non e' il semplice reverse di {@link #PERSIST_ORDER}: mosse e palestre sono indipendenti ma
-   * referenziano rispettivamente creatura e giocatore boss.
-   */
   private static final List<CatalogTable<?>> WIPE_ORDER =
       List.of(MOSSE, PALESTRE, CREATURE, GIOCATORI);
 
@@ -51,11 +45,6 @@ public final class CatalogDatabaseSeeder {
     throw new UnsupportedOperationException("Cannot instantiate utility class");
   }
 
-  /**
-   * Garantisce che il catalogo DB corrisponda al seed JSON.
-   *
-   * <p>Se incompleto: wipe bulk + reinsert nella transazione corrente.
-   */
   public static void ensureCatalogPresent(EntityManager em) {
     ensureCatalogPresent(em, CatalogSeedJsonLoader.load());
   }
@@ -84,7 +73,6 @@ public final class CatalogDatabaseSeeder {
     return !someTableHasMoreRowsThanExpected;
   }
 
-  /** EXISTS-style check: nessuna entity caricata nel persistence context. */
   private static boolean existsHumanPlayer(EntityManager em) {
     Long found =
         em.createQuery(

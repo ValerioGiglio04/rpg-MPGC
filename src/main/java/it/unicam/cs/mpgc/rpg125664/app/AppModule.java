@@ -1,11 +1,11 @@
 package it.unicam.cs.mpgc.rpg125664.app;
 
-import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.CatalogDatabaseSeeder;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.CatalogSeedBundle;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.CatalogSeedJsonLoader;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.HibernateGameCatalogLoader;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBundle;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed.CatalogDatabaseSeeder;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed.CatalogSeedJsonLoader;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.HibernateGameStateRepository;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.session.SessioneJsonMapper;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.mapper.SessioneJsonMapper;
 import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
 import it.unicam.cs.mpgc.rpg125664.model.service.GymCompletionHandler;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;

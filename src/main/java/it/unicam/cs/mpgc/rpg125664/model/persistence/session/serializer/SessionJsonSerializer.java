@@ -1,9 +1,11 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.session.serializer;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.UltimaSessioneSalvataDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.mapper.SessioneJsonMapper;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import java.io.IOException;
@@ -11,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /** Serializza {@link UltimaSessioneSalvataDto} in {@code dati_salvati_json}. */
-final class SessionJsonSerializer {
+public final class SessionJsonSerializer {
 
   private static final ObjectMapper MAPPER =
       new ObjectMapper()
@@ -21,24 +23,24 @@ final class SessionJsonSerializer {
 
   private final SessioneJsonMapper mapper;
 
-  SessionJsonSerializer(SessioneJsonMapper mapper) {
+  public SessionJsonSerializer(SessioneJsonMapper mapper) {
     this.mapper = Objects.requireNonNull(mapper, "mapper");
   }
 
-  String toJson(GameState state, OverworldPosition overworldPosition) throws IOException {
+  public String toJson(GameState state, OverworldPosition overworldPosition) throws IOException {
     UltimaSessioneSalvataDto dto = mapper.toDto(state, overworldPosition);
     return MAPPER.writeValueAsString(dto);
   }
 
-  UltimaSessioneSalvataDto fromJson(String json) throws IOException {
+  public UltimaSessioneSalvataDto fromJson(String json) throws IOException {
     return MAPPER.readValue(json, UltimaSessioneSalvataDto.class);
   }
 
-  GameState toGameState(String json) throws IOException {
+  public GameState toGameState(String json) throws IOException {
     return mapper.fromDto(fromJson(json));
   }
 
-  Optional<OverworldPosition> overworldPositionFromJson(String json) throws IOException {
+  public Optional<OverworldPosition> overworldPositionFromJson(String json) throws IOException {
     UltimaSessioneSalvataDto dto = fromJson(json);
     OverworldPosition position = mapper.mapPositionFromDto(dto);
     return Optional.ofNullable(position);

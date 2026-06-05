@@ -2,8 +2,8 @@ package it.unicam.cs.mpgc.rpg125664.controller;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.HubActions;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
 import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
 import it.unicam.cs.mpgc.rpg125664.view.component.HamburgerMenu;

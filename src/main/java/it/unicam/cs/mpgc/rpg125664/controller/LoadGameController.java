@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.LoadGameActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
 import it.unicam.cs.mpgc.rpg125664.controller.LoadGamePresenter;
 import java.net.URL;
 import java.util.ResourceBundle;

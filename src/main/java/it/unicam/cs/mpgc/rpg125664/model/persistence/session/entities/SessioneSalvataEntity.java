@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.session.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -99,7 +99,7 @@ public class SessioneSalvataEntity {
     this.ultimaGiocata = ultimaGiocata;
   }
 
-  static SessioneSalvataEntity newRow(
+  public static SessioneSalvataEntity newRow(
       String nome,
       Instant now,
       String datiSalvatiJson,

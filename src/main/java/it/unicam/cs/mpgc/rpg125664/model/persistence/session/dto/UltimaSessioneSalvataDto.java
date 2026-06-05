@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

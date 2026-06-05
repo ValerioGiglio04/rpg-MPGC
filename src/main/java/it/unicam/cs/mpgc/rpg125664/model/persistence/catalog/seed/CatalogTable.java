@@ -1,5 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed;
 
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBundle;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.function.Function;

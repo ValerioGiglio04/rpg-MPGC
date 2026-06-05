@@ -1,6 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.VictoryActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
 import it.unicam.cs.mpgc.rpg125664.controller.VictoryPresenter;
 import java.net.URL;
 import java.util.ResourceBundle;

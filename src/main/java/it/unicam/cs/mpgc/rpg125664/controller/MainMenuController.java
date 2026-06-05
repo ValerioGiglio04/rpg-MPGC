@@ -1,6 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.MainMenuActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;

@@ -1,6 +1,12 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.GiocatoreEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.mapper.CatalogEntityMapper;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.support.PalestraCollegamentiSupport;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CreatureTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;

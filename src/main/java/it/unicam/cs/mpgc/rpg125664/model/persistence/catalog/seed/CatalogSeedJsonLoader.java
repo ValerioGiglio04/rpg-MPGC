@@ -1,7 +1,18 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.BossDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBundle;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedFileDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CreatureDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.GymDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.MoveDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.SettingsDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.GiocatoreEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.NewGameSettings;
 import java.io.InputStream;

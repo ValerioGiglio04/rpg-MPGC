@@ -30,14 +30,14 @@ Un solo tipo di id su tutti i livelli: niente mappe `codice ↔ id` né colonne 
 %%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
 flowchart LR
   subgraph static_data [Catalogo statico]
-    JSON[catalog-seed.json] --> Loader[CatalogSeedJsonLoader]
-    Loader --> Seeder[CatalogDatabaseSeeder]
+    JSON[catalog-seed.json] --> Loader[catalog.seed CatalogSeedJsonLoader]
+    Loader --> Seeder[catalog.seed CatalogDatabaseSeeder]
     Seeder --> H2Cat[(H2: giocatore creatura mosse palestra)]
     H2Cat --> CatLoader[HibernateGameCatalogLoader]
     CatLoader --> GC[GameCatalog in memoria]
   end
   subgraph dynamic_data [Stato partita]
-    GS[GameState] --> Mapper[SessioneJsonMapper]
+    GS[GameState] --> Mapper[session.mapper SessioneJsonMapper]
     Mapper --> Repo[HibernateGameStateRepository]
     Repo --> Tab[(sessioni_salvate)]
     GC --> Mapper
@@ -62,7 +62,7 @@ File: `src/main/resources/META-INF/persistence.xml`
 - **Utente / password:** `sa` / vuota
 - **DDL:** `hibernate.hbm2ddl.auto = update`
 
-Entità registrate: `GiocatoreEntity`, `CreaturaEntity`, `MossaEntity`, `PalestraEntity`, `SessioneSalvataEntity`.
+Entità registrate in `catalog.entities` e `session.entities`: `GiocatoreEntity`, `CreaturaEntity`, `MossaEntity`, `PalestraEntity`, `SessioneSalvataEntity`.
 
 Il database H2 è un **file locale** nella home dell'utente, non nel repository Git.
 
@@ -81,8 +81,8 @@ Apre la console web H2 con le stesse credenziali del `persistence.xml`.
 ### Sorgente iniziale
 
 - File JSON: `src/main/resources/game-data/catalog-seed.json`
-- Caricato da `CatalogSeedJsonLoader` (package `model.persistence.catalog`)
-- `CatalogDatabaseSeeder.ensureCatalogPresent()` all'avvio controlla che H2 coincida con il seed (giocatore umano con id 1 e stesso numero di righe per tabella). Se manca qualcosa svuota le tabelle catalogo e le ricarica; se è già a posto non tocca il DB
+- Caricato da `CatalogSeedJsonLoader` (`model.persistence.catalog.seed`)
+- `CatalogDatabaseSeeder.ensureCatalogPresent()` (`catalog.seed`) all'avvio controlla che H2 coincida con il seed (giocatore umano con id 1 e stesso numero di righe per tabella). Se manca qualcosa svuota le tabelle catalogo e le ricarica; se è già a posto non tocca il DB
 
 ### Tabelle H2
 
@@ -138,7 +138,7 @@ Implementazione: `HibernateGameStateRepository` (`model.persistence.session`).
 | Aspetto | Scelta attuale | Motivo |
 |--------|----------------|--------|
 | Catalogo | Tabelle normalizzate | Dati statici, relazioni stabili |
-| Stato partita | Un CLOB JSON per riga | Snapshot serializzato con `SessioneJsonMapper`; multi-slot senza riscrivere lo schema a ogni nuovo campo |
+| Stato partita | Un CLOB JSON per riga | Snapshot serializzato con `SessioneJsonMapper` (`session.mapper`); multi-slot senza riscrivere lo schema a ogni nuovo campo |
 
 In pratica usiamo H2 come **document store dentro SQL** solo per la sessione: non è il modello relazionale “più proprio”, ma è semplice e coerente con il dominio (`GameState` in RAM, model.persistence che serializza).
 
@@ -146,7 +146,7 @@ In un'evoluzione SQL classica andrebbero introdotte tabelle come `sessione_team`
 
 ### Formato dentro `dati_salvati_json`
 
-DTO: `UltimaSessioneSalvataDto` (forma del documento in `dati_salvati_json`).
+DTO: `UltimaSessioneSalvataDto` (`model.persistence.session.dto`; forma del documento in `dati_salvati_json`).
 
 | Campo JSON | Tipo | Significato |
 |------------|------|-------------|
@@ -158,17 +158,17 @@ DTO: `UltimaSessioneSalvataDto` (forma del documento in `dati_salvati_json`).
 | `palestre_completate` | array | `{ "id_palestra": n, "completata": true/false }` |
 | `posizione_giocatore_mappa` | oggetto | `{ "x", "y" }` sulla griglia overworld |
 
-**Non** si salvano: nomi, mosse, statistiche base, team del boss — vengono **reidratati** da `GameCatalog` in `SessioneJsonMapper.fromDto()`.
+**Non** si salvano: nomi, mosse, statistiche base, team del boss — vengono **reidratati** da `GameCatalog` in `SessioneJsonMapper.fromDto()` (`model.persistence.session.mapper`).
 
 ### Mapper
 
-`SessioneJsonMapper`:
+`SessioneJsonMapper` (`session.mapper`):
 
 - `toDto(GameState)` — dominio → DTO (scrive `id_*` numerici)
-- `fromDto(UltimaSessioneSalvataDto)` — DTO → dominio
+- `fromDto(UltimaSessioneSalvataDto)` — DTO → dominio (`session.dto`)
 - `mapPositionFromDto` — estrae coordinate overworld dal DTO
 
-`SessionJsonSerializer` scrive/legge la stringa JSON in `dati_salvati_json`.
+`SessionJsonSerializer` (`session.serializer`) scrive/legge la stringa JSON in `dati_salvati_json`.
 
 ### Posizione sulla mappa
 

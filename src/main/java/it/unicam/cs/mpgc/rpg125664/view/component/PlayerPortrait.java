@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.component.builder.PlayerPortraitBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;

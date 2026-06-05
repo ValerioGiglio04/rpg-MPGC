@@ -27,25 +27,37 @@ it.unicam.cs.mpgc.rpg125664
 ├── model.combat/
 │   ├── strategy/                     AttackResolutionStrategy, BossMoveStrategy
 │   └── strategy.impl/                TurnBased*, AccuracyThreshold*
-├── model.persistence.catalog/      JPA catalogo + seed JSON
+├── model.persistence.catalog/
+│   ├── entities/ dto/ mapper/ seed/ support/
+│   └── HibernateGameCatalogLoader
 ├── model.persistence/              AbstractHibernateAdapter
-├── model.persistence.session/      sessioni_salvate (JSON in H2)
-└── view/                        shell, ScreenNavigator, Messages
-    ├── controller/
-    ├── component/                    widget + viste battaglia
+├── model.persistence.session/
+│   ├── entities/ dto/ mapper/ serializer/
+│   └── HibernateGameStateRepository
+└── view/                        Messages, UiErrorReporter, BattleEventTranslator
+    ├── navigation/                   MainView, ScreenNavigator, FxmlScreens, DialogHelper
+    ├── actions/                      MainMenuActions, HubActions, …
+    ├── controller/ controller/
+    ├── component/ (+ component.builder/)
     ├── overworld/
-    ├── controller/
-    └── theme/ + theme.impl/          UiTheme, DuelUiTheme
+    └── theme/ + theme.impl/
 ```
 
-| Cerchi… | Contratto (tipo) | Implementazione |
-|---------|------------------|-----------------|
-| Porta persistenza | `model.persistence` | `model.persistence.session` / `.catalog` |
-| Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.impl` |
-| Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.impl` |
-| Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
-| Tema UI | `view.theme` (`UiTheme`) | `view.theme.impl` |
-| Controller MVP | `controller` | controller in `controller` |
+| Cerchi… | Package / ruolo |
+|---------|-----------------|
+| Porta persistenza | `model.persistence` → impl in `model.persistence.session` / `.catalog` |
+| Entity JPA catalogo | `model.persistence.catalog.entities` |
+| DTO / seed JSON catalogo | `model.persistence.catalog.dto` |
+| Mapper / seed catalogo | `catalog.mapper`, `catalog.seed`, `catalog.support` |
+| Entity + DTO + mapper sessione | `session.entities`, `session.dto`, `session.mapper`, `session.serializer` |
+| Strategy combattimento | `model.combat.strategy` / `.impl` |
+| Strategy mappa | `model.overworld.strategy` / `.impl` |
+| Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) |
+| Shell e routing UI | `controller.navigation` |
+| Callback schermata | `controller.navigation` |
+| Controller MVP | `controller` + `controller` |
+| Builder widget UI | `view.component.builder` |
+| Tema UI | `view.theme` / `theme.impl` |
 
 ---
 

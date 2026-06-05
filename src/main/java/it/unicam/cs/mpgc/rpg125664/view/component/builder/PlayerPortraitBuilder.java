@@ -1,4 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.view.component;
+package it.unicam.cs.mpgc.rpg125664.view.component.builder;
+
+import it.unicam.cs.mpgc.rpg125664.view.component.PlayerPortrait;
 
 public final class PlayerPortraitBuilder {
   private String playerName;
