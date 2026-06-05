@@ -1,8 +1,9 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
+import java.io.Serializable;
+
 import it.unicam.cs.mpgc.rpg125664.model.builder.GymBossBuilder;
 import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
-import java.io.Serializable;
 
 public final class GymBoss implements Serializable {
 

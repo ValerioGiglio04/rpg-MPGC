@@ -6,6 +6,7 @@ package it.unicam.cs.mpgc.rpg125664.model.validation;
  * package-private e si ottengono tramite {@link Validators}.
  */
 public abstract class AbstractDomainValidator<T> implements Validator<T> {
+  public AbstractDomainValidator() {}
 
   @Override
   public final void validate(T value) {

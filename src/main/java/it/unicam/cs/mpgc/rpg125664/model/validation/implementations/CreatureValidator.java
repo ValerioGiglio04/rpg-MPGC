@@ -13,8 +13,6 @@ import java.util.List;
  */
 public final class CreatureValidator extends AbstractDomainValidator<Creature> {
 
-  public CreatureValidator() {}
-
   @Override
   protected String nullMessage() {
     return "Creature cannot be null";

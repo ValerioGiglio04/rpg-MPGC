@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.MoveRules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validators;
 
 /**
  * Valida una {@link Move}: nome, potenza, limiti di accuracy, descrizione. Si ottiene tramite
@@ -12,8 +13,6 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
  * componenti raw prima che il record stesso esista.
  */
 public final class MoveValidator extends AbstractDomainValidator<Move> {
-
-  MoveValidator() {}
 
   @Override
   protected String nullMessage() {

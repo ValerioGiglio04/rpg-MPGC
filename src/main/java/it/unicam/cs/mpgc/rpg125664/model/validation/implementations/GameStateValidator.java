@@ -14,8 +14,6 @@ import java.util.List;
  */
 public final class GameStateValidator extends AbstractDomainValidator<GameState> {
 
-  GameStateValidator() {}
-
   @Override
   protected String nullMessage() {
     return "GameState cannot be null";

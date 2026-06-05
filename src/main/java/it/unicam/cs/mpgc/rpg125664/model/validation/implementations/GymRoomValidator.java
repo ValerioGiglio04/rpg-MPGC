@@ -12,8 +12,6 @@ import java.util.List;
  */
 public final class GymRoomValidator extends AbstractDomainValidator<GymRoom> {
 
-  GymRoomValidator() {}
-
   @Override
   protected String nullMessage() {
     return "GymRoom cannot be null";
