@@ -120,10 +120,10 @@ Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate`
 |----------------|--------------------------------|
 | Inventario oggetti | Nuovo servizio in `model.service` + modello in `model` |
 | Più slot di salvataggio | **Già presente** via `sessioni_salvate`; estendere con limite slot, autosave, cloud |
-| Autosave | Chiamare `repository.save()` da `ScreenNavigator` (`controller.navigation`) o listener |
+| Autosave | Chiamare `repository.save()` da `navigation.implementations.ScreenNavigator` o listener |
 | Achievement | Listener su `BattleEvent` o hook in `GymCompletionHandler` |
 | Audio / effetti | Solo layer `ui`, nessun impatto su dominio |
-| Negozio | Nuovo caso d'uso + schermata FXML + voce in `controller.navigation.ScreenNavigator` |
+| Negozio | Nuovo caso d'uso + schermata FXML + voce in `navigation.implementations.ScreenNavigator` |
 
 ---
 
@@ -134,7 +134,7 @@ Pattern consigliato (come hub, battaglia, overworld):
 1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
 2. Creare `NuovaSchermataController` in `controller` (stato + comandi verso `GameModel`)
 3. Creare `NuovaSchermataController` sottile: binding FXML + delega al controller
-4. Registrare transizione in `controller.navigation` (`ScreenNavigator`, `FxmlScreenLoader`)
+4. Registrare transizione in `navigation.implementations.ScreenNavigator` e `navigation.support.FxmlScreenLoader`
 5. Eventuale interfaccia callback in `controller.navigation` + implementazione in `actions.implementations` (delega a `ScreenNavigation`)
 6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
 
@@ -147,7 +147,7 @@ L'UI **non** incolla stringhe fisse nei controller: menu, hub, duello, dialoghi 
 | Elemento | Ruolo |
 |----------|--------|
 | `src/main/resources/i18n/messages_it.properties` | File delle traduzioni (chiave → testo) usato nella v1 in italiano |
-| `Messages` (`view`) | Punto unico per `get` / `format` e per il `ResourceBundle` condiviso con FXML |
+| `Messages` (`view.support`) | Punto unico per `get` / `format` e per il `ResourceBundle` condiviso con FXML |
 | `FxmlScreenLoader` (`controller.navigation`) | Passa lo stesso bundle a `FXMLLoader`, così i `%chiave` negli `.fxml` risolvono le stesse stringhe |
 | Controller Java | Usano `Messages.get("…")` e `Messages.format("…", argomenti)` per etichette dinamiche, log di battaglia, tooltip |
 
@@ -176,7 +176,7 @@ Nuovi aggregati devono:
 
 - Costruzione sempre via `*Builder`: crea l'istanza, poi `Validator<T> v = ValidatorFactory.get{Type}Validator(); v.validate(instance)`
 - Rispettare `Rules` (`model.validation`) dove applicabile
-- Nuovo tipo: `{Type}Validator extends Validator<T>` in `validation.implementations`, registrazione in `ValidatorFactory`; costruttori senza validazione
+- Nuovo tipo: `{Type}Validator extends Validator<T>` in `validation.implementations`, registrazione in `validation.support.ValidatorFactory`; costruttori senza validazione
 
 Questo evita che estensioni introducano stati illegali difficili da debuggare.
 

@@ -1,6 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.session.implementations;
 
-import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.base.AbstractHibernateAdapter;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.entities.SessioneSalvataEntity;
 import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import jakarta.persistence.EntityManager;

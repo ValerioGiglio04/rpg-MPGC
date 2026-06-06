@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
+package it.unicam.cs.mpgc.rpg125664.model.validation.support;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
@@ -9,6 +9,14 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.CreatureHolderValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.CreatureValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.GameStateValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.GymBossValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.GymRoomValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.MoveValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.PlayerValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ScoreValidator;
 
 /** Registry singleton dei validator di dominio. */
 public final class ValidatorFactory {

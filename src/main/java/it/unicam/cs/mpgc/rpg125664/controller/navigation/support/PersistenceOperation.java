@@ -1,7 +1,7 @@
-package it.unicam.cs.mpgc.rpg125664.controller.navigation;
+package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
 import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.UiErrorReporter;
+import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;
 
 /** Operazioni di persistenza esposte dalla UI con chiave i18n per errori. */
 public enum PersistenceOperation {

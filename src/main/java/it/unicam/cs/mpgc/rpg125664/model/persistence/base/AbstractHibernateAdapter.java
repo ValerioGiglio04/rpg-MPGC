@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.base;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

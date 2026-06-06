@@ -3,7 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymBoss;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
+import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.util.List;
 
 public final class GymRoomBuilder {

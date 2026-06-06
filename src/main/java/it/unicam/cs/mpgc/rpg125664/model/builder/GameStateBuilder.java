@@ -4,7 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
+import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.List;
 

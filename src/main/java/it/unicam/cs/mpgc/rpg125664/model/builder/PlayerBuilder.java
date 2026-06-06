@@ -4,7 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
+import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 
 public final class PlayerBuilder {
 

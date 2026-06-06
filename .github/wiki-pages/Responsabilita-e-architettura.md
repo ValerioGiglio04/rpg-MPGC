@@ -137,6 +137,19 @@ flowchart TB
 
 ---
 
+## Convenzione package (contratto vs concreto)
+
+| Sottocartella | Contenuto | Esempi nel progetto |
+|---------------|-----------|---------------------|
+| *(package padre)* | Interfacce, classi astratte, regole condivise | `HubActions`, `Validator<T>`, `*Navigation` |
+| `implementations/` | Classi che **implementano** un contratto del padre | `HubActionsImpl`, `ScreenNavigator`, `HibernateGameStateRepository` |
+| `support/` | Factory, helper, utility senza contratto dedicato | `ValidatorFactory`, `FxmlScreenLoader`, `Messages`, `catalog.support` |
+| `base/` | Classe astratta condivisa tra più model.persistence | `AbstractHibernateAdapter` |
+
+**Eccezioni volute (nessuna sottocartella contract/impl):** `model.entity`, `model.builder`, `model.persistence` (sole porte), `model.service` (servizi concreti), `controller` / `controller` / `component` / `overworld` (MVP per ruolo), sottocartelle model.persistence per ruolo tecnico (`entities`, `dto`, `mapper`, `serializer`, `seed`).
+
+---
+
 ## Principi SOLID nel progetto
 
 ### Single Responsibility (SRP)
@@ -186,7 +199,7 @@ flowchart TB
 
 | Cerchi… | Contratto (tipo) | Implementazione |
 |---------|------------------|-----------------|
-| Porta persistenza | `model.persistence` | `model.persistence.session` / `.catalog` |
+| Porta persistenza | `model.persistence` | `model.persistence.session.implementations` / `catalog.implementations` |
 | Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.implementations` |
 | Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.implementations` |
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
@@ -196,12 +209,14 @@ flowchart TB
 | DTO / seed catalogo | `model.persistence.catalog.dto` | — |
 | Mapper / seed catalogo | `model.persistence.catalog.mapper` | `model.persistence.catalog.seed`, `.support` |
 | DTO / mapper sessione | `model.persistence.session.dto` | `session.mapper`, `session.serializer` |
-| JPQL / summary slot | — | `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper` |
-| Shell e routing UI | — | `controller.navigation` |
+| JPQL / summary slot | — | `session.implementations` (`SessioneSalvataJpaRepository`), `SessioneSalvataSummaryMapper` |
+| Base model.persistence Hibernate | — | `model.persistence.base` (`AbstractHibernateAdapter`) |
+| Utility UI | — | `view.support` (`Messages`, `UiErrorReporter`, …) |
+| Helper navigazione | — | `controller.navigation.support` (`FxmlScreenLoader`, `PersistenceUiGuard`, …) |
 | Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `*Navigation`) |
-| Navigazione per schermata | `controller.navigation` (`MainMenuNavigation`, …) | `ScreenNavigator` (implementa tutte + `ScreenNavigation`) |
+| Navigazione per schermata | `controller.navigation` (`MainMenuNavigation`, …) | `navigation.implementations.ScreenNavigator` |
 | Builder widget UI | — | `view.component.builder` |
-| Validazione dominio | `model.validation` (`Validator`, `Rules`) | `validation.implementations` (`ValidatorFactory`, `*Validator`) |
+| Validazione dominio | `model.validation` (`Validator`, `Rules`) | `validation.implementations` (`*Validator`), `validation.support` (`ValidatorFactory`) |
 
 ---
 
@@ -257,7 +272,7 @@ Dettagli operativi in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MP
 | `OverworldMap` monolitico | ~450 righe UI | Rischio regressioni visive | Estrarre componenti mappa |
 | `GameState` mutabile in UI | Esposto via `GameModel.gameState()` | Un solo client JavaFX | DTO read-only verso controller |
 | `ValidatorFactory` static | Registry centralizzato | Coerente col corso | Injection opzionale |
-| Utility statiche (`Messages`, `DialogHelper`) | Standard JavaFX | Non richiesto wrappare in bean | Facade UI se serve test |
+| Utility statiche (`Messages`, `DialogHelper`) | In `view.support` / `navigation.support` | Coerente con convenzione `support/` | Facade UI se serve test |
 | `ScreenNavigator` ancora orchestratore | Routing + factory FXML + policy battaglia | ISP navigazione già applicato; split `ScreenFactory` / `SessionSaveCoordinator` = Tier 2 futuro | Vedi [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) |
 
 Ogni scelta sopra è **consapevole**: i principi SOLID sono rispettati dove il costo/beneficio è favorevole; il resto è tracciato come evoluzione post-consegna.

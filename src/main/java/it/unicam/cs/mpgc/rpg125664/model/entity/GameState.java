@@ -2,7 +2,7 @@ package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.GameStateBuilder;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
+import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;

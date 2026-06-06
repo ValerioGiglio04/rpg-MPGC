@@ -4,13 +4,14 @@ import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.BattleEventTranslator;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.BattleLogLine;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.UiErrorReporter;
+import it.unicam.cs.mpgc.rpg125664.view.support.BattleEventTranslator;
+import it.unicam.cs.mpgc.rpg125664.view.support.BattleLogLine;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class BattlePresenter {
 
@@ -21,14 +22,18 @@ public final class BattlePresenter {
     this.gameModel = Objects.requireNonNull(gameModel, "gameModel");
   }
 
+  private boolean isBattleNeeded() {
+    return !gameModel.gameState().currentGym().completed();
+  }
+
   public void startBattleIfNeeded() {
-    if (!gameModel.gameState().currentGym().completed()) {
+    if (isBattleNeeded()) {
       gameModel.beginCurrentBattle();
     }
   }
 
   public void prepareBattleIfNeeded() {
-    if (!gameModel.gameState().currentGym().completed()) {
+    if (isBattleNeeded()) {
       gameModel.prepareCurrentBattle();
     }
   }
@@ -107,13 +112,18 @@ public final class BattlePresenter {
     return state.player().holder().allKnockedOut() && !state.currentGym().completed();
   }
 
+  private static boolean isCreaturesAcquiredEvent(BattleEvent event) {
+    return event instanceof BattleEvent.CreaturesAcquired;
+  }
+
   private static List<String> extractAcquiredCreatureNames(List<BattleEvent> events) {
-    for (BattleEvent event : events) {
-      if (event instanceof BattleEvent.CreaturesAcquired acquired) {
-        return List.copyOf(acquired.creatureNames());
-      }
-    }
-    return List.of();
+    Optional<BattleEvent.CreaturesAcquired> firstCreaturesAcquired =
+        events.stream()
+            .filter(BattlePresenter::isCreaturesAcquiredEvent)
+            .map(BattleEvent.CreaturesAcquired.class::cast)
+            .findFirst();
+    if (firstCreaturesAcquired.isEmpty()) return List.of();
+    return List.copyOf(firstCreaturesAcquired.get().creatureNames());
   }
 
   public record RoundOutcome(

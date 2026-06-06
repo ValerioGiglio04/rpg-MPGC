@@ -5,7 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.Objects;
 import java.util.Optional;
 

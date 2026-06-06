@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.overworld;
 
 import it.unicam.cs.mpgc.rpg125664.model.overworld.OverworldGridLayout;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 
 /** Costanti di rendering overworld (zoom, tile, decor). */
 public final class OverworldMapConstants {

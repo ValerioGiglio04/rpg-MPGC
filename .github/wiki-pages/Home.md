@@ -25,21 +25,25 @@ it.unicam.cs.mpgc.rpg125664
 ├── model.persistence/                      GameStateRepository, GameCatalogLoader
 ├── model.entity|catalog|event|builder/
 ├── model.validation/                  Validator (abstract), Rules, MoveRules
-│   └── implementations/              ValidatorFactory, *Validator
+│   ├── implementations/              *Validator
+│   └── support/                      ValidatorFactory
 ├── model.combat/
 │   ├── strategy/                     AttackResolutionStrategy, BossMoveStrategy
 │   └── strategy.implementations/                TurnBased*, AccuracyThreshold*
-├── model.persistence.catalog/
-│   ├── entities/ dto/ mapper/ seed/ support/
-│   └── HibernateGameCatalogLoader
-├── model.persistence/              AbstractHibernateAdapter
-├── model.persistence.session/
-│   ├── entities/ dto/ mapper/ serializer/
-│   ├── SessioneSalvataJpaRepository
-│   ├── SessioneSalvataSummaryMapper
-│   └── HibernateGameStateRepository
-└── view/                        Messages, UiErrorReporter, BattleEventTranslator
-    ├── navigation/                   MainView, ScreenNavigator, ScreenNavigation (+ ISP), PersistenceUiGuard, PersistenceOperation, FxmlScreenLoader, DialogHelper
+├── model.persistence/
+│   ├── base/                         AbstractHibernateAdapter
+│   ├── catalog/
+│   │   ├── implementations/          HibernateGameCatalogLoader
+│   │   └── entities/ dto/ mapper/ seed/ support/
+│   └── session/
+│       ├── implementations/          HibernateGameStateRepository, SessioneSalvataJpaRepository
+│       ├── SessioneSalvataSummaryMapper
+│       └── entities/ dto/ mapper/ serializer/
+└── view/
+    ├── support/                      Messages, UiErrorReporter, BattleEventTranslator, BattleLogLine
+    ├── navigation/                   *Navigation, ScreenNavigation
+    │   ├── implementations/          ScreenNavigator
+    │   └── support/                  MainView, FxmlScreenLoader, DialogHelper, PersistenceUiGuard, PersistenceOperation
     ├── actions/                      MainMenuActions, HubActions, …
     │   └── implementations/          MainMenuActionsImpl, HubActionsImpl, …
     ├── controller/ controller/
@@ -50,13 +54,14 @@ it.unicam.cs.mpgc.rpg125664
 
 | Cerchi… | Package / ruolo |
 |---------|-----------------|
-| Porta persistenza | `model.persistence` → impl in `model.persistence.session` / `.catalog` |
+| Porta persistenza | `model.persistence` → impl in `model.persistence.session.implementations` / `catalog.implementations` |
 | Entity JPA catalogo | `model.persistence.catalog.entities` |
 | DTO / seed JSON catalogo | `model.persistence.catalog.dto` |
 | Mapper / seed catalogo | `catalog.mapper`, `catalog.seed`, `catalog.support` |
 | Entity + DTO + mapper sessione | `session.entities`, `session.dto`, `session.mapper`, `session.serializer` |
-| JPQL / mapping slot sessione | `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper` → `HibernateGameStateRepository` |
-| Validazione dominio | `model.validation` → `validation.implementations` (`ValidatorFactory`, `*Validator`) |
+| JPQL / mapping slot sessione | `session.implementations` (`SessioneSalvataJpaRepository`) + `SessioneSalvataSummaryMapper` → `HibernateGameStateRepository` |
+| Validazione dominio | `model.validation` → `implementations` (`*Validator`), `support` (`ValidatorFactory`) |
+| Utility UI condivise | `view.support` (`Messages`, `UiErrorReporter`, …) |
 | Strategy combattimento | `model.combat.strategy` / `.implementations` |
 | Strategy mappa | `model.overworld.strategy` / `.implementations` |
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) |
@@ -73,11 +78,12 @@ it.unicam.cs.mpgc.rpg125664
 | `*Loader` | Caricamento risorse (FXML, catalogo) | `FxmlScreenLoader`, `HibernateGameCatalogLoader` |
 | `Validator<T>` | Classe astratta: `validate(T)` | builder: costruisci → `validator.validate(instance)` → return |
 | `*Validator` | Implementazione in `validation.implementations` | `ScoreValidator`, `CreatureHolderValidator`, … |
-| `ValidatorFactory` | Registry in `validation.implementations` | `get*Validator()` restituisce `Validator<T>` |
+| `ValidatorFactory` | Registry in `validation.support` | `get*Validator()` restituisce `Validator<T>` |
 | `*Actions` | Callback schermata (ISP verso controller) | `HubActions` |
 | `*ActionsImpl` | Implementazione callback | `HubActionsImpl` in `actions.implementations` |
-| `ScreenNavigation` | Unione ISP navigazione per schermata | implementato da `ScreenNavigator` |
-| `MainMenuNavigation` / `LoadGameNavigation` / `HubNavigation` / `VictoryNavigation` | Comandi minimi per ogni `*ActionsImpl` | implementati da `ScreenNavigator` |
+| `ScreenNavigation` | Unione ISP navigazione per schermata | implementato da `navigation.implementations.ScreenNavigator` |
+| `MainMenuNavigation` / … / `VictoryNavigation` | Comandi minimi per ogni `*ActionsImpl` | implementati da `ScreenNavigator` |
+| `implementations/` / `support/` / `base/` | Separazione contratto vs concreto vs helper | vedi [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) |
 | `SaveSlotLabels` | Formato data/ora condiviso per nomi slot e lista caricamento | `model.session` |
 
 Pattern documentati senza suffisso dedicato: `GameModel` (Facade), `AppModule` (composition root), `Validator` (Template Method).

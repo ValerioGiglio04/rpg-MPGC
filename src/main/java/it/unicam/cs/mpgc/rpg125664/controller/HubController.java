@@ -2,7 +2,6 @@ package it.unicam.cs.mpgc.rpg125664.controller;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
 import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
@@ -12,6 +11,7 @@ import it.unicam.cs.mpgc.rpg125664.view.overworld.OverworldMap;
 import it.unicam.cs.mpgc.rpg125664.controller.HubPresenter;
 import it.unicam.cs.mpgc.rpg125664.controller.HubPresenter.TeamRowViewModel;
 import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;

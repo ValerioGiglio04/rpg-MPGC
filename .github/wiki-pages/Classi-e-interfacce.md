@@ -120,8 +120,13 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `ValidatorFactory` | Registry singleton `get*Validator()` → `Validator<T>` |
 | C | `ScoreValidator`, `PlayerValidator`, `GameStateValidator`, … | Sottoclassi finali; `GameStateValidator` compone validator su `player` e ogni `GymRoom`; `Score.add` / `Score.spend` ri-validano dopo mutazione |
+
+### Support (`model.validation.support`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `ValidatorFactory` | Registry singleton `get*Validator()` → `Validator<T>` |
 
 Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Validator(); v.validate(instance); return instance;`
 
@@ -186,9 +191,15 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
+### Base model.persistence (`model.persistence.base`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | AC | `AbstractHibernateAdapter` | `EntityManagerFactory` condiviso; `withEntityManager` / `inTransaction` |
 
 ### Catalogo Hibernate (`model.persistence.catalog`)
+
+#### Implementazioni (`model.persistence.catalog.implementations`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
@@ -235,9 +246,14 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
+| C | `SessioneSalvataSummaryMapper` | `SessioneSalvataEntity` → `SavedSessionSummary` per la UI (legge il JSON via serializer) |
+
+#### Implementazioni (`model.persistence.session.implementations`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
 | C | `HibernateGameStateRepository` | Implementa `GameStateRepository`: orchestra transazioni, serializzazione e collaboratori |
 | C | `SessioneSalvataJpaRepository` | JPQL su `sessioni_salvate` (slot locali, `ultima_giocata`, `requireLocal`) |
-| C | `SessioneSalvataSummaryMapper` | `SessioneSalvataEntity` → `SavedSessionSummary` per la UI (legge il JSON via serializer) |
 
 #### Entity JPA (`model.persistence.session.entities`)
 
@@ -263,26 +279,38 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 ## Layer `view` — Presentazione
 
-### Infra UI (`view`)
+### Support UI (`view.support`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `Messages` | Bundle `messages_it.properties` |
 | C | `UiErrorReporter` | Log + `Alert` per errori UI via `Messages` |
+| C | `BattleEventTranslator` | `BattleEvent` → righe log localizzate |
+| R | `BattleLogLine` | Riga di log (tipo + testo) |
 
 ### Navigazione (`controller.navigation`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `MainView` | Layout root JavaFX |
-| C | `ScreenNavigator` | Routing FXML; delega errori persistenza a `PersistenceUiGuard`; implementa tutte le interfacce navigazione |
-| E | `PersistenceOperation` | SAVE / LOAD / DELETE con chiave i18n errore (`persistence.*.failed.title`) |
-| C | `PersistenceUiGuard` | `run(Runnable, PersistenceOperation)` — try/catch + dialogo errore |
 | I | `ScreenNavigation` | Unione di `MainMenuNavigation`, `LoadGameNavigation`, `HubNavigation`, `VictoryNavigation` |
 | I | `MainMenuNavigation` | `startNewGame`, `showLoadGame` |
 | I | `LoadGameNavigation` | `loadSession`, `deleteSession`, `showMainMenu` |
 | I | `HubNavigation` | `showBattle`, `saveCurrent`, `saveAsNew`, `showMainMenu` |
 | I | `VictoryNavigation` | `startNewGame`, `showMainMenu` |
+
+#### Implementazioni (`controller.navigation`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `ScreenNavigator` | Routing FXML; delega errori persistenza a `PersistenceUiGuard`; implementa tutte le interfacce navigazione |
+
+#### Support (`controller.navigation.support`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `MainView` | Layout root JavaFX |
+| E | `PersistenceOperation` | SAVE / LOAD / DELETE con chiave i18n errore |
+| C | `PersistenceUiGuard` | `run(Runnable, PersistenceOperation)` — try/catch + dialogo errore |
 | C | `DialogHelper` | Alert e dialoghi save/load |
 | C | `FxmlScreenLoader` | Caricamento FXML e binding controller |
 
@@ -303,10 +331,6 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | C | `LoadGameActionsImpl` | Delega a `LoadGameNavigation` |
 | C | `HubActionsImpl` | Delega a `HubNavigation` |
 | C | `VictoryActionsImpl` | Delega a `VictoryNavigation` |
-
-### Battaglia / log (`view`)
-| C | `BattleEventTranslator` | `BattleEvent` → righe log localizzate |
-| R | `BattleLogLine` | Riga di log (tipo + testo) |
 
 ### Controller
 
@@ -383,15 +407,15 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 
 | Interfaccia | Layer | Base astratta | Implementazione/i tipiche |
 |-------------|-------|---------------|---------------------------|
-| `GameStateRepository` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameStateRepository` (+ `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper`) |
-| `GameCatalogLoader` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameCatalogLoader` |
+| `GameStateRepository` | model.persistence | `persistence.base.AbstractHibernateAdapter` | `session.implementations.HibernateGameStateRepository` (+ `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper`) |
+| `GameCatalogLoader` | model.persistence | `persistence.base.AbstractHibernateAdapter` | `catalog.implementations.HibernateGameCatalogLoader` |
 | `AttackResolutionStrategy` | model.combat.strategy | — | `TurnBasedAttackResolutionStrategy` |
 | `BossMoveStrategy` | model.combat.strategy | — | `AccuracyThresholdBossMoveStrategy` |
 | `GymStatusStrategy` | model.overworld.strategy | — | `DefaultGymStatusStrategy` |
-| `Validator<T>` | model.validation | — (classe astratta) | `*Validator`, `ValidatorFactory` in `validation.implementations` |
+| `Validator<T>` | model.validation | — (classe astratta) | `*Validator` in `validation.implementations`; `ValidatorFactory` in `validation.support` |
 | `BattleEvent` | model.event | Record sealed annidati |
 | `UiTheme` | view.theme | `DuelUiTheme` (`view.theme`); stili hub inline |
-| `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | Implementate da `ScreenNavigator` (`controller.navigation`) |
+| `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | `*ActionsImpl` → `*Navigation`; routing in `navigation.implementations.ScreenNavigator` |
 
 ---
 

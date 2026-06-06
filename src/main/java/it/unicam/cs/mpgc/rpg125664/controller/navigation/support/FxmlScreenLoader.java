@@ -1,6 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.controller.navigation;
+package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;

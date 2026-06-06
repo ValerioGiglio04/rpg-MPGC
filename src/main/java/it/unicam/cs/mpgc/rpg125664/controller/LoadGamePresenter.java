@@ -3,7 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.controller;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSlotLabels;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.List;
 import java.util.Objects;
 

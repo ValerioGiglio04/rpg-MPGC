@@ -1,6 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import javafx.scene.control.Label;
 
 /** Label visibile all'utente quando la schermata di battaglia fallisce a costruirsi. */

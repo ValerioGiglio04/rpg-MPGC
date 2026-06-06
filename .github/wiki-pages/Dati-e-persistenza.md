@@ -122,7 +122,7 @@ Implementazione port: `HibernateGameCatalogLoader.load()` → `GameCatalog`.
 - `delete(sessionId)` — rimuove uno slot
 - `markLastPlayed(sessionId)` — flag `ultima_giocata` per il prossimo avvio (stesso percorso `requireLocal` di save/delete)
 
-Implementazione: `HibernateGameStateRepository` (`model.persistence.session`), con JPQL in `SessioneSalvataJpaRepository` e mapping elenco slot in `SessioneSalvataSummaryMapper`. Wiring in `AppModule`: `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`; `SessioneSalvataJpaRepository` + serializer + mapper → repository.
+Implementazione: `HibernateGameStateRepository` (`model.persistence.session.implementations`), con JPQL in `SessioneSalvataJpaRepository` e mapping elenco slot in `SessioneSalvataSummaryMapper`. Wiring in `AppModule`: `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`; `SessioneSalvataJpaRepository` + serializer + mapper → repository.
 
 ### Tabella `sessioni_salvate`
 

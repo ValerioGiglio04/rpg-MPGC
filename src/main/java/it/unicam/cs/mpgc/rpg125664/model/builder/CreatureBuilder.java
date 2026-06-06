@@ -3,7 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
+import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.util.List;
 
 public final class CreatureBuilder {

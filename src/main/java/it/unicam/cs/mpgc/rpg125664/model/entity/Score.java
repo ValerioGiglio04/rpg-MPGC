@@ -3,7 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.entity;
 import it.unicam.cs.mpgc.rpg125664.model.builder.ScoreBuilder;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
+import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.io.Serializable;
 
 public final class Score implements Serializable {

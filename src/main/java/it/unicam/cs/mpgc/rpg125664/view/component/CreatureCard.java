@@ -1,8 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.component.builder.CreatureCardBuilder;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;

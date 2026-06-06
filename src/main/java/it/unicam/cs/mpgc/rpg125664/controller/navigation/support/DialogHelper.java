@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.rpg125664.controller.navigation;
+package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
 import java.util.Optional;
 import javafx.scene.control.Alert;

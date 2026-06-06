@@ -1,6 +1,6 @@
-package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog;
+package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.implementations;
 
-import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.base.AbstractHibernateAdapter;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.GiocatoreEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
