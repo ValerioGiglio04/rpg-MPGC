@@ -263,9 +263,14 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 #### DTO sessione (`model.persistence.session.dto`)
 
+Convenzione: un tipo = un file nello stesso package (allineato a `catalog/dto/`).
+
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `UltimaSessioneSalvataDto` | Forma del payload JSON in `dati_salvati_json` |
+| C | `UltimaSessioneSalvataDto` | Radice del payload JSON in `dati_salvati_json` |
+| C | `CreaturaTeamDto` | Elemento di `lista_creature_team_giocatore` (`id_creatura`, `hp`) |
+| C | `PalestraProgressoDto` | Elemento di `palestre_completate` (`id_palestra`, `completata`) |
+| C | `PosizioneMappaDto` | Oggetto `posizione_giocatore_mappa` (`x`, `y`) |
 
 #### Mapper / serializer (`model.persistence.session.mapper` / `.serializer`)
 

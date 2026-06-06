@@ -1,9 +1,9 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.session.mapper;
 
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.CreaturaTeamDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.PalestraProgressoDto;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.PosizioneMappaDto;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.UltimaSessioneSalvataDto;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.UltimaSessioneSalvataDto.CreaturaTeamDto;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.UltimaSessioneSalvataDto.PalestraProgressoDto;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.UltimaSessioneSalvataDto.PosizioneMappaDto;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;

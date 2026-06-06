@@ -150,17 +150,22 @@ In un'evoluzione SQL classica andrebbero introdotte tabelle come `sessione_team`
 
 ### Formato dentro `dati_salvati_json`
 
-DTO: `UltimaSessioneSalvataDto` (`model.persistence.session.dto`; forma del documento in `dati_salvati_json`).
+DTO in `model.persistence.session.dto` (un tipo = un file):
 
-| Campo JSON | Tipo | Significato |
-|------------|------|-------------|
-| `data_salvataggio` | ISO-8601 | Timestamp salvataggio |
-| `num_punti_fama` | numero | Gloria corrente |
-| `id_creatura_attiva_selezionata` | numero | `catalogId` della creatura attiva (es. `1`) |
-| `id_palestra_corrente` | numero | Palestra corrente (es. `1`) |
-| `lista_creature_team_giocatore` | array | `{ "id_creatura": n, "hp": n }` per ogni slot |
-| `palestre_completate` | array | `{ "id_palestra": n, "completata": true/false }` |
-| `posizione_giocatore_mappa` | oggetto | `{ "x", "y" }` sulla griglia overworld |
+- `UltimaSessioneSalvataDto` — radice del documento in `dati_salvati_json`
+- `CreaturaTeamDto` — elemento del team giocatore
+- `PalestraProgressoDto` — stato completamento palestra
+- `PosizioneMappaDto` — coordinate overworld
+
+| Campo JSON | Tipo Java | Significato |
+|------------|-----------|-------------|
+| `data_salvataggio` | `Instant` (in `UltimaSessioneSalvataDto`) | Timestamp salvataggio (ISO-8601) |
+| `num_punti_fama` | `int` | Gloria corrente |
+| `id_creatura_attiva_selezionata` | `long` | `catalogId` della creatura attiva (es. `1`) |
+| `id_palestra_corrente` | `long` | Palestra corrente (es. `1`) |
+| `lista_creature_team_giocatore` | `List<CreaturaTeamDto>` | `{ "id_creatura": n, "hp": n }` per ogni slot |
+| `palestre_completate` | `List<PalestraProgressoDto>` | `{ "id_palestra": n, "completata": true/false }` |
+| `posizione_giocatore_mappa` | `PosizioneMappaDto` | `{ "x", "y" }` sulla griglia overworld |
 
 **Non** si salvano: nomi, mosse, statistiche base, team del boss — vengono **reidratati** da `GameCatalog` in `SessioneJsonMapper.fromDto()` (`model.persistence.session.mapper`).
 
