@@ -23,10 +23,18 @@ public final class CreatureHolderBuilder {
     return this;
   }
 
+  private long resolveActiveCatalogId() {
+    if (activeCatalogIdSet) return activeCatalogId;
+    return creatures.stream()
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalArgumentException("Creature holder needs at least one creature"))
+        .catalogId();
+  }
+
   public CreatureHolder build() {
-    long resolvedActiveId =
-        activeCatalogIdSet ? activeCatalogId : creatures.getFirst().catalogId();
-    CreatureHolder holder = new CreatureHolder(creatures, resolvedActiveId);
+    long resolvedActiveCatalogId = resolveActiveCatalogId();
+    CreatureHolder holder = new CreatureHolder(creatures, resolvedActiveCatalogId);
     Validator<CreatureHolder> validator = ValidatorFactory.getCreatureHolderValidator();
     validator.validate(holder);
     return holder;
