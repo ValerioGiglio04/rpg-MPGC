@@ -33,7 +33,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | C | `Player` | Nome, gloria (`Score`), skin, `CreatureHolder` del team |
 | C | `Creature` | Istanza di creatura in partita: stats, HP, mosse, `catalogId`; subisce danni e cure |
 | C | `CreatureHolder` | Team ordinato di creature + indice attivo; switch e cure di massa |
-| C | `GymRoom` | Palestra: `id` stringa, connessioni, soglia punti, flag completata, `GymBoss` |
+| C | `GymRoom` | Palestra: `id` numerico (`long`), connessioni, soglia punti, flag completata, `GymBoss` |
 | C | `GymBoss` | Boss di palestra: nome, ricompensa gloria, team creature |
 | R | `Move` | Mossa: nome, potenza, accuratezza, descrizione |
 | C | `Score` | Punti fama del giocatore (gloria) |
@@ -307,6 +307,7 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `MainMenuController` | Logica schermata menu |
+| C | `LoadGameController` | Logica schermata caricamento slot |
 | C | `HubController` | Logica hub: mappa, team, cura, save |
 | C | `BattleController` | Logica battaglia: mosse, log, overlay fine |
 | C | `VictoryController` | Logica schermata vittoria |
@@ -317,6 +318,7 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 |------|------|----------------|
 | C | `BattleController` | Comandi battaglia, log, overlay fine scontro |
 | C | `HubController` | Team hub, cura, tooltip gloria |
+| C | `LoadGameController` | Elenco slot salvati, caricamento ed eliminazione |
 | C | `OverworldController` | Movimento mappa, sfida palestra, motivo blocco |
 
 I controller FXML restano sottili: binding visivo + delega al controller.

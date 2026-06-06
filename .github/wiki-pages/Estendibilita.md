@@ -44,6 +44,20 @@ flowchart LR
 
 Il dominio e le regole di `canChallengeGym`, danno, gloria restano **identici**.
 
+```mermaid
+sequenceDiagram
+  participant Client as ClientWebMobile
+  participant Api as GameApiAdapter
+  participant Session as GameModel
+  participant Domain as DomainServices
+  Client->>Api: attack(moveIndex)
+  Api->>Session: attack(moveIndex)
+  Session->>Domain: BattleService
+  Domain-->>Session: BattleEvent list
+  Session-->>Api: risultato
+  Api-->>Client: JSON DTO
+```
+
 ---
 
 ## Nuovo backend di persistenza

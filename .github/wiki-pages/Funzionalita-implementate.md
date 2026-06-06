@@ -21,11 +21,12 @@ Documentazione delle funzionalità presenti nella **prima release** del gioco. F
 | Schermata | FXML | Controller | Ruolo |
 |-----------|------|------------|-------|
 | Menu principale | `MainMenu.fxml` | `MainMenuController` | Nuova partita, continua, esci |
+| Carica partita | `LoadGame.fxml` | `LoadGameController` | Elenco slot, caricamento ed eliminazione |
 | Hub / overworld | `Hub.fxml` | `HubController` | Mappa, team, cura, salvataggio |
 | Battaglia | `Battle.fxml` | `BattleController` | Combattimento a turni |
 | Vittoria | `Victory.fxml` | `VictoryController` | Campagna completata |
 
-Navigazione e routing: `controller.navigation` (`ScreenNavigator`, `FxmlScreenLoader`). Callback menu/hub/vittoria: `controller.navigation` + `actions.implementations` (`*ActionsImpl` via `ScreenNavigation`).
+Navigazione e routing: `controller.navigation` (`ScreenNavigator`, `FxmlScreenLoader`). Controller caricamento: `LoadGameController`. Callback menu/hub/carica/vittoria: `controller.navigation` + `actions.implementations` (`*ActionsImpl` via `ScreenNavigation`).
 
 La UI interagisce **solo** con `GameModel` (`model.service`): non accede direttamente a Hibernate né alle entità JPA.
 
@@ -80,10 +81,11 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
 
 ## Persistenza in gioco
 
+- **Più slot di salvataggio** in `sessioni_salvate` (più partite in parallelo sulla stessa macchina).
 - **Salvataggio manuale** dall'Hub: aggiorna lo slot corrente in `sessioni_salvate`.
 - **Salva come nuovo** dall'Hub: crea una nuova riga con nome scelto dall'utente.
 - **Eliminazione** di uno slot dalla schermata Carica.
-- Nel JSON si salvano **codici stringa** di creature e palestre (`starter-flammino`, `gym-1`, …), HP, gloria, progresso palestre e coordinate `{x,y}`; nomi, mosse e statistiche base restano nel catalogo H2 (vedi [Persistenza dei dati](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza)).
+- Nel JSON si salvano **ID numerici di catalogo** (`catalogId` creature e palestre, es. `1`), HP correnti, gloria, progresso palestre e coordinate `{x,y}`; nomi, mosse e statistiche base restano nel catalogo H2 (vedi [Persistenza dei dati](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza)).
 
 ---
 
@@ -130,6 +132,5 @@ Esempi deliberatamente fuori scope della v1 (ma progettati per essere aggiungibi
 - Multiplayer / rete
 - Versione mobile o web
 - Negozio oggetti, cattura creature selvatiche
-- Più slot di salvataggio
 
 Il struttura MVC rendono comunque esplicito **dove** integrare queste feature in futuro (vedi [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita)).

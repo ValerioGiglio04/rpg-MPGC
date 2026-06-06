@@ -35,7 +35,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 spotless {
-    enforceCheck false
+    enforceCheck true
     java {
         target 'src/**/*.java'
         googleJavaFormat('1.22.0')
