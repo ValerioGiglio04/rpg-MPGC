@@ -37,12 +37,17 @@ public final class SessionJsonSerializer {
   }
 
   public GameState toGameState(String json) throws IOException {
-    return mapper.fromDto(fromJson(json));
+    return deserialize(json).gameState();
   }
 
   public Optional<OverworldPosition> overworldPositionFromJson(String json) throws IOException {
+    return deserialize(json).overworldPosition();
+  }
+
+  public LoadedSessionPayload deserialize(String json) throws IOException {
     UltimaSessioneSalvataDto dto = fromJson(json);
+    GameState state = mapper.fromDto(dto);
     OverworldPosition position = mapper.mapPositionFromDto(dto);
-    return Optional.ofNullable(position);
+    return new LoadedSessionPayload(state, Optional.ofNullable(position));
   }
 }

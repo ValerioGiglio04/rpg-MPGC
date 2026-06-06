@@ -1,24 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
 /**
- * Comandi di navigazione esposti alle implementazioni {@code *Actions} in {@code
- * ui.javafx.actions}.
+ * Unione dei comandi di navigazione per schermata. {@link ScreenNavigator} implementa tutte le
+ * interfacce ruolo-specifiche; ogni {@code *ActionsImpl} dipende solo dalla propria.
  */
-public interface ScreenNavigation {
-
-  void startNewGame();
-
-  void showMainMenu();
-
-  void showLoadGame();
-
-  void showBattle();
-
-  void loadSession(long sessionId);
-
-  void deleteSession(long sessionId);
-
-  void saveCurrent();
-
-  void saveAsNew();
-}
+public interface ScreenNavigation
+    extends MainMenuNavigation, LoadGameNavigation, HubNavigation, VictoryNavigation {}

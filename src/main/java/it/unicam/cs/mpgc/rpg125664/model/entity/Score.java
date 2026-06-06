@@ -9,6 +9,7 @@ import java.io.Serializable;
 public final class Score implements Serializable {
 
   private int points;
+  private final Validator<Score> scoreValidator;
 
   public static ScoreBuilder builder() {
     return new ScoreBuilder();
@@ -20,6 +21,7 @@ public final class Score implements Serializable {
 
   public Score(int points) {
     this.points = points;
+    this.scoreValidator = ValidatorFactory.getScoreValidator();
   }
 
   public int points() {
@@ -29,6 +31,7 @@ public final class Score implements Serializable {
   public void add(int pointsToAdd) {
     Rules.requireNonNegative(pointsToAdd, "Cannot add negative points");
     this.points += pointsToAdd;
+    scoreValidator.validate(this);
   }
 
   /** Spende punti gloria. Fallisce se {@code amount} eccede il totale corrente. */
@@ -38,7 +41,6 @@ public final class Score implements Serializable {
       throw new IllegalArgumentException("Cannot spend more points than available");
     }
     this.points -= amount;
-    Validator<Score> validator = ValidatorFactory.getScoreValidator();
-    validator.validate(this);
+    scoreValidator.validate(this);
   }
 }

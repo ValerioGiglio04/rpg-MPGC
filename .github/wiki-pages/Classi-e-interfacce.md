@@ -21,7 +21,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 |------|------|----------------|
 | C | `Main` | Entry point Gradle; avvia `RpgApplication` |
 | C | `RpgApplication` | Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura risorse JPA |
-| C | `AppModule` | Composition root: EMF, seed catalogo (una sola lettura JSON), `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`, `SessioneSalvataJpaRepository` → `HibernateGameStateRepository`, servizi, `GameModel`; factory `create(emf, catalog, mapper)` per wiring esplicito; `close()` rilascia EMF |
+| C | `AppModule` | Composition root: EMF, seed catalogo, strategy combattimento + `BattleRoundExecutor` iniettato in `BattleService`, `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`, `SessioneSalvataJpaRepository` → `HibernateGameStateRepository`, `GameModel`; `close()` rilascia EMF |
 
 ---
 
@@ -100,6 +100,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | R | `SavedSessionSummary` | Metadati slot per lista UI |
 | R | `LoadedSession` | `GameState` + posizione overworld opzionale |
 | R | `SaveSessionCommand` | Parametri di salvataggio (stato, slot, nome) |
+| C | `SaveSlotLabels` | `defaultSaveName` / `formatSavedAt` — pattern `dd/MM/yyyy HH:mm` condiviso tra model.persistence e UI |
 | R | `OverworldPosition` | Coordinate mappa (dominio, senza JavaFX) |
 | C | `SessionPersistenceException` | Errore unchecked di persistenza sessione (wrappa I/O nell'model.persistence) |
 
@@ -120,7 +121,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `ValidatorFactory` | Registry singleton `get*Validator()` → `Validator<T>` |
-| C | `ScoreValidator`, `PlayerValidator`, … | Sottoclassi finali con invarianti in `validateRules` |
+| C | `ScoreValidator`, `PlayerValidator`, `GameStateValidator`, … | Sottoclassi finali; `GameStateValidator` compone validator su `player` e ogni `GymRoom`; `Score.add` / `Score.spend` ri-validano dopo mutazione |
 
 Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Validator(); v.validate(instance); return instance;`
 
@@ -145,7 +146,7 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `BattleService` | Ciclo battaglia: begin, prepare, attack, switch; delega round a `BattleRoundExecutor` |
+| C | `BattleService` | Ciclo battaglia: begin, prepare, attack, switch; riceve `BattleRoundExecutor` dal composition root (DIP) |
 | C | `NewGameService` | Nuova partita e build stato iniziale da catalogo |
 | C | `HealingService` | Cura a pagamento e calcolo gloria spendibile |
 | C | `GymCompletionHandler` | Ricompense al completamento palestra (via `GameCatalog`) |
@@ -180,8 +181,6 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | C | `GameModel` | Facciata UI: delega a servizi, `SessionPersistenceFacade`, `GymStatusStrategy` |
 | C | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
 | C | `SessionPersistenceFacade` | Save/load/delete/list; incapsula `GameStateRepository` |
-
----
 
 ## Layer `model.persistence` — Infrastruttura
 
@@ -257,7 +256,8 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `SessioneJsonMapper` | `GameState` ↔ `UltimaSessioneSalvataDto` |
-| C | `SessionJsonSerializer` | Serializza il DTO nel CLOB |
+| C | `SessionJsonSerializer` | Serializza/deserializza il DTO nel CLOB; `deserialize()` fa un solo `fromJson` |
+| R | `LoadedSessionPayload` | `GameState` + `Optional<OverworldPosition>` da una deserializzazione |
 
 ---
 
@@ -275,8 +275,14 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `MainView` | Layout root JavaFX |
-| C | `ScreenNavigator` | Routing tra schermate FXML; implementa `ScreenNavigation` |
-| I | `ScreenNavigation` | Comandi di navigazione esposti alle `*ActionsImpl` |
+| C | `ScreenNavigator` | Routing FXML; delega errori persistenza a `PersistenceUiGuard`; implementa tutte le interfacce navigazione |
+| E | `PersistenceOperation` | SAVE / LOAD / DELETE con chiave i18n errore (`persistence.*.failed.title`) |
+| C | `PersistenceUiGuard` | `run(Runnable, PersistenceOperation)` — try/catch + dialogo errore |
+| I | `ScreenNavigation` | Unione di `MainMenuNavigation`, `LoadGameNavigation`, `HubNavigation`, `VictoryNavigation` |
+| I | `MainMenuNavigation` | `startNewGame`, `showLoadGame` |
+| I | `LoadGameNavigation` | `loadSession`, `deleteSession`, `showMainMenu` |
+| I | `HubNavigation` | `showBattle`, `saveCurrent`, `saveAsNew`, `showMainMenu` |
+| I | `VictoryNavigation` | `startNewGame`, `showMainMenu` |
 | C | `DialogHelper` | Alert e dialoghi save/load |
 | C | `FxmlScreenLoader` | Caricamento FXML e binding controller |
 
@@ -293,10 +299,10 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `MainMenuActionsImpl` | Delega a `ScreenNavigation` (menu) |
-| C | `LoadGameActionsImpl` | Delega a `ScreenNavigation` (caricamento) |
-| C | `HubActionsImpl` | Delega a `ScreenNavigation` (hub) |
-| C | `VictoryActionsImpl` | Delega a `ScreenNavigation` (vittoria) |
+| C | `MainMenuActionsImpl` | Delega a `MainMenuNavigation` |
+| C | `LoadGameActionsImpl` | Delega a `LoadGameNavigation` |
+| C | `HubActionsImpl` | Delega a `HubNavigation` |
+| C | `VictoryActionsImpl` | Delega a `VictoryNavigation` |
 
 ### Battaglia / log (`view`)
 | C | `BattleEventTranslator` | `BattleEvent` → righe log localizzate |

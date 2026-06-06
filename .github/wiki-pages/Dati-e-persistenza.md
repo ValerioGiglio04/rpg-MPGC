@@ -120,7 +120,7 @@ Implementazione port: `HibernateGameCatalogLoader.load()` → `GameCatalog`.
 - `save(SaveSessionCommand)` — crea o aggiorna uno slot
 - `load(sessionId)` — restituisce `LoadedSession` (stato + posizione mappa)
 - `delete(sessionId)` — rimuove uno slot
-- `markLastPlayed(sessionId)` — flag `ultima_giocata` per il prossimo avvio
+- `markLastPlayed(sessionId)` — flag `ultima_giocata` per il prossimo avvio (stesso percorso `requireLocal` di save/delete)
 
 Implementazione: `HibernateGameStateRepository` (`model.persistence.session`), con JPQL in `SessioneSalvataJpaRepository` e mapping elenco slot in `SessioneSalvataSummaryMapper`. Wiring in `AppModule`: `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`; `SessioneSalvataJpaRepository` + serializer + mapper → repository.
 
@@ -173,6 +173,8 @@ DTO: `UltimaSessioneSalvataDto` (`model.persistence.session.dto`; forma del docu
 - `mapPositionFromDto` — estrae coordinate overworld dal DTO
 
 `SessionJsonSerializer` (`session.serializer`) scrive/legge la stringa JSON in `dati_salvati_json`.
+
+**Load (un solo parse):** `HibernateGameStateRepository.load()` chiama `deserialize(json)` una volta; il metodo restituisce `LoadedSessionPayload` (`GameState` + `Optional<OverworldPosition>`). I metodi legacy `toGameState` / `overworldPositionFromJson` delegano a `deserialize` per evitare doppio `fromJson`.
 
 ### Posizione sulla mappa
 

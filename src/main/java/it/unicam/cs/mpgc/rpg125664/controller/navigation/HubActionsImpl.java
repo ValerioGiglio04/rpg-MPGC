@@ -1,14 +1,14 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigation;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubNavigation;
 import java.util.Objects;
 
 public final class HubActionsImpl implements HubActions {
 
-  private final ScreenNavigation navigation;
+  private final HubNavigation navigation;
 
-  public HubActionsImpl(ScreenNavigation navigation) {
+  public HubActionsImpl(HubNavigation navigation) {
     this.navigation = Objects.requireNonNull(navigation, "navigation");
   }
 

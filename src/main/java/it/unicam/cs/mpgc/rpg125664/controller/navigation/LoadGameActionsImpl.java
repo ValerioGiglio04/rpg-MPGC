@@ -1,14 +1,14 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigation;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameNavigation;
 import java.util.Objects;
 
 public final class LoadGameActionsImpl implements LoadGameActions {
 
-  private final ScreenNavigation navigation;
+  private final LoadGameNavigation navigation;
 
-  public LoadGameActionsImpl(ScreenNavigation navigation) {
+  public LoadGameActionsImpl(LoadGameNavigation navigation) {
     this.navigation = Objects.requireNonNull(navigation, "navigation");
   }
 

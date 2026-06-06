@@ -151,7 +151,9 @@ flowchart TB
 - `SessioneSalvataSummaryMapper` mappa solo `SessioneSalvataEntity` → `SavedSessionSummary`.
 - `HibernateGameStateRepository` orchestra persistenza slot (transazioni + serializzazione), senza JPQL inline.
 - I controller UI separano binding FXML da logica di schermata.
-- I validator (`model.validation.implementations`: `CreatureValidator`, `GameStateValidator`, …) validano un solo aggregato ciascuno.
+- I validator (`model.validation.implementations`: `CreatureValidator`, `GameStateValidator`, …) validano un aggregato ciascuno; `GameStateValidator` compone `PlayerValidator` e `GymRoomValidator` sui figli.
+- `SessionJsonSerializer.deserialize` esegue un solo parse JSON al load (SRP + DRY).
+- `PersistenceUiGuard` centralizza la gestione UI di `SessionPersistenceException` (save/load/delete).
 
 ### Open/Closed (OCP)
 
@@ -170,10 +172,12 @@ flowchart TB
 ### Interface Segregation (ISP)
 
 - Porte piccole: `GameCatalogLoader` ha un solo metodo `load()`; `BossMoveStrategy` un solo metodo `pickMove()`.
+- Navigazione UI: `MainMenuNavigation`, `LoadGameNavigation`, `HubNavigation`, `VictoryNavigation` — ogni `*ActionsImpl` dipende solo dalla propria interfaccia; `ScreenNavigation` le unisce per `ScreenNavigator`.
+- Callback schermata: `*Actions` verso i controller FXML (già presenti).
 
 ### Dependency Inversion (DIP)
 
-- `BattleService` dipende da `AttackResolutionStrategy` e `BossMoveStrategy` (`model.combat.strategy`), non da classi concrete hard-coded oltre al wiring in `AppModule`.
+- `BattleService` riceve `BattleRoundExecutor` dal composition root; le strategy combattimento sono create in `AppModule` e iniettate nell'executor, non costruite dentro il servizio.
 - La UI dipende da `GameModel`, non da `HibernateGameStateRepository` né dalle entità JPA.
 
 ---
@@ -194,7 +198,8 @@ flowchart TB
 | DTO / mapper sessione | `model.persistence.session.dto` | `session.mapper`, `session.serializer` |
 | JPQL / summary slot | — | `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper` |
 | Shell e routing UI | — | `controller.navigation` |
-| Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `ScreenNavigation`) |
+| Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `*Navigation`) |
+| Navigazione per schermata | `controller.navigation` (`MainMenuNavigation`, …) | `ScreenNavigator` (implementa tutte + `ScreenNavigation`) |
 | Builder widget UI | — | `view.component.builder` |
 | Validazione dominio | `model.validation` (`Validator`, `Rules`) | `validation.implementations` (`ValidatorFactory`, `*Validator`) |
 
@@ -226,3 +231,33 @@ La specifica richiede che sia chiaro come il progetto possa girare su **desktop,
 - Il **dominio** e l'**applicazione** restano invariati; cambiano solo presentation e, se necessario, model.persistence di persistenza.
 
 Dettagli operativi in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).
+
+---
+
+## Trade-off e miglioramenti applicati (v1)
+
+### Miglioramenti applicati in questo ciclo
+
+| Intervento | Principio | Effetto |
+|------------|-----------|---------|
+| `SessionJsonSerializer.deserialize` | SRP, DRY | Un solo `fromJson` al load di sessione |
+| `GameStateValidator` composito + `Score.add` ri-valida | Coerenza dominio | Invarianti su player, palestre e punteggio dopo mutazione |
+| `markLastPlayed` via `requireLocal` | SRP model.persistence | Stesso percorso slot locale di save/delete |
+| `SaveSlotLabels` | DRY | Formato data condiviso tra repository e `LoadGameController` |
+| `BattleRoundExecutor` iniettato in `AppModule` | DIP | Composition root costruisce strategy + executor |
+| ISP navigazione (`*Navigation`) | ISP | Ogni `*ActionsImpl` vede solo i comandi della sua schermata |
+| `PersistenceUiGuard` + `PersistenceOperation` | DRY, SRP | Errori persistenza centralizzati; `ScreenNavigator` solo routing |
+
+### Debito accettato in v1 (documentato, non refactorato)
+
+| Area | Scelta attuale | Perché resta così | Evoluzione |
+|------|----------------|-------------------|------------|
+| `skinPath` nel dominio | Campo su `Player` / `Creature` | Funziona; mapper catalogo→view richiederebbe più lavoro | Spostare in layer presentazione |
+| `GameModel` facade larga | Un entry point per desktop | Difendibile per consegna v1 | `GameApi` per multi-client |
+| `OverworldMap` monolitico | ~450 righe UI | Rischio regressioni visive | Estrarre componenti mappa |
+| `GameState` mutabile in UI | Esposto via `GameModel.gameState()` | Un solo client JavaFX | DTO read-only verso controller |
+| `ValidatorFactory` static | Registry centralizzato | Coerente col corso | Injection opzionale |
+| Utility statiche (`Messages`, `DialogHelper`) | Standard JavaFX | Non richiesto wrappare in bean | Facade UI se serve test |
+| `ScreenNavigator` ancora orchestratore | Routing + factory FXML + policy battaglia | ISP navigazione già applicato; split `ScreenFactory` / `SessionSaveCoordinator` = Tier 2 futuro | Vedi [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) |
+
+Ogni scelta sopra è **consapevole**: i principi SOLID sono rispettati dove il costo/beneficio è favorevole; il resto è tracciato come evoluzione post-consegna.

@@ -2,9 +2,7 @@ package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
-import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import it.unicam.cs.mpgc.rpg125664.ui.javafx.Messages;
-import it.unicam.cs.mpgc.rpg125664.ui.javafx.UiErrorReporter;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
@@ -106,11 +104,7 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   @Override
   public void saveCurrent() {
-    try {
-      gameModel.saveCurrent();
-    } catch (SessionPersistenceException error) {
-      UiErrorReporter.reportPersistenceError("persistence.save.failed.title", error);
-    }
+    PersistenceUiGuard.run(gameModel::saveCurrent, PersistenceOperation.SAVE);
     showHub();
   }
 
@@ -124,21 +118,16 @@ public final class ScreenNavigator implements ScreenNavigation {
     if (name.isEmpty()) {
       return;
     }
-    try {
-      gameModel.saveAsNew(name.get());
-    } catch (SessionPersistenceException error) {
-      UiErrorReporter.reportPersistenceError("persistence.save.failed.title", error);
-    }
+    PersistenceUiGuard.run(() -> gameModel.saveAsNew(name.get()), PersistenceOperation.SAVE);
     showHub();
   }
 
   @Override
   public void loadSession(long sessionId) {
-    try {
-      gameModel.loadSession(sessionId);
+    if (PersistenceUiGuard.run(
+        () -> gameModel.loadSession(sessionId), PersistenceOperation.LOAD)) {
       showHub();
-    } catch (SessionPersistenceException error) {
-      UiErrorReporter.reportPersistenceError("persistence.load.failed.title", error);
+    } else {
       showLoadGame();
     }
   }
@@ -149,11 +138,8 @@ public final class ScreenNavigator implements ScreenNavigation {
         Messages.get("load.delete.confirm.title"), Messages.get("load.delete.confirm.body"))) {
       return;
     }
-    try {
-      gameModel.deleteSession(sessionId);
-    } catch (SessionPersistenceException error) {
-      UiErrorReporter.reportPersistenceError("persistence.delete.failed.title", error);
-    }
+    PersistenceUiGuard.run(() -> gameModel.deleteSession(sessionId), PersistenceOperation.DELETE);
+
     if (gameModel.hasAnySave()) {
       showLoadGame();
     } else {

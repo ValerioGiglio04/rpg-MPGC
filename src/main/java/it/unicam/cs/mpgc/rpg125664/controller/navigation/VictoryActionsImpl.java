@@ -1,14 +1,14 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigation;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryNavigation;
 import java.util.Objects;
 
 public final class VictoryActionsImpl implements VictoryActions {
 
-  private final ScreenNavigation navigation;
+  private final VictoryNavigation navigation;
 
-  public VictoryActionsImpl(ScreenNavigation navigation) {
+  public VictoryActionsImpl(VictoryNavigation navigation) {
     this.navigation = Objects.requireNonNull(navigation, "navigation");
   }
 

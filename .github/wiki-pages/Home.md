@@ -39,7 +39,7 @@ it.unicam.cs.mpgc.rpg125664
 │   ├── SessioneSalvataSummaryMapper
 │   └── HibernateGameStateRepository
 └── view/                        Messages, UiErrorReporter, BattleEventTranslator
-    ├── navigation/                   MainView, ScreenNavigator, ScreenNavigation, FxmlScreenLoader, DialogHelper
+    ├── navigation/                   MainView, ScreenNavigator, ScreenNavigation (+ ISP), PersistenceUiGuard, PersistenceOperation, FxmlScreenLoader, DialogHelper
     ├── actions/                      MainMenuActions, HubActions, …
     │   └── implementations/          MainMenuActionsImpl, HubActionsImpl, …
     ├── controller/ controller/
@@ -76,7 +76,9 @@ it.unicam.cs.mpgc.rpg125664
 | `ValidatorFactory` | Registry in `validation.implementations` | `get*Validator()` restituisce `Validator<T>` |
 | `*Actions` | Callback schermata (ISP verso controller) | `HubActions` |
 | `*ActionsImpl` | Implementazione callback | `HubActionsImpl` in `actions.implementations` |
-| `ScreenNavigation` | Comandi di navigazione per le `*ActionsImpl` | implementato da `ScreenNavigator` |
+| `ScreenNavigation` | Unione ISP navigazione per schermata | implementato da `ScreenNavigator` |
+| `MainMenuNavigation` / `LoadGameNavigation` / `HubNavigation` / `VictoryNavigation` | Comandi minimi per ogni `*ActionsImpl` | implementati da `ScreenNavigator` |
+| `SaveSlotLabels` | Formato data/ora condiviso per nomi slot e lista caricamento | `model.session` |
 
 Pattern documentati senza suffisso dedicato: `GameModel` (Facade), `AppModule` (composition root), `Validator` (Template Method).
 

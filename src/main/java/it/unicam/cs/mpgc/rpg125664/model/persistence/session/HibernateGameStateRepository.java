@@ -2,13 +2,14 @@ package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.entities.SessioneSalvataEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.serializer.LoadedSessionPayload;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.serializer.SessionJsonSerializer;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
-import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;
+import it.unicam.cs.mpgc.rpg125664.model.session.SaveSlotLabels;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
 import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import jakarta.persistence.EntityManager;
@@ -16,20 +17,14 @@ import jakarta.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
 /** Persiste piu' partite in {@code sessioni_salvate.dati_salvati_json} su H2. */
 public final class HibernateGameStateRepository extends AbstractHibernateAdapter
     implements GameStateRepository {
-
-  private static final DateTimeFormatter DEFAULT_NAME_TIME =
-      DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").withLocale(Locale.ITALY);
 
   private final SessioneSalvataJpaRepository jpaRepository;
   private final SessionJsonSerializer serializer;
@@ -93,10 +88,8 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
   public LoadedSession load(long sessionId) {
     SessioneSalvataEntity row = withEntityManager(em -> jpaRepository.requireLocal(em, sessionId));
     try {
-      GameState state = serializer.toGameState(row.getDatiSalvatiJson());
-      Optional<OverworldPosition> position =
-          serializer.overworldPositionFromJson(row.getDatiSalvatiJson());
-      return new LoadedSession(state, position);
+      LoadedSessionPayload payload = serializer.deserialize(row.getDatiSalvatiJson());
+      return new LoadedSession(payload.gameState(), payload.overworldPosition());
     } catch (IOException ex) {
       throw wrapIo("Cannot load session " + sessionId, ex);
     }
@@ -116,11 +109,9 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
   public void markLastPlayed(long sessionId) {
     inTransaction(
         em -> {
-          SessioneSalvataEntity row = em.find(SessioneSalvataEntity.class, sessionId);
-          if (row != null && row.getIdUtente() == null) {
-            jpaRepository.clearUltimaGiocata(em);
-            row.setUltimaGiocata(true);
-          }
+          SessioneSalvataEntity row = jpaRepository.requireLocal(em, sessionId);
+          jpaRepository.clearUltimaGiocata(em);
+          row.setUltimaGiocata(true);
           return null;
         });
   }
@@ -161,7 +152,7 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
   }
 
   private static String defaultName(Instant instant) {
-    return "Partita " + DEFAULT_NAME_TIME.format(instant.atZone(ZoneId.systemDefault()));
+    return SaveSlotLabels.defaultSaveName(instant);
   }
 
   private static SessionPersistenceException wrapIo(String message, IOException cause) {

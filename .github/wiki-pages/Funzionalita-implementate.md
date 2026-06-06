@@ -26,7 +26,7 @@ Documentazione delle funzionalità presenti nella **prima release** del gioco. F
 | Battaglia | `Battle.fxml` | `BattleController` | Combattimento a turni |
 | Vittoria | `Victory.fxml` | `VictoryController` | Campagna completata |
 
-Navigazione e routing: `controller.navigation` (`ScreenNavigator`, `FxmlScreenLoader`). Controller caricamento: `LoadGameController`. Callback menu/hub/carica/vittoria: `controller.navigation` + `actions.implementations` (`*ActionsImpl` via `ScreenNavigation`).
+Navigazione e routing: `controller.navigation` (`ScreenNavigator`, interfacce ISP `*Navigation`, `FxmlScreenLoader`). Controller caricamento: `LoadGameController` (date via `SaveSlotLabels`). Callback menu/hub/carica/vittoria: `controller.navigation` + `actions.implementations` (`*ActionsImpl` → `*Navigation`).
 
 La UI interagisce **solo** con `GameModel` (`model.service`): non accede direttamente a Hibernate né alle entità JPA.
 

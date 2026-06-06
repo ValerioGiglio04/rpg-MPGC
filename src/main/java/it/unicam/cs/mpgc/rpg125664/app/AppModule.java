@@ -19,6 +19,7 @@ import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
 import it.unicam.cs.mpgc.rpg125664.model.service.SessionPersistenceFacade;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
+import it.unicam.cs.mpgc.rpg125664.model.combat.BattleRoundExecutor;
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.implementations.AccuracyThresholdBossMoveStrategy;
@@ -95,9 +96,10 @@ public final class AppModule implements AutoCloseable {
     NewGameService newGame = new NewGameService(holder, catalog);
     AttackResolutionStrategy attackResolutionStrategy = new TurnBasedAttackResolutionStrategy();
     BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
+    BattleRoundExecutor roundExecutor =
+        new BattleRoundExecutor(attackResolutionStrategy, bossMoveStrategy);
     GymCompletionHandler gymCompletionHandler = new GymCompletionHandler(catalog);
-    BattleService battle =
-        new BattleService(holder, attackResolutionStrategy, bossMoveStrategy, gymCompletionHandler);
+    BattleService battle = new BattleService(holder, roundExecutor, gymCompletionHandler);
     HealingService healing = new HealingService();
     SessionPersistenceFacade persistence = new SessionPersistenceFacade(repository);
     GymStatusStrategy gymStatusStrategy = new DefaultGymStatusStrategy();

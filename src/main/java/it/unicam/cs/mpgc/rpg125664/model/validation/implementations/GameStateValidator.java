@@ -1,6 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
+import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
@@ -22,6 +24,12 @@ public final class GameStateValidator extends Validator<GameState> {
     boolean found = state.gyms().stream().anyMatch(gym -> gym.id() == state.currentGymId());
     if (!found) {
       throw new IllegalStateException("Current gym does not exist");
+    }
+    Validator<Player> playerValidator = ValidatorFactory.getPlayerValidator();
+    playerValidator.validate(state.player());
+    Validator<GymRoom> gymRoomValidator = ValidatorFactory.getGymRoomValidator();
+    for (GymRoom gym : state.gyms()) {
+      gymRoomValidator.validate(gym);
     }
   }
 }
