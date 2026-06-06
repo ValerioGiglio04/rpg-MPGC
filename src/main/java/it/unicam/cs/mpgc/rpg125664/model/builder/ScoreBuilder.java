@@ -1,6 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.model.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 
 public final class ScoreBuilder {
 
@@ -12,6 +14,9 @@ public final class ScoreBuilder {
   }
 
   public Score build() {
-    return new Score(points);
+    Score score = new Score(points);
+    Validator<Score> validator = ValidatorFactory.getScoreValidator();
+    validator.validate(score);
+    return score;
   }
 }

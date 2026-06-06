@@ -1,17 +1,11 @@
 package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
-import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.MoveRules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
-/**
- * Valida una {@link Move}: nome, potenza, limiti di accuracy, descrizione. Si ottiene tramite
- * {@link Validators#getMoveValidator()}. La variante a 4 argomenti {@link #validate(String, int,
- * int, String)} resta statica perche' il compact constructor di {@link Move} deve validare i
- * componenti raw prima che il record stesso esista.
- */
-public final class MoveValidator extends AbstractDomainValidator<Move> {
+public final class MoveValidator extends Validator<Move> {
 
   @Override
   protected String nullMessage() {
@@ -20,14 +14,10 @@ public final class MoveValidator extends AbstractDomainValidator<Move> {
 
   @Override
   protected void validateRules(Move move) {
-    validate(move.name(), move.power(), move.accuracy(), move.description());
-  }
-
-  public static void validate(String name, int power, int accuracy, String description) {
-    Rules.requireText(name, "Move name cannot be blank");
-    Rules.requirePositive(power, "Move power must be positive");
-    requireAccuracy(accuracy);
-    Rules.requireText(description, "Move description cannot be blank");
+    Rules.requireText(move.name(), "Move name cannot be blank");
+    Rules.requirePositive(move.power(), "Move power must be positive");
+    requireAccuracy(move.accuracy());
+    Rules.requireText(move.description(), "Move description cannot be blank");
   }
 
   private static void requireAccuracy(int accuracy) {

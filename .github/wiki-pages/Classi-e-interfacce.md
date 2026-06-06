@@ -111,8 +111,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| I | `Validator<T>` | Contratto validazione generica |
-| AC | `AbstractDomainValidator<T>` | Template Method: null-check + `validateRules` nelle sottoclassi |
+| AC | `Validator<T>` | Template Method: `validate(T)`; `validateRules` nelle sottoclassi |
 | C | `Rules` | Regole condivise (`requireText`, `requirePositive`, …) |
 | C | `MoveRules` | Costanti accuratezza/potenza mosse |
 
@@ -120,15 +119,10 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `Validators` | Factory/registry dei validator di dominio |
-| C | `CreatureValidator` | Invarianti su `Creature` |
-| C | `CreatureHolderValidator` | Invarianti su team |
-| C | `GameStateValidator` | Invarianti su stato mondo |
-| C | `GymBossValidator` | Invarianti su boss |
-| C | `GymRoomValidator` | Invarianti su palestra |
-| C | `MoveValidator` | Invarianti su mossa |
-| C | `PlayerValidator` | Invarianti su giocatore |
-| C | `ScoreValidator` | Invarianti su punteggio |
+| C | `ValidatorFactory` | Registry singleton `get*Validator()` → `Validator<T>` |
+| C | `ScoreValidator`, `PlayerValidator`, … | Sottoclassi finali con invarianti in `validateRules` |
+
+Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Validator(); v.validate(instance); return instance;`
 
 ---
 
@@ -279,9 +273,10 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `MainView` | Layout root JavaFX |
-| C | `ScreenNavigator` | Routing tra schermate FXML; implementa `*Actions` |
+| C | `ScreenNavigator` | Routing tra schermate FXML; implementa `ScreenNavigation` |
+| I | `ScreenNavigation` | Comandi di navigazione esposti alle `*ActionsImpl` |
 | C | `DialogHelper` | Alert e dialoghi save/load |
-| C | `FxmlScreens` | Caricamento FXML e binding controller |
+| C | `FxmlScreenLoader` | Caricamento FXML e binding controller |
 
 ### Callback schermata (`controller.navigation`)
 
@@ -291,6 +286,15 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 | I | `LoadGameActions` | Callback schermata caricamento |
 | I | `HubActions` | Callback hub (battaglia, save, menu) |
 | I | `VictoryActions` | Callback schermata vittoria |
+
+### Implementazioni callback (`controller.navigation`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `MainMenuActionsImpl` | Delega a `ScreenNavigation` (menu) |
+| C | `LoadGameActionsImpl` | Delega a `ScreenNavigation` (caricamento) |
+| C | `HubActionsImpl` | Delega a `ScreenNavigation` (hub) |
+| C | `VictoryActionsImpl` | Delega a `ScreenNavigation` (vittoria) |
 
 ### Battaglia / log (`view`)
 | C | `BattleEventTranslator` | `BattleEvent` → righe log localizzate |
@@ -374,7 +378,7 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | `AttackResolutionStrategy` | model.combat.strategy | — | `TurnBasedAttackResolutionStrategy` |
 | `BossMoveStrategy` | model.combat.strategy | — | `AccuracyThresholdBossMoveStrategy` |
 | `GymStatusStrategy` | model.overworld.strategy | — | `DefaultGymStatusStrategy` |
-| `Validator<T>` | model.validation | `AbstractDomainValidator<T>` | `*Validator` in `model.validation.implementations` |
+| `Validator<T>` | model.validation | — (classe astratta) | `*Validator`, `ValidatorFactory` in `validation.implementations` |
 | `BattleEvent` | model.event | Record sealed annidati |
 | `UiTheme` | view.theme | `DuelUiTheme` (`view.theme`); stili hub inline |
 | `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | Implementate da `ScreenNavigator` (`controller.navigation`) |

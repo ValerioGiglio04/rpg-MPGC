@@ -1,8 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.CreatureBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.CreatureValidator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -25,10 +24,6 @@ public final class Creature implements Serializable {
     return new CreatureBuilder();
   }
 
-  /**
-   * Costruttore completo usato da {@link CreatureBuilder}. Valida le invarianti dopo l'assegnazione
-   * dei campi.
-   */
   public Creature(
       long catalogId,
       String name,
@@ -51,7 +46,6 @@ public final class Creature implements Serializable {
     this.defense = defense;
     this.speed = speed;
     this.moves = List.copyOf(moves);
-    Validators.getCreatureValidator().validate(this);
   }
 
   public long catalogId() {
@@ -99,7 +93,7 @@ public final class Creature implements Serializable {
   }
 
   public void receiveDamage(int damage) {
-    CreatureValidator.validateDamage(damage);
+    Rules.requireNonNegative(damage, "Damage cannot be negative");
     currentHealth = Math.max(0, currentHealth - damage);
   }
 

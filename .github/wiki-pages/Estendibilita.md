@@ -120,8 +120,8 @@ Pattern consigliato (come hub, battaglia, overworld):
 1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
 2. Creare `NuovaSchermataController` in `controller` (stato + comandi verso `GameModel`)
 3. Creare `NuovaSchermataController` sottile: binding FXML + delega al controller
-4. Registrare transizione in `controller.navigation` (`ScreenNavigator`, `FxmlScreens`)
-5. Eventuale interfaccia callback in `controller.navigation` (implementate da `ScreenNavigator`)
+4. Registrare transizione in `controller.navigation` (`ScreenNavigator`, `FxmlScreenLoader`)
+5. Eventuale interfaccia callback in `controller.navigation` + implementazione in `actions.implementations` (delega a `ScreenNavigation`)
 6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
 
 ---
@@ -134,7 +134,7 @@ L'UI **non** incolla stringhe fisse nei controller: menu, hub, duello, dialoghi 
 |----------|--------|
 | `src/main/resources/i18n/messages_it.properties` | File delle traduzioni (chiave → testo) usato nella v1 in italiano |
 | `Messages` (`view`) | Punto unico per `get` / `format` e per il `ResourceBundle` condiviso con FXML |
-| `FxmlScreens` (`controller.navigation`) | Passa lo stesso bundle a `FXMLLoader`, così i `%chiave` negli `.fxml` risolvono le stesse stringhe |
+| `FxmlScreenLoader` (`controller.navigation`) | Passa lo stesso bundle a `FXMLLoader`, così i `%chiave` negli `.fxml` risolvono le stesse stringhe |
 | Controller Java | Usano `Messages.get("…")` e `Messages.format("…", argomenti)` per etichette dinamiche, log di battaglia, tooltip |
 
 **Modificare solo l'italiano:** editare `messages_it.properties` (es. `menu.start`, `battle.dialog.victory.title`). Placeholder come `{0}` e `{1}` vanno lasciati dove servono a `MessageFormat`.
@@ -160,9 +160,9 @@ Messages.setLocale(Locale.ENGLISH);
 
 Nuovi aggregati devono:
 
-- Passare da un `*Builder` o costruttore che invoca `Validators` (`model.validation.implementations`)
+- Costruzione sempre via `*Builder`: crea l'istanza, poi `Validator<T> v = ValidatorFactory.get{Type}Validator(); v.validate(instance)`
 - Rispettare `Rules` (`model.validation`) dove applicabile
-- Per un nuovo tipo validabile: sottoclasse di `AbstractDomainValidator<T>` in `validation.implementations` con `validateRules` e messaggio di null-check, poi registrazione in `Validators`
+- Nuovo tipo: `{Type}Validator extends Validator<T>` in `validation.implementations`, registrazione in `ValidatorFactory`; costruttori senza validazione
 
 Questo evita che estensioni introducano stati illegali difficili da debuggare.
 

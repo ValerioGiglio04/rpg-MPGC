@@ -1,7 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.PlayerBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
 import java.io.Serializable;
 
 public final class Player implements Serializable {
@@ -26,7 +25,6 @@ public final class Player implements Serializable {
     this.holder = holder;
     this.score = score;
     this.skinPath = sanitizeSkinPath(skinPath);
-    Validators.getPlayerValidator().validate(this);
   }
 
   public String name() {

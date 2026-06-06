@@ -1,16 +1,10 @@
 package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
-import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
-import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
-import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
-/**
- * Valida un {@link Player}: nome, holder, score e skin path. Si ottiene tramite {@link
- * Validators#getPlayerValidator()}.
- */
-public final class PlayerValidator extends AbstractDomainValidator<Player> {
+public final class PlayerValidator extends Validator<Player> {
 
   @Override
   protected String nullMessage() {
@@ -20,10 +14,8 @@ public final class PlayerValidator extends AbstractDomainValidator<Player> {
   @Override
   protected void validateRules(Player player) {
     Rules.requireText(player.name(), "Player name cannot be blank");
-    CreatureHolder holder = player.holder();
-    Score score = player.score();
-    Rules.requireNonNull(holder, "Player needs holder");
-    Rules.requireNonNull(score, "Player needs score");
+    Rules.requireNonNull(player.holder(), "Player needs holder");
+    Rules.requireNonNull(player.score(), "Player needs score");
     Rules.requireText(player.skinPath(), "Player skin path cannot be blank");
   }
 }

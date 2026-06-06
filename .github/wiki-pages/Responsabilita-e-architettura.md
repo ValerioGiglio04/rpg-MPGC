@@ -146,13 +146,13 @@ flowchart TB
 - Nuova strategy di risoluzione attacco: nuova implementazione di `AttackResolutionStrategy`.
 - Nuova policy overworld: nuova implementazione di `GymStatusStrategy`.
 - Nuovo backend di salvataggio: nuova implementazione di `GameStateRepository`.
-- Nuovo validator di dominio: sottoclasse di `AbstractDomainValidator` in `validation.implementations`, registrata in `Validators`, senza cambiare il contratto `Validator<T>`.
+- Nuovo validator di dominio: sottoclasse di `Validator<T>` in `validation.implementations` + `get*Validator()` in `ValidatorFactory`.
 - Nuovo model.persistence Hibernate: sottoclasse di `AbstractHibernateAdapter` che implementa una porta di dominio.
 
 ### Liskov Substitution (LSP)
 
 - Qualsiasi `AttackResolutionStrategy` o `BossMoveStrategy` iniettata in `BattleService` è intercambiabile se rispetta il contratto delle interfacce.
-- I validator concreti sostituiscono `AbstractDomainValidator` rispettando `validate(T)`; i loader/repository Hibernate sostituiscono la base astratta mantenendo le porte.
+- I validator concreti estendono `Validator<T>`; i loader/repository Hibernate sostituiscono la base astratta mantenendo le porte.
 
 ### Interface Segregation (ISP)
 
@@ -180,9 +180,9 @@ flowchart TB
 | Mapper / seed catalogo | `model.persistence.catalog.mapper` | `model.persistence.catalog.seed`, `.support` |
 | DTO / mapper sessione | `model.persistence.session.dto` | `session.mapper`, `session.serializer` |
 | Shell e routing UI | — | `controller.navigation` |
-| Callback schermata | `controller.navigation` | implementate da `ScreenNavigator` |
+| Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `ScreenNavigation`) |
 | Builder widget UI | — | `view.component.builder` |
-| Validazione dominio | `model.validation` (`Validator`, `AbstractDomainValidator`, `Rules`) | `model.validation.implementations` (`Validators`, `*Validator`) |
+| Validazione dominio | `model.validation` (`Validator`, `Rules`) | `validation.implementations` (`ValidatorFactory`, `*Validator`) |
 
 ---
 
@@ -194,12 +194,12 @@ flowchart TB
 | **Controller** | `controller` | Controller sottili; stato e comandi verso `GameModel` |
 | **Builder** | `model.builder` | Costruzione validata di aggregati |
 | **Strategy** | `model.combat.strategy`, `model.overworld.strategy` | Algoritmi intercambiabili; implementazioni in `*.strategy.implementations` |
-| **Template Method** | `model.validation` + `.implementations`, `model.persistence` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio in `*Validator` / sottoclassi model.persistence |
+| **Template Method** | `model.validation`, `model.persistence` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio in `*Validator` / sottoclassi model.persistence |
 | **Repository** | `model.persistence` (`GameStateRepository`) | Astrazione persistenza stato dinamico |
 | **Composition root** | `app` (`AppModule`) | Unico punto di creazione dipendenze |
 | **Sealed interface** | `model.event` (`BattleEvent`) | Eventi di battaglia esaustivi per il translator UI |
 
-Gerarchia tipica dove serve estensione: **interfaccia** (in `model.persistence`, `*.strategy` o `model.validation`) → **classe astratta** (model.persistence o `AbstractDomainValidator`) → **implementazione concreta** (in `model.persistence`, `*.strategy.implementations` o `validation.implementations`). Le porte restano in `model.persistence`; i validator concreti in `validation.implementations`.
+Gerarchia tipica dove serve estensione: **interfaccia** (in `model.persistence` o `*.strategy`) → **classe astratta** (model.persistence o `Validator<T>`) → **implementazione concreta** (in `model.persistence`, `*.strategy.implementations` o `validation.implementations`). I validator di dominio sono classi finali che estendono `Validator<T>`.
 
 ---
 

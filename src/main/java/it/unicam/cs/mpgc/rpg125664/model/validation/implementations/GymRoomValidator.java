@@ -1,16 +1,10 @@
 package it.unicam.cs.mpgc.rpg125664.model.validation.implementations;
 
-import it.unicam.cs.mpgc.rpg125664.model.entity.GymBoss;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
-import it.unicam.cs.mpgc.rpg125664.model.validation.AbstractDomainValidator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
-import java.util.List;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
-/**
- * Valida una {@link GymRoom}: id, nome, connessioni, boss e punti richiesti. Si ottiene tramite
- * {@link Validators#getGymRoomValidator()}.
- */
-public final class GymRoomValidator extends AbstractDomainValidator<GymRoom> {
+public final class GymRoomValidator extends Validator<GymRoom> {
 
   @Override
   protected String nullMessage() {
@@ -21,10 +15,8 @@ public final class GymRoomValidator extends AbstractDomainValidator<GymRoom> {
   protected void validateRules(GymRoom room) {
     Rules.requirePositiveId(room.id(), "Gym id must be positive");
     Rules.requireText(room.name(), "Gym name cannot be blank");
-    List<Long> connections = room.connectedGymIds();
-    Rules.requireNonNull(connections, "Gym connections cannot be null");
-    GymBoss boss = room.boss();
-    Rules.requireNonNull(boss, "Gym needs a boss");
+    Rules.requireNonNull(room.connectedGymIds(), "Gym connections cannot be null");
+    Rules.requireNonNull(room.boss(), "Gym needs a boss");
     Rules.requireNonNegative(room.requiredPoints(), "Gym required points cannot be negative");
   }
 }

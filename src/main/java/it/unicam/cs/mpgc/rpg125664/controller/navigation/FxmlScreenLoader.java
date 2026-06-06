@@ -14,14 +14,14 @@ import javafx.scene.Parent;
  * Carica FXML con {@link Messages#resourceBundle()}; i controller vanno passati da codice, non da
  * FXML.
  */
-public final class FxmlScreens {
+public final class FxmlScreenLoader {
 
-  private FxmlScreens() {}
+  private FxmlScreenLoader() {}
 
   public static Parent load(String classpathLocation, Object controller) {
     String errorMessage = "Missing FXML resource: " + classpathLocation;
     URL url =
-        Objects.requireNonNull(FxmlScreens.class.getResource(classpathLocation), errorMessage);
+        Objects.requireNonNull(FxmlScreenLoader.class.getResource(classpathLocation), errorMessage);
     assertNoFxControllerAttribute(url, classpathLocation);
     FXMLLoader loader = new FXMLLoader(url);
     loader.setResources(Messages.resourceBundle());
@@ -45,7 +45,7 @@ public final class FxmlScreens {
       if (document.contains("fx:controller")) {
         throw new IllegalStateException(
             classpathLocation
-                + " declares fx:controller but FxmlScreens.load() sets the controller in code."
+                + " declares fx:controller but FxmlScreenLoader.load() sets the controller in code."
                 + " Remove fx:controller from the FXML file.");
       }
     } catch (IOException e) {

@@ -9,6 +9,10 @@ import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActionsImpl;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActionsImpl;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActionsImpl;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActionsImpl;
 import it.unicam.cs.mpgc.rpg125664.controller.BattleController;
 import it.unicam.cs.mpgc.rpg125664.controller.HubController;
 import it.unicam.cs.mpgc.rpg125664.controller.LoadGameController;
@@ -20,7 +24,6 @@ import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
 import it.unicam.cs.mpgc.rpg125664.view.theme.DuelUiTheme;
 import java.util.Objects;
 import java.util.Optional;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.MenuButton;
@@ -31,7 +34,7 @@ import javafx.scene.layout.StackPane;
  * Swappa i figli del {@link StackPane} principale tra root FXML e collega le azioni di
  * menu/hub/vittoria. Tiene {@link MainView} libera dal branching di navigazione.
  */
-public final class ScreenNavigator {
+public final class ScreenNavigator implements ScreenNavigation {
 
   private static final UiTheme BATTLE_THEME = new DuelUiTheme();
 
@@ -43,16 +46,18 @@ public final class ScreenNavigator {
     this.gameModel = Objects.requireNonNull(gameModel, "gameModel");
   }
 
+  @Override
   public void showMainMenu() {
     setScreen(
-        FxmlScreens.load(
+        FxmlScreenLoader.load(
             "/fxml/MainMenu.fxml",
             new MainMenuController(mainMenuActions(), gameModel.hasAnySave())));
   }
 
+  @Override
   public void showLoadGame() {
     setScreen(
-        FxmlScreens.load(
+        FxmlScreenLoader.load(
             "/fxml/LoadGame.fxml",
             new LoadGameController(new LoadGamePresenter(gameModel), loadGameActions())));
   }
@@ -62,9 +67,11 @@ public final class ScreenNavigator {
       showVictory();
       return;
     }
-    setScreen(FxmlScreens.load("/fxml/Hub.fxml", new HubController(gameModel, hubActions())));
+    setScreen(
+        FxmlScreenLoader.load("/fxml/Hub.fxml", new HubController(gameModel, hubActions())));
   }
 
+  @Override
   public void showBattle() {
     if (gameModel.gameState().allGymsCompleted()) {
       showVictory();
@@ -78,25 +85,27 @@ public final class ScreenNavigator {
       return;
     }
     BattleController controller = new BattleController(gameModel, this::showHub);
-    Parent screen = FxmlScreens.load("/fxml/Battle.fxml", controller);
+    Parent screen = FxmlScreenLoader.load("/fxml/Battle.fxml", controller);
     BATTLE_THEME.applyTo(screen);
     setScreen(screen);
   }
 
   public void showVictory() {
     Parent screen =
-        FxmlScreens.load(
+        FxmlScreenLoader.load(
             "/fxml/Victory.fxml",
             new VictoryController(new VictoryPresenter(gameModel), victoryActions()));
     setScreen(screen);
   }
 
-  private void startNewGame() {
+  @Override
+  public void startNewGame() {
     gameModel.startNewGame();
     showHub();
   }
 
-  private void saveCurrent() {
+  @Override
+  public void saveCurrent() {
     try {
       gameModel.saveCurrent();
     } catch (SessionPersistenceException error) {
@@ -105,7 +114,8 @@ public final class ScreenNavigator {
     showHub();
   }
 
-  private void saveAsNew() {
+  @Override
+  public void saveAsNew() {
     Optional<String> name =
         DialogHelper.promptText(
             Messages.get("hub.saveAsNew.title"),
@@ -122,7 +132,8 @@ public final class ScreenNavigator {
     showHub();
   }
 
-  private void loadSession(long sessionId) {
+  @Override
+  public void loadSession(long sessionId) {
     try {
       gameModel.loadSession(sessionId);
       showHub();
@@ -132,7 +143,8 @@ public final class ScreenNavigator {
     }
   }
 
-  private void deleteSession(long sessionId) {
+  @Override
+  public void deleteSession(long sessionId) {
     if (!DialogHelper.confirm(
         Messages.get("load.delete.confirm.title"), Messages.get("load.delete.confirm.body"))) {
       return;
@@ -178,87 +190,19 @@ public final class ScreenNavigator {
     }
   }
 
-  private final class MainMenuActionsImpl implements MainMenuActions {
-    @Override
-    public void onNewGame() {
-      startNewGame();
-    }
-
-    @Override
-    public void onLoadGame() {
-      showLoadGame();
-    }
-
-    @Override
-    public void onExit() {
-      Platform.exit();
-    }
-  }
-
   private MainMenuActions mainMenuActions() {
-    return new MainMenuActionsImpl();
-  }
-
-  private final class LoadGameActionsImpl implements LoadGameActions {
-    @Override
-    public void onLoadSelected(long sessionId) {
-      loadSession(sessionId);
-    }
-
-    @Override
-    public void onDeleteSelected(long sessionId) {
-      deleteSession(sessionId);
-    }
-
-    @Override
-    public void onBack() {
-      showMainMenu();
-    }
+    return new MainMenuActionsImpl(this);
   }
 
   private LoadGameActions loadGameActions() {
-    return new LoadGameActionsImpl();
-  }
-
-  private final class HubActionsImpl implements HubActions {
-    @Override
-    public void onStartBattle() {
-      showBattle();
-    }
-
-    @Override
-    public void onSave() {
-      saveCurrent();
-    }
-
-    @Override
-    public void onSaveAsNew() {
-      saveAsNew();
-    }
-
-    @Override
-    public void onBackToMenu() {
-      showMainMenu();
-    }
+    return new LoadGameActionsImpl(this);
   }
 
   private HubActions hubActions() {
-    return new HubActionsImpl();
-  }
-
-  private final class VictoryActionsImpl implements VictoryActions {
-    @Override
-    public void onNewRun() {
-      startNewGame();
-    }
-
-    @Override
-    public void onBackToMenu() {
-      showMainMenu();
-    }
+    return new HubActionsImpl(this);
   }
 
   private VictoryActions victoryActions() {
-    return new VictoryActionsImpl();
+    return new VictoryActionsImpl(this);
   }
 }

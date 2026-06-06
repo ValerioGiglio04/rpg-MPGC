@@ -11,7 +11,7 @@ public final class MainView {
   private final ScreenNavigator navigator;
 
   public MainView(GameModel gameModel) {
-    this.root = (StackPane) FxmlScreens.load("/fxml/MainShell.fxml", null);
+    this.root = (StackPane) FxmlScreenLoader.load("/fxml/MainShell.fxml", null);
     this.navigator = new ScreenNavigator(root, gameModel);
     navigator.showMainMenu();
   }

@@ -1,0 +1,34 @@
+package it.unicam.cs.mpgc.rpg125664.controller.navigation;
+
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigation;
+import java.util.Objects;
+
+public final class HubActionsImpl implements HubActions {
+
+  private final ScreenNavigation navigation;
+
+  public HubActionsImpl(ScreenNavigation navigation) {
+    this.navigation = Objects.requireNonNull(navigation, "navigation");
+  }
+
+  @Override
+  public void onStartBattle() {
+    navigation.showBattle();
+  }
+
+  @Override
+  public void onSave() {
+    navigation.saveCurrent();
+  }
+
+  @Override
+  public void onSaveAsNew() {
+    navigation.saveAsNew();
+  }
+
+  @Override
+  public void onBackToMenu() {
+    navigation.showMainMenu();
+  }
+}

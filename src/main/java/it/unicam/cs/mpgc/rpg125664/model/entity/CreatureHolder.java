@@ -1,8 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.CreatureHolderBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.CreatureHolderValidator;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +19,6 @@ public final class CreatureHolder implements Serializable {
   public CreatureHolder(List<Creature> creatures, long activeCatalogId) {
     this.creatures = new ArrayList<>(creatures);
     this.activeCatalogId = activeCatalogId;
-    Validators.getCreatureHolderValidator().validate(this);
   }
 
   public List<Creature> creatures() {
@@ -40,7 +38,7 @@ public final class CreatureHolder implements Serializable {
   }
 
   public void switchTo(long catalogId) {
-    CreatureHolderValidator.validateSwitch(creatures, catalogId);
+    assertCanSwitchTo(catalogId);
     activeCatalogId = catalogId;
   }
 
@@ -56,7 +54,8 @@ public final class CreatureHolder implements Serializable {
   }
 
   public boolean canSwitchTo(long catalogId) {
-    return CreatureHolderValidator.canSwitchTo(creatures, catalogId);
+    return creatures.stream()
+        .anyMatch(creature -> creature.catalogId() == catalogId && !creature.isKnockedOut());
   }
 
   public boolean allKnockedOut() {
@@ -64,7 +63,7 @@ public final class CreatureHolder implements Serializable {
   }
 
   public void addCreature(Creature creature) {
-    CreatureHolderValidator.validateNewCreature(creature);
+    Rules.requireNonNull(creature, "Cannot add a null creature");
     creatures.add(creature);
   }
 
@@ -80,6 +79,18 @@ public final class CreatureHolder implements Serializable {
    */
   public void healAllToFullPreservingActive() {
     creatures.forEach(Creature::healToFull);
+  }
+
+  private void assertCanSwitchTo(long catalogId) {
+    Rules.requirePositiveId(catalogId, "Creature catalog id must be positive");
+    Creature creature =
+        creatures.stream()
+            .filter(c -> c.catalogId() == catalogId)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Creature is not in the team"));
+    if (creature.isKnockedOut()) {
+      throw new IllegalStateException("Cannot select a knocked-out creature");
+    }
   }
 
   private Creature findCreature(long catalogId) {

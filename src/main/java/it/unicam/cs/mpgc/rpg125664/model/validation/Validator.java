@@ -1,15 +1,20 @@
 package it.unicam.cs.mpgc.rpg125664.model.validation;
 
 /**
- * Contratto comune per i validator del dominio: ricevono un oggetto e lanciano se viola gli
- * invarianti del tipo. Le implementazioni concrete estendono {@link AbstractDomainValidator} e si
- * ottengono tramite {@link Validators}; nessun chiamante esterno deve costruirle direttamente.
- *
- * <p>Il tipo generico {@code T} rappresenta il tipo del valore da validare.
+ * Validazione di un aggregato {@code T}. Implementazioni in {@code validation.implementations}.
+ * Pattern: {@code Validator<T> validator = ValidatorFactory.get*Validator();
+ * validator.validate(instance);}.
  */
-@FunctionalInterface
-public interface Validator<T> {
+public abstract class Validator<T> {
 
-  /** Verifica le invarianti del valore: lancia {@link IllegalArgumentException} se violate. */
-  void validate(T value);
+  protected Validator() {}
+
+  public final void validate(T value) {
+    Rules.requireNonNull(value, nullMessage());
+    validateRules(value);
+  }
+
+  protected abstract void validateRules(T value);
+
+  protected abstract String nullMessage();
 }

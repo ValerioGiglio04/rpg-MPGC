@@ -1,7 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.GameStateBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +21,6 @@ public final class GameState implements Serializable {
     this.player = player;
     this.gyms = List.copyOf(gyms);
     this.currentGymId = currentGymId;
-    Validators.getGameStateValidator().validate(this);
   }
 
   public Player player() {
@@ -47,7 +47,8 @@ public final class GameState implements Serializable {
       throw new IllegalArgumentException("Gym is not connected to current gym");
     }
     currentGymId = gymId;
-    Validators.getGameStateValidator().validate(this);
+    Validator<GameState> validator = ValidatorFactory.getGameStateValidator();
+    validator.validate(this);
   }
 
   public boolean allGymsCompleted() {

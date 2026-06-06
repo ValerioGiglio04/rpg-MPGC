@@ -2,6 +2,8 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymBoss;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 
 public final class GymBossBuilder {
 
@@ -25,6 +27,9 @@ public final class GymBossBuilder {
   }
 
   public GymBoss build() {
-    return new GymBoss(name, holder, pointsReward);
+    GymBoss boss = new GymBoss(name, holder, pointsReward);
+    Validator<GymBoss> validator = ValidatorFactory.getGymBossValidator();
+    validator.validate(boss);
+    return boss;
   }
 }

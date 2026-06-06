@@ -1,7 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.model.entity;
 
 import it.unicam.cs.mpgc.rpg125664.model.builder.GymRoomBuilder;
-import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.Validators;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +34,6 @@ public final class GymRoom implements Serializable {
     this.boss = boss;
     this.requiredPoints = requiredPoints;
     this.completed = completed;
-    Validators.getGymRoomValidator().validate(this);
   }
 
   public long id() {

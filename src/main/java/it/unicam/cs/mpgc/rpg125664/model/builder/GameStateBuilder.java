@@ -3,6 +3,8 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,9 @@ public final class GameStateBuilder {
   }
 
   public GameState build() {
-    return new GameState(player, gyms, currentGymId);
+    GameState state = new GameState(player, gyms, currentGymId);
+    Validator<GameState> validator = ValidatorFactory.getGameStateValidator();
+    validator.validate(state);
+    return state;
   }
 }

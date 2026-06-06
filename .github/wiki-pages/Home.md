@@ -24,8 +24,8 @@ it.unicam.cs.mpgc.rpg125664
 │   └── GymStatus, layout mappa
 ├── model.persistence/                      GameStateRepository, GameCatalogLoader
 ├── model.entity|catalog|event|builder/
-├── model.validation/                  Validator, AbstractDomainValidator, Rules, MoveRules
-│   └── implementations/              Validators, CreatureValidator, MoveValidator, …
+├── model.validation/                  Validator (abstract), Rules, MoveRules
+│   └── implementations/              ValidatorFactory, *Validator
 ├── model.combat/
 │   ├── strategy/                     AttackResolutionStrategy, BossMoveStrategy
 │   └── strategy.implementations/                TurnBased*, AccuracyThreshold*
@@ -37,8 +37,9 @@ it.unicam.cs.mpgc.rpg125664
 │   ├── entities/ dto/ mapper/ serializer/
 │   └── HibernateGameStateRepository
 └── view/                        Messages, UiErrorReporter, BattleEventTranslator
-    ├── navigation/                   MainView, ScreenNavigator, FxmlScreens, DialogHelper
+    ├── navigation/                   MainView, ScreenNavigator, ScreenNavigation, FxmlScreenLoader, DialogHelper
     ├── actions/                      MainMenuActions, HubActions, …
+    │   └── implementations/          MainMenuActionsImpl, HubActionsImpl, …
     ├── controller/ controller/
     ├── component/ (+ component.builder/)
     ├── overworld/
@@ -52,15 +53,29 @@ it.unicam.cs.mpgc.rpg125664
 | DTO / seed JSON catalogo | `model.persistence.catalog.dto` |
 | Mapper / seed catalogo | `catalog.mapper`, `catalog.seed`, `catalog.support` |
 | Entity + DTO + mapper sessione | `session.entities`, `session.dto`, `session.mapper`, `session.serializer` |
-| Validazione dominio | `model.validation` (contratto) → `validation.implementations` (`Validators`, `*Validator`) |
+| Validazione dominio | `model.validation` → `validation.implementations` (`ValidatorFactory`, `*Validator`) |
 | Strategy combattimento | `model.combat.strategy` / `.implementations` |
 | Strategy mappa | `model.overworld.strategy` / `.implementations` |
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) |
 | Shell e routing UI | `controller.navigation` |
-| Callback schermata | `controller.navigation` |
+| Callback schermata | `controller.navigation` (contratto) → `actions.implementations` (`*ActionsImpl`) |
 | Controller MVP | `controller` + `controller` |
 | Builder widget UI | `view.component.builder` |
 | Tema UI | `view.theme` / `theme.implementations` |
+
+### Suffissi nel codice
+
+| Suffisso / nome | Ruolo | Esempio |
+|-----------------|-------|---------|
+| `*Loader` | Caricamento risorse (FXML, catalogo) | `FxmlScreenLoader`, `HibernateGameCatalogLoader` |
+| `Validator<T>` | Classe astratta: `validate(T)` | builder: costruisci → `validator.validate(instance)` → return |
+| `*Validator` | Implementazione in `validation.implementations` | `ScoreValidator`, `CreatureHolderValidator`, … |
+| `ValidatorFactory` | Registry in `validation.implementations` | `get*Validator()` restituisce `Validator<T>` |
+| `*Actions` | Callback schermata (ISP verso controller) | `HubActions` |
+| `*ActionsImpl` | Implementazione callback | `HubActionsImpl` in `actions.implementations` |
+| `ScreenNavigation` | Comandi di navigazione per le `*ActionsImpl` | implementato da `ScreenNavigator` |
+
+Pattern documentati senza suffisso dedicato: `GameModel` (Facade), `AppModule` (composition root), `Validator` (Template Method).
 
 ---
 

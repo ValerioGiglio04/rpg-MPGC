@@ -2,6 +2,8 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 import java.util.List;
 
 public final class CreatureBuilder {
@@ -11,7 +13,8 @@ public final class CreatureBuilder {
   private String role = "Creatura equilibrata";
   private String skinPath = "/images/creatures/default.png";
   private int maxHealth;
-  private Integer currentHealth;
+  private int currentHealth;
+  private boolean currentHealthSet;
   private int attack;
   private int defense;
   private int speed = 5;
@@ -44,6 +47,7 @@ public final class CreatureBuilder {
 
   public CreatureBuilder currentHealth(int currentHealth) {
     this.currentHealth = currentHealth;
+    this.currentHealthSet = true;
     return this;
   }
 
@@ -68,8 +72,21 @@ public final class CreatureBuilder {
   }
 
   public Creature build() {
-    int effectiveHealth = currentHealth != null ? currentHealth : maxHealth;
-    return new Creature(
-        catalogId, name, role, skinPath, maxHealth, effectiveHealth, attack, defense, speed, moves);
+    int effectiveHealth = currentHealthSet ? currentHealth : maxHealth;
+    Creature creature =
+        new Creature(
+            catalogId,
+            name,
+            role,
+            skinPath,
+            maxHealth,
+            effectiveHealth,
+            attack,
+            defense,
+            speed,
+            moves);
+    Validator<Creature> validator = ValidatorFactory.getCreatureValidator();
+    validator.validate(creature);
+    return creature;
   }
 }

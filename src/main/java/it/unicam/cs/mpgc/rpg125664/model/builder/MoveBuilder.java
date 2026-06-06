@@ -2,6 +2,8 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import it.unicam.cs.mpgc.rpg125664.model.validation.MoveRules;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 
 public final class MoveBuilder {
 
@@ -31,6 +33,9 @@ public final class MoveBuilder {
   }
 
   public Move build() {
-    return new Move(name, power, accuracy, description);
+    Move move = new Move(name, power, accuracy, description);
+    Validator<Move> validator = ValidatorFactory.getMoveValidator();
+    validator.validate(move);
+    return move;
   }
 }

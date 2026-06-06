@@ -3,6 +3,8 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 
 public final class PlayerBuilder {
 
@@ -32,9 +34,12 @@ public final class PlayerBuilder {
   }
 
   public Player build() {
-    if (skinPath == null) {
-      return new Player(name, holder, score);
-    }
-    return new Player(name, holder, score, skinPath);
+    Player player =
+        skinPath == null
+            ? new Player(name, holder, score)
+            : new Player(name, holder, score, skinPath);
+    Validator<Player> validator = ValidatorFactory.getPlayerValidator();
+    validator.validate(player);
+    return player;
   }
 }

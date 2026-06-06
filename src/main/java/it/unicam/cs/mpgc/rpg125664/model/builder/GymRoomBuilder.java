@@ -2,6 +2,8 @@ package it.unicam.cs.mpgc.rpg125664.model.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymBoss;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
+import it.unicam.cs.mpgc.rpg125664.model.validation.implementations.ValidatorFactory;
 import java.util.List;
 
 public final class GymRoomBuilder {
@@ -44,6 +46,9 @@ public final class GymRoomBuilder {
   }
 
   public GymRoom build() {
-    return new GymRoom(id, name, connectedGymIds, boss, requiredPoints, completed);
+    GymRoom room = new GymRoom(id, name, connectedGymIds, boss, requiredPoints, completed);
+    Validator<GymRoom> validator = ValidatorFactory.getGymRoomValidator();
+    validator.validate(room);
+    return room;
   }
 }
