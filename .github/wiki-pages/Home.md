@@ -121,9 +121,9 @@ cd rpg-MPGC
 | **Studente** | Valerio Giglio — matricola `125664` — `valerio.giglio@studenti.unicam.it` |
 | **Corso** | Metodologie di Programmazione, Modellazione e Gestione della Conoscenza — AA 2025/26 |
 | **Repository** | [rpg-MPGC](https://github.com/ValerioGiglio04/rpg-MPGC) |
-| **Linguaggio** | Java 21 |
+| **Linguaggio** | Java 25 |
 | **Build** | Gradle |
-| **UI** | JavaFX 21 + FXML |
+| **UI** | JavaFX 25 + FXML |
 | **Persistenza** | Catalogo e sessioni: Hibernate 6 + H2 (`~/.rpg-palestre-creature/save`); snapshot partita in `sessioni_salvate.dati_salvati_json` |
 | **Package** | `it.unicam.cs.mpgc.rpg125664` |
 
