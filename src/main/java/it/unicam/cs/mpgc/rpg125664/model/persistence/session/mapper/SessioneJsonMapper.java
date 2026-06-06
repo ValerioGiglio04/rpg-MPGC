@@ -36,16 +36,19 @@ public final class SessioneJsonMapper {
     dto.setNumPuntiFama(player.score().points());
     dto.setIdCreaturaAttivaSelezionata(active.catalogId());
     dto.setIdPalestraCorrente(state.currentGymId());
-    dto.setListaCreatureTeamGiocatore(
+    List<CreaturaTeamDto> creatureTeamGiocatore =
         creatures.stream()
             .map(creature -> new CreaturaTeamDto(creature.catalogId(), creature.currentHealth()))
-            .toList());
-    dto.setPalestreCompletate(
+            .toList();
+    dto.setListaCreatureTeamGiocatore(creatureTeamGiocatore);
+    List<PalestraProgressoDto> palestreCompletateGiocatore =
         state.gyms().stream()
             .map(gym -> new PalestraProgressoDto(gym.id(), gym.completed()))
-            .toList());
-    dto.setPosizioneGiocatoreMappa(
-        new PosizioneMappaDto(overworldPosition.column(), overworldPosition.row()));
+            .toList();
+    dto.setPalestreCompletate(palestreCompletateGiocatore);
+    PosizioneMappaDto posizioneGiocatoreMappa =
+        new PosizioneMappaDto(overworldPosition.column(), overworldPosition.row());
+    dto.setPosizioneGiocatoreMappa(posizioneGiocatoreMappa);
     return dto;
   }
 
@@ -62,8 +65,8 @@ public final class SessioneJsonMapper {
             .score(Score.builder().points(dto.getNumPuntiFama()).build())
             .skinPath(catalog.settings().playerSkinPath())
             .build();
-    Map<Long, Boolean> completion = toCompletionMap(dto.getPalestreCompletate());
-    List<GymRoom> gyms = catalog.buildAllGyms(completion);
+    Map<Long, Boolean> gymCompletionMap = toCompletionMap(dto.getPalestreCompletate());
+    List<GymRoom> gyms = catalog.buildAllGyms(gymCompletionMap);
     long currentGymId = dto.getIdPalestraCorrente();
     if (currentGymId <= 0) {
       currentGymId = catalog.settings().startingGymId();
@@ -73,9 +76,7 @@ public final class SessioneJsonMapper {
 
   public OverworldPosition mapPositionFromDto(UltimaSessioneSalvataDto dto) {
     PosizioneMappaDto pos = dto.getPosizioneGiocatoreMappa();
-    if (pos == null) {
-      return null;
-    }
+    if (pos == null) return null;
     return new OverworldPosition(pos.getY(), pos.getX());
   }
 
@@ -90,9 +91,7 @@ public final class SessioneJsonMapper {
 
   private Map<Long, Boolean> toCompletionMap(List<PalestraProgressoDto> progress) {
     Map<Long, Boolean> completionMap = new HashMap<>();
-    if (progress == null) {
-      return completionMap;
-    }
+    if (progress == null) return completionMap;
     for (PalestraProgressoDto row : progress) {
       completionMap.put(row.getIdPalestra(), row.isCompletata());
     }

@@ -81,9 +81,7 @@ public final class GymCellPlacement {
       List<OverworldPosition> slots,
       boolean[][] blockedTiles,
       int gymCount) {
-    if (chosen.size() >= gymCount) {
-      return;
-    }
+    if (chosen.size() >= gymCount) return;
     int stillNeeded = gymCount - chosen.size();
     slots.stream()
         .filter(slot -> isFreeSlot(slot, blockedTiles))
@@ -109,12 +107,8 @@ public final class GymCellPlacement {
       Map<String, GymRoom> gymsByCell,
       int mapRows,
       int mapCols) {
-    if (!isInsideMap(row, col, mapRows, mapCols)) {
-      return false;
-    }
-    if (blockedTiles[row][col]) {
-      return false;
-    }
+    if (!isInsideMap(row, col, mapRows, mapCols)) return false;
+    if (blockedTiles[row][col]) return false;
     return !gymsByCell.containsKey(cellKey(row, col));
   }
 
