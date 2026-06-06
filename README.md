@@ -22,7 +22,6 @@ Documentazione completa del progetto (funzionalità, architettura, classi, persi
 ### Prerequisiti
 
 - Java 21+
-- Gradle
 
 ### Istruzioni
 
@@ -33,14 +32,30 @@ cd rpg-MPGC
 
 ### Build del progetto
 
+Linux, macOS o Git Bash:
+
 ```bash
 ./gradlew build
 ```
 
+Windows (PowerShell o CMD):
+
+```powershell
+.\gradlew.bat build
+```
+
 ### Esecuzione
+
+Linux, macOS o Git Bash:
 
 ```bash
 ./gradlew run
+```
+
+Windows (PowerShell o CMD):
+
+```powershell
+.\gradlew.bat run
 ```
 
 ---
