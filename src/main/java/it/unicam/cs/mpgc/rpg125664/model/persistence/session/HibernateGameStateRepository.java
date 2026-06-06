@@ -1,9 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.session;
 
 import it.unicam.cs.mpgc.rpg125664.model.persistence.AbstractHibernateAdapter;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto.UltimaSessioneSalvataDto;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.entities.SessioneSalvataEntity;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.session.mapper.SessioneJsonMapper;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.serializer.SessionJsonSerializer;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
@@ -15,8 +13,8 @@ import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
 import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.TypedQuery;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -30,124 +28,75 @@ import java.util.Optional;
 public final class HibernateGameStateRepository extends AbstractHibernateAdapter
     implements GameStateRepository {
 
-  private static final String LOCAL_SAVE_FILTER = "s.idUtente is null";
-
   private static final DateTimeFormatter DEFAULT_NAME_TIME =
       DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").withLocale(Locale.ITALY);
 
+  private final SessioneSalvataJpaRepository jpaRepository;
   private final SessionJsonSerializer serializer;
+  private final SessioneSalvataSummaryMapper summaryMapper;
 
   public HibernateGameStateRepository(
-      EntityManagerFactory entityManagerFactory, SessioneJsonMapper mapper) {
+      EntityManagerFactory entityManagerFactory,
+      SessioneSalvataJpaRepository jpaRepository,
+      SessionJsonSerializer serializer,
+      SessioneSalvataSummaryMapper summaryMapper) {
     super(entityManagerFactory);
-    this.serializer = new SessionJsonSerializer(Objects.requireNonNull(mapper, "mapper"));
+    this.jpaRepository = Objects.requireNonNull(jpaRepository, "jpaRepository");
+    this.serializer = Objects.requireNonNull(serializer, "serializer");
+    this.summaryMapper = Objects.requireNonNull(summaryMapper, "summaryMapper");
   }
 
   @Override
   public boolean hasAnySave() {
-    return countLocalSaves() > 0;
+    return jpaRepository.countLocal() > 0;
   }
 
   @Override
   public List<SavedSessionSummary> listSaves() {
+    List<SessioneSalvataEntity> rows = jpaRepository.findAllLocal();
     try {
-      return withEntityManagerThrowing(
-          em -> {
-            TypedQuery<SessioneSalvataEntity> query =
-                em.createQuery(
-                    "select s from SessioneSalvataEntity s where "
-                        + LOCAL_SAVE_FILTER
-                        + " order by s.dataSalvataggio desc",
-                    SessioneSalvataEntity.class);
-            List<SessioneSalvataEntity> rows = query.getResultList();
-            List<SavedSessionSummary> summaries = new ArrayList<>(rows.size());
-            for (SessioneSalvataEntity row : rows) {
-              summaries.add(toSummary(row));
-            }
-            return summaries;
-          });
-    } catch (IOException ex) {
-      throw wrapIo("Cannot read saved session summaries", ex);
+      List<SavedSessionSummary> summaries = new ArrayList<>(rows.size());
+      for (SessioneSalvataEntity row : rows) {
+        try {
+          summaries.add(summaryMapper.toSummary(row));
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
+        }
+      }
+      return summaries;
+    } catch (UncheckedIOException ex) {
+      throw wrapIo("Cannot read saved session summaries", ex.getCause());
     }
   }
 
   @Override
   public Optional<Long> findLastPlayedSessionId() {
-    return withEntityManager(
-        em -> {
-          TypedQuery<Long> query =
-              em.createQuery(
-                  "select s.idSessione from SessioneSalvataEntity s where "
-                      + LOCAL_SAVE_FILTER
-                      + " and s.ultimaGiocata = true",
-                  Long.class);
-          List<Long> ids = query.getResultList();
-          if (!ids.isEmpty()) {
-            return Optional.of(ids.getFirst());
-          }
-          TypedQuery<Long> fallback =
-              em.createQuery(
-                  "select s.idSessione from SessioneSalvataEntity s where "
-                      + LOCAL_SAVE_FILTER
-                      + " order by s.dataSalvataggio desc",
-                  Long.class);
-          fallback.setMaxResults(1);
-          List<Long> latest = fallback.getResultList();
-          return latest.isEmpty() ? Optional.empty() : Optional.of(latest.getFirst());
-        });
+    return jpaRepository.findLastPlayedId();
   }
 
   @Override
   public long save(SaveSessionCommand command) {
     Instant now = Instant.now();
-    String json;
-    try {
-      OverworldPosition position =
-          command
-              .overworldPosition()
-              .orElseThrow(
-                  () -> new IllegalStateException("Save command missing overworld position"));
-      json = serializer.toJson(command.state(), position);
-    } catch (IOException ex) {
-      throw wrapIo("Cannot serialize session", ex);
-    }
-    try {
-      return inTransactionThrowing(
-          em -> {
-            SessioneSalvataEntity row;
-            if (command.sessionId().isPresent()) {
-              long id = command.sessionId().orElseThrow();
-              row = requireLocalSession(em, id);
-              row.setDatiSalvatiJson(json);
-              row.setDataSalvataggio(now);
-              command.name().ifPresent(row::setNome);
-              clearUltimaGiocata(em);
-              row.setUltimaGiocata(true);
-            } else {
-              String nome = command.name().filter(n -> !n.isBlank()).orElse(defaultName(now));
-              row = SessioneSalvataEntity.newRow(nome, now, json, CatalogIds.GIOCATORE_UMANO, true);
-              clearUltimaGiocata(em);
-              em.persist(row);
-            }
-            em.flush();
-            return row.getIdSessione();
-          });
-    } catch (IOException ex) {
-      throw wrapIo("Cannot save session", ex);
-    }
+    String json = serializeOrThrow(command);
+    return inTransaction(
+        em -> {
+          SessioneSalvataEntity row =
+              command.sessionId().isPresent()
+                  ? updateExisting(em, command, json, now)
+                  : insertNew(em, command, json, now);
+          em.flush();
+          return row.getIdSessione();
+        });
   }
 
   @Override
   public LoadedSession load(long sessionId) {
+    SessioneSalvataEntity row = withEntityManager(em -> jpaRepository.requireLocal(em, sessionId));
     try {
-      return withEntityManagerThrowing(
-          em -> {
-            SessioneSalvataEntity row = requireLocalSession(em, sessionId);
-            GameState state = serializer.toGameState(row.getDatiSalvatiJson());
-            Optional<OverworldPosition> position =
-                serializer.overworldPositionFromJson(row.getDatiSalvatiJson());
-            return new LoadedSession(state, position);
-          });
+      GameState state = serializer.toGameState(row.getDatiSalvatiJson());
+      Optional<OverworldPosition> position =
+          serializer.overworldPositionFromJson(row.getDatiSalvatiJson());
+      return new LoadedSession(state, position);
     } catch (IOException ex) {
       throw wrapIo("Cannot load session " + sessionId, ex);
     }
@@ -155,16 +104,12 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
 
   @Override
   public void delete(long sessionId) {
-    try {
-      inTransactionThrowing(
-          em -> {
-            SessioneSalvataEntity row = requireLocalSession(em, sessionId);
-            em.remove(row);
-            return null;
-          });
-    } catch (IOException ex) {
-      throw wrapIo("Cannot delete session " + sessionId, ex);
-    }
+    inTransaction(
+        em -> {
+          SessioneSalvataEntity row = jpaRepository.requireLocal(em, sessionId);
+          em.remove(row);
+          return null;
+        });
   }
 
   @Override
@@ -173,41 +118,46 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
         em -> {
           SessioneSalvataEntity row = em.find(SessioneSalvataEntity.class, sessionId);
           if (row != null && row.getIdUtente() == null) {
-            clearUltimaGiocata(em);
+            jpaRepository.clearUltimaGiocata(em);
             row.setUltimaGiocata(true);
           }
           return null;
         });
   }
 
-  private static SessioneSalvataEntity requireLocalSession(EntityManager em, long sessionId)
-      throws IOException {
-    SessioneSalvataEntity row = em.find(SessioneSalvataEntity.class, sessionId);
-    if (row == null || row.getIdUtente() != null) {
-      throw new IOException("Saved session not found: " + sessionId);
+  private String serializeOrThrow(SaveSessionCommand command) {
+    try {
+      OverworldPosition position =
+          command
+              .overworldPosition()
+              .orElseThrow(
+                  () -> new IllegalStateException("Save command missing overworld position"));
+      return serializer.toJson(command.state(), position);
+    } catch (IOException ex) {
+      throw wrapIo("Cannot serialize session", ex);
     }
+  }
+
+  private SessioneSalvataEntity updateExisting(
+      EntityManager em, SaveSessionCommand command, String json, Instant now) {
+    long id = command.sessionId().orElseThrow();
+    SessioneSalvataEntity row = jpaRepository.requireLocal(em, id);
+    row.setDatiSalvatiJson(json);
+    row.setDataSalvataggio(now);
+    command.name().ifPresent(row::setNome);
+    jpaRepository.clearUltimaGiocata(em);
+    row.setUltimaGiocata(true);
     return row;
   }
 
-  private SavedSessionSummary toSummary(SessioneSalvataEntity row) throws IOException {
-    UltimaSessioneSalvataDto dto = serializer.fromJson(row.getDatiSalvatiJson());
-    return new SavedSessionSummary(
-        row.getIdSessione(), row.getNome(), row.getDataSalvataggio(), dto.getNumPuntiFama());
-  }
-
-  private long countLocalSaves() {
-    return withEntityManager(
-        em ->
-            em.createQuery(
-                    "select count(s) from SessioneSalvataEntity s where " + LOCAL_SAVE_FILTER,
-                    Long.class)
-                .getSingleResult());
-  }
-
-  private static void clearUltimaGiocata(EntityManager em) {
-    em.createQuery(
-            "update SessioneSalvataEntity s set s.ultimaGiocata = false where " + LOCAL_SAVE_FILTER)
-        .executeUpdate();
+  private SessioneSalvataEntity insertNew(
+      EntityManager em, SaveSessionCommand command, String json, Instant now) {
+    String nome = command.name().filter(n -> !n.isBlank()).orElse(defaultName(now));
+    SessioneSalvataEntity row =
+        SessioneSalvataEntity.newRow(nome, now, json, CatalogIds.GIOCATORE_UMANO, true);
+    jpaRepository.clearUltimaGiocata(em);
+    em.persist(row);
+    return row;
   }
 
   private static String defaultName(Instant instant) {

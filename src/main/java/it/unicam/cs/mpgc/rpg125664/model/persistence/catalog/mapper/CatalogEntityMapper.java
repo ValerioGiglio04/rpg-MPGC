@@ -17,42 +17,48 @@ public final class CatalogEntityMapper {
     throw new UnsupportedOperationException("Utility class");
   }
 
-  public static MoveTemplate toMove(MossaEntity row) {
+  public static MoveTemplate toMove(MossaEntity moveEntity) {
     return new MoveTemplate(
-        row.getNome(), row.getPotenza(), row.getPrecisione(), row.getDescrizione());
+        moveEntity.getNome(),
+        moveEntity.getPotenza(),
+        moveEntity.getPrecisione(),
+        moveEntity.getDescrizione());
   }
 
-  public static CreatureTemplate toCreature(CreaturaEntity row, List<MossaEntity> moves) {
-    List<MoveTemplate> moveTemplates = moves.stream().map(CatalogEntityMapper::toMove).toList();
+  public static CreatureTemplate toCreature(
+      CreaturaEntity creatureEntity, List<MossaEntity> moveEntities) {
+    List<MoveTemplate> moveTemplates =
+        moveEntities.stream().map(CatalogEntityMapper::toMove).toList();
     return new CreatureTemplate(
-        row.getIdCreatura(),
-        row.getNome(),
-        row.getRuolo(),
-        row.getPercorsoSkin(),
-        row.getHp(),
-        row.getAttacco(),
-        row.getDifesa(),
-        row.getVelocita(),
+        creatureEntity.getIdCreatura(),
+        creatureEntity.getNome(),
+        creatureEntity.getRuolo(),
+        creatureEntity.getPercorsoSkin(),
+        creatureEntity.getHp(),
+        creatureEntity.getAttacco(),
+        creatureEntity.getDifesa(),
+        creatureEntity.getVelocita(),
         moveTemplates);
   }
 
   public static GymTemplate toGym(
-      PalestraEntity row,
-      Map<Long, String> bossNamesById,
-      Map<Long, List<Long>> bossCreatureIdsByGiocatoreId,
-      Map<Long, List<Long>> collegamentiByPalestraId) {
-    String bossName = bossNamesById.getOrDefault(row.getIdBoss(), "Boss");
-    List<Long> bossTeam =
-        List.copyOf(bossCreatureIdsByGiocatoreId.getOrDefault(row.getIdBoss(), List.of()));
-    BossTemplate boss = new BossTemplate(bossName, row.getPuntiRicompensaBoss(), bossTeam);
-    List<Long> collegamenti =
-        List.copyOf(collegamentiByPalestraId.getOrDefault(row.getIdPalestra(), List.of()));
+      PalestraEntity gymEntity,
+      Map<Long, String> bossNameByPlayerId,
+      Map<Long, List<Long>> bossTeamCreatureIdsByPlayerId,
+      Map<Long, List<Long>> connectedGymIdsByGymId) {
+    String bossName = bossNameByPlayerId.getOrDefault(gymEntity.getIdBoss(), "Boss");
+    List<Long> bossTeamCreatureIds =
+        List.copyOf(bossTeamCreatureIdsByPlayerId.getOrDefault(gymEntity.getIdBoss(), List.of()));
+    BossTemplate boss =
+        new BossTemplate(bossName, gymEntity.getPuntiRicompensaBoss(), bossTeamCreatureIds);
+    List<Long> connectedGymIds =
+        List.copyOf(connectedGymIdsByGymId.getOrDefault(gymEntity.getIdPalestra(), List.of()));
     return new GymTemplate(
-        row.getIdPalestra(),
-        row.getNome(),
-        row.getOrdine(),
-        row.getPuntiRichiesti(),
-        collegamenti,
+        gymEntity.getIdPalestra(),
+        gymEntity.getNome(),
+        gymEntity.getOrdine(),
+        gymEntity.getPuntiRichiesti(),
+        connectedGymIds,
         boss);
   }
 }

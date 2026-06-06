@@ -89,7 +89,7 @@ Suggerimenti e completamenti su `.github/wiki-pages/`, ad esempio:
 | Intestazioni con link tra pagine | Pagine Wiki principali |
 | Sezioni della dichiarazione AI | `Dichiarazione-AI.md` |
 | `curve: stepAfter` nei flowchart Mermaid | Pagine con diagrammi |
-| Allineamento nomi classi nei diagrammi | Es. `HibernateGameStateRepository` nei flowchart |
+| Allineamento nomi classi nei diagrammi | Es. `HibernateGameStateRepository`, `SessioneSalvataJpaRepository` nei flowchart |
 
 #### Grafici Mermaid nella Wiki (ChatGPT e Claude)
 

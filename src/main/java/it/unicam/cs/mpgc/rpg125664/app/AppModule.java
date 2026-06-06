@@ -5,7 +5,10 @@ import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBund
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed.CatalogDatabaseSeeder;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed.CatalogSeedJsonLoader;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.HibernateGameStateRepository;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.SessioneSalvataJpaRepository;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.SessioneSalvataSummaryMapper;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.mapper.SessioneJsonMapper;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.serializer.SessionJsonSerializer;
 import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
 import it.unicam.cs.mpgc.rpg125664.model.service.GymCompletionHandler;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
@@ -78,7 +81,13 @@ public final class AppModule implements AutoCloseable {
     this.entityManagerFactory =
         Objects.requireNonNull(entityManagerFactory, "entityManagerFactory");
     Objects.requireNonNull(catalog, "catalog");
-    this.repository = new HibernateGameStateRepository(entityManagerFactory, sessionMapper);
+    SessionJsonSerializer serializer = new SessionJsonSerializer(sessionMapper);
+    SessioneSalvataSummaryMapper summaryMapper = new SessioneSalvataSummaryMapper(serializer);
+    SessioneSalvataJpaRepository jpaRepository =
+        new SessioneSalvataJpaRepository(entityManagerFactory);
+    this.repository =
+        new HibernateGameStateRepository(
+            entityManagerFactory, jpaRepository, serializer, summaryMapper);
 
     GameState initialState = NewGameService.buildInitialState(catalog);
     GameStateHolder holder = new GameStateHolder(initialState);

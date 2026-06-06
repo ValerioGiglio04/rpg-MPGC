@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.GiocatoreE
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.mapper.CatalogEntityMapper;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.support.CatalogLoadSupport;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.support.PalestraCollegamentiSupport;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CreatureTemplate;
@@ -15,8 +16,6 @@ import it.unicam.cs.mpgc.rpg125664.model.catalog.NewGameSettings;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.GameCatalogLoader;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,95 +34,71 @@ public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
 
   @Override
   public GameCatalog load() {
-    return withEntityManager(this::loadCatalog);
+    return withEntityManager(this::buildCatalogFromDatabase);
   }
 
-  private GameCatalog loadCatalog(EntityManager em) {
-    if (em.find(GiocatoreEntity.class, CatalogIds.GIOCATORE_UMANO) == null) {
+  private GameCatalog buildCatalogFromDatabase(EntityManager entityManager) {
+    ensureCatalogWasSeeded(entityManager);
+
+    List<CreaturaEntity> creatureEntities = CatalogLoadSupport.loadCreatureEntities(entityManager);
+    List<MossaEntity> moveEntities = CatalogLoadSupport.loadMoveEntities(entityManager);
+    List<PalestraEntity> gymEntities = CatalogLoadSupport.loadGymEntities(entityManager);
+
+    Map<Long, String> bossNameByPlayerId = CatalogLoadSupport.loadBossNameByPlayerId(entityManager);
+    Map<Long, List<Long>> bossTeamCreatureIdsByPlayerId =
+        CatalogLoadSupport.loadBossTeamCreatureIdsByPlayerId(entityManager);
+    Map<Long, List<Long>> connectedGymIdsByGymId =
+        PalestraCollegamentiSupport.linearByOrdine(gymEntities);
+
+    CatalogLoadSupport.validateCatalogIntegrity(
+        creatureEntities, gymEntities, bossTeamCreatureIdsByPlayerId);
+
+    Map<Long, List<MossaEntity>> moveEntitiesByCreatureId =
+        CatalogLoadSupport.groupMoveEntitiesByCreatureId(moveEntities);
+
+    return new GameCatalog(
+        newGameSettings,
+        toCreatureTemplates(creatureEntities, moveEntitiesByCreatureId),
+        toGymTemplates(
+            gymEntities,
+            bossNameByPlayerId,
+            bossTeamCreatureIdsByPlayerId,
+            connectedGymIdsByGymId));
+  }
+
+  private static void ensureCatalogWasSeeded(EntityManager entityManager) {
+    if (entityManager.find(GiocatoreEntity.class, CatalogIds.GIOCATORE_UMANO) == null) {
       throw new IllegalStateException(
           "Catalog database is empty: run CatalogDatabaseSeeder before load()");
     }
-    List<CreaturaEntity> creatureRows =
-        em.createQuery("select c from CreaturaEntity c order by c.idCreatura", CreaturaEntity.class)
-            .getResultList();
-    List<MossaEntity> moveRows =
-        em.createQuery("select m from MossaEntity m order by m.idMossa", MossaEntity.class)
-            .getResultList();
-    List<PalestraEntity> gymRows =
-        em.createQuery("select p from PalestraEntity p order by p.ordine", PalestraEntity.class)
-            .getResultList();
-    Map<Long, String> bossNamesById = loadBossNames(em);
-    Map<Long, List<Long>> bossCreatureIdsByGiocatoreId = loadBossCreatureIds(em);
-    Map<Long, List<Long>> collegamentiByPalestraId =
-        PalestraCollegamentiSupport.linearByOrdine(gymRows);
-    validate(creatureRows, gymRows, bossCreatureIdsByGiocatoreId);
-    Map<Long, List<MossaEntity>> movesByCreature = groupMovesByCreature(moveRows);
-    List<CreatureTemplate> creatures =
-        creatureRows.stream()
-            .map(
-                row ->
-                    CatalogEntityMapper.toCreature(
-                        row, movesByCreature.getOrDefault(row.getIdCreatura(), List.of())))
-            .toList();
-    List<GymTemplate> gyms =
-        gymRows.stream()
-            .map(
-                row ->
-                    CatalogEntityMapper.toGym(
-                        row, bossNamesById, bossCreatureIdsByGiocatoreId, collegamentiByPalestraId))
-            .toList();
-    return new GameCatalog(newGameSettings, creatures, gyms);
   }
 
-  private Map<Long, List<MossaEntity>> groupMovesByCreature(List<MossaEntity> moveRows) {
-    Map<Long, List<MossaEntity>> grouped = new HashMap<>();
-    for (MossaEntity move : moveRows) {
-      grouped.computeIfAbsent(move.getIdCreatura(), ignored -> new ArrayList<>()).add(move);
-    }
-    grouped
-        .values()
-        .forEach(list -> list.sort(java.util.Comparator.comparingInt(MossaEntity::getOrdine)));
-    return grouped;
+  private static List<CreatureTemplate> toCreatureTemplates(
+      List<CreaturaEntity> creatureEntities,
+      Map<Long, List<MossaEntity>> moveEntitiesByCreatureId) {
+    return creatureEntities.stream()
+        .map(
+            creatureEntity ->
+                CatalogEntityMapper.toCreature(
+                    creatureEntity,
+                    moveEntitiesByCreatureId.getOrDefault(
+                        creatureEntity.getIdCreatura(), List.of())))
+        .toList();
   }
 
-  private void validate(
-      List<CreaturaEntity> creatures,
-      List<PalestraEntity> gyms,
-      Map<Long, List<Long>> bossCreatureIdsByGiocatoreId) {
-    if (creatures.isEmpty()) {
-      throw new IllegalStateException("Catalog has no creatures in database");
-    }
-    if (gyms.isEmpty()) {
-      throw new IllegalStateException("Catalog has no gyms in database");
-    }
-    for (PalestraEntity gym : gyms) {
-      List<Long> bossTeam = bossCreatureIdsByGiocatoreId.get(gym.getIdBoss());
-      if (bossTeam == null || bossTeam.isEmpty()) {
-        throw new IllegalStateException(
-            "Boss giocatore has no creatures in catalog: gym=" + gym.getIdPalestra());
-      }
-    }
-  }
-
-  private Map<Long, String> loadBossNames(EntityManager em) {
-    Map<Long, String> names = new HashMap<>();
-    em.createQuery("select g from GiocatoreEntity g where g.boss = true", GiocatoreEntity.class)
-        .getResultStream()
-        .forEach(g -> names.put(g.getIdGiocatore(), g.getNome()));
-    return names;
-  }
-
-  private Map<Long, List<Long>> loadBossCreatureIds(EntityManager em) {
-    Map<Long, List<Long>> byBossGiocatoreId = new HashMap<>();
-    em.createQuery(
-            "select c from CreaturaEntity c where c.idGiocatore is not null order by c.idGiocatore, c.idCreatura",
-            CreaturaEntity.class)
-        .getResultStream()
-        .forEach(
-            row ->
-                byBossGiocatoreId
-                    .computeIfAbsent(row.getIdGiocatore(), ignored -> new ArrayList<>())
-                    .add(row.getIdCreatura()));
-    return byBossGiocatoreId;
+  private static List<GymTemplate> toGymTemplates(
+      List<PalestraEntity> gymEntities,
+      Map<Long, String> bossNameByPlayerId,
+      Map<Long, List<Long>> bossTeamCreatureIdsByPlayerId,
+      Map<Long, List<Long>> connectedGymIdsByGymId) {
+    return gymEntities.stream()
+        .map(
+            gymEntity ->
+                CatalogEntityMapper.toGym(
+                    gymEntity,
+                    bossNameByPlayerId,
+                    bossTeamCreatureIdsByPlayerId,
+                    connectedGymIdsByGymId))
+        .toList();
   }
 }

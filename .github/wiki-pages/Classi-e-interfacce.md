@@ -21,7 +21,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 |------|------|----------------|
 | C | `Main` | Entry point Gradle; avvia `RpgApplication` |
 | C | `RpgApplication` | Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura risorse JPA |
-| C | `AppModule` | Composition root: EMF, seed catalogo (una sola lettura JSON), repository, servizi, `GameModel`; factory `create(emf, catalog, mapper)` per wiring esplicito; `close()` rilascia EMF |
+| C | `AppModule` | Composition root: EMF, seed catalogo (una sola lettura JSON), `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`, `SessioneSalvataJpaRepository` → `HibernateGameStateRepository`, servizi, `GameModel`; factory `create(emf, catalog, mapper)` per wiring esplicito; `close()` rilascia EMF |
 
 ---
 
@@ -236,7 +236,9 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `HibernateGameStateRepository` | `GameStateRepository` su tabella `sessioni_salvate` |
+| C | `HibernateGameStateRepository` | Implementa `GameStateRepository`: orchestra transazioni, serializzazione e collaboratori |
+| C | `SessioneSalvataJpaRepository` | JPQL su `sessioni_salvate` (slot locali, `ultima_giocata`, `requireLocal`) |
+| C | `SessioneSalvataSummaryMapper` | `SessioneSalvataEntity` → `SavedSessionSummary` per la UI (legge il JSON via serializer) |
 
 #### Entity JPA (`model.persistence.session.entities`)
 
@@ -373,7 +375,7 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 
 | Interfaccia | Layer | Base astratta | Implementazione/i tipiche |
 |-------------|-------|---------------|---------------------------|
-| `GameStateRepository` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameStateRepository` |
+| `GameStateRepository` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameStateRepository` (+ `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper`) |
 | `GameCatalogLoader` | model.persistence | `AbstractHibernateAdapter` | `HibernateGameCatalogLoader` |
 | `AttackResolutionStrategy` | model.combat.strategy | — | `TurnBasedAttackResolutionStrategy` |
 | `BossMoveStrategy` | model.combat.strategy | — | `AccuracyThresholdBossMoveStrategy` |

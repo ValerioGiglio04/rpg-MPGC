@@ -38,8 +38,12 @@ flowchart LR
   end
   subgraph dynamic_data [Stato partita]
     GS[GameState] --> Mapper[session.mapper SessioneJsonMapper]
-    Mapper --> Repo[HibernateGameStateRepository]
-    Repo --> Tab[(sessioni_salvate)]
+    Mapper --> Ser[session.serializer SessionJsonSerializer]
+    Ser --> Repo[HibernateGameStateRepository]
+    Jpa[SessioneSalvataJpaRepository] --> Tab[(sessioni_salvate)]
+    Repo --> Jpa
+    Sum[SessioneSalvataSummaryMapper] --> Ser
+    Repo --> Sum
     GC --> Mapper
     Repo --> GS
   end
@@ -118,7 +122,7 @@ Implementazione port: `HibernateGameCatalogLoader.load()` → `GameCatalog`.
 - `delete(sessionId)` — rimuove uno slot
 - `markLastPlayed(sessionId)` — flag `ultima_giocata` per il prossimo avvio
 
-Implementazione: `HibernateGameStateRepository` (`model.persistence.session`).
+Implementazione: `HibernateGameStateRepository` (`model.persistence.session`), con JPQL in `SessioneSalvataJpaRepository` e mapping elenco slot in `SessioneSalvataSummaryMapper`. Wiring in `AppModule`: `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`; `SessioneSalvataJpaRepository` + serializer + mapper → repository.
 
 ### Tabella `sessioni_salvate`
 
@@ -186,7 +190,7 @@ Dopo `loadSession`, `GameModel` applica `LoadedSession.overworldPosition()` a `G
 
 - **Seed catalogo:** transazione JPA in `AppModule.bootstrap()` all'avvio.
 - **Load catalogo:** lettura H2 in `HibernateGameCatalogLoader` (una transazione per `load()`).
-- **Save / load sessione:** transazioni JPA brevi su `sessioni_salvate`; serializzazione JSON con Jackson nel CLOB.
+- **Save / load sessione:** transazioni JPA brevi su `sessioni_salvate` (`SessioneSalvataJpaRepository` + `HibernateGameStateRepository`); serializzazione JSON con Jackson nel CLOB (`SessionJsonSerializer`), fuori dal blocco EntityManager dove possibile.
 
 ---
 

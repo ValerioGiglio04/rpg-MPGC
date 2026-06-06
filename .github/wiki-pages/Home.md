@@ -35,6 +35,8 @@ it.unicam.cs.mpgc.rpg125664
 ├── model.persistence/              AbstractHibernateAdapter
 ├── model.persistence.session/
 │   ├── entities/ dto/ mapper/ serializer/
+│   ├── SessioneSalvataJpaRepository
+│   ├── SessioneSalvataSummaryMapper
 │   └── HibernateGameStateRepository
 └── view/                        Messages, UiErrorReporter, BattleEventTranslator
     ├── navigation/                   MainView, ScreenNavigator, ScreenNavigation, FxmlScreenLoader, DialogHelper
@@ -53,6 +55,7 @@ it.unicam.cs.mpgc.rpg125664
 | DTO / seed JSON catalogo | `model.persistence.catalog.dto` |
 | Mapper / seed catalogo | `catalog.mapper`, `catalog.seed`, `catalog.support` |
 | Entity + DTO + mapper sessione | `session.entities`, `session.dto`, `session.mapper`, `session.serializer` |
+| JPQL / mapping slot sessione | `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper` → `HibernateGameStateRepository` |
 | Validazione dominio | `model.validation` → `validation.implementations` (`ValidatorFactory`, `*Validator`) |
 | Strategy combattimento | `model.combat.strategy` / `.implementations` |
 | Strategy mappa | `model.overworld.strategy` / `.implementations` |

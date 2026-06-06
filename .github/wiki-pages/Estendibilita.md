@@ -50,11 +50,11 @@ Il dominio e le regole di `canChallengeGym`, danno, gloria restano **identici**.
 
 | Passo | Azione |
 |-------|--------|
-| 1 | Implementare `GameStateRepository` in `model.persistence.session` (mapper in `session.mapper`, DTO in `session.dto`) |
+| 1 | Implementare `GameStateRepository` in `model.persistence.session` (JPQL in `SessioneSalvataJpaRepository` o equivalente, mapper in `session.mapper`, DTO in `session.dto`) |
 | 2 | Opzionale: implementare `GameCatalogLoader` in `model.persistence.catalog` (seed in `catalog.seed`, mapping in `catalog.mapper`) se il catalogo non resta su H2 |
 | 3 | Registrare le implementazioni in `AppModule` (composition root); contratti in `model.persistence` |
 
-**Oggi:** `HibernateGameStateRepository` persiste più partite in `sessioni_salvate` (colonna `dati_salvati_json`). La UI elenca gli slot in `LoadGame.fxml` e carica con `GameModel.loadSession(id)`.
+**Oggi:** `HibernateGameStateRepository` orchestra il salvataggio su `sessioni_salvate` (colonna `dati_salvati_json`), delegando JPQL a `SessioneSalvataJpaRepository` e l'elenco slot a `SessioneSalvataSummaryMapper`. La UI elenca gli slot in `LoadGame.fxml` e carica con `GameModel.loadSession(id)`.
 
 **Esempi futuri:** PostgreSQL cloud, API REST, sincronizzazione account.
 
@@ -173,7 +173,7 @@ Questo evita che estensioni introducano stati illegali difficili da debuggare.
 Oggi tutti i salvataggi locali hanno `id_utente IS NULL` in `sessioni_salvate`. In una **futura implementazione con login**:
 
 1. Dopo l'autenticazione, l'model.persistence auth fornisce `userId` all'applicazione (non al dominio).
-2. `HibernateGameStateRepository` filtra `WHERE id_utente = :userId` in `listSaves` / `save` / `load`.
+2. `SessioneSalvataJpaRepository` (filtro slot) e `HibernateGameStateRepository` usano `WHERE id_utente = :userId` in `listSaves` / `save` / `load` al posto del filtro locale `s.idUtente is null`.
 3. Ogni utente vede solo le proprie partite nella schermata Carica.
 4. Vincolo consigliato: `UNIQUE (id_utente, nome)` per evitare omonimie nello stesso account.
 

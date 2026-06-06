@@ -66,6 +66,9 @@ flowchart TB
     end
     subgraph session_model.persistence [session]
       JRepo[HibernateGameStateRepository]
+      JpaRepo[SessioneSalvataJpaRepository]
+      SumMapper[SessioneSalvataSummaryMapper]
+      Ser[session.serializer]
       Mapper[session.mapper]
     end
   end
@@ -94,10 +97,17 @@ flowchart TB
   HS --> Models
   OSP --> GSH
   JRepo --> Ports
+  JpaRepo --> JRepo
+  SumMapper --> JRepo
+  Ser --> JRepo
+  Ser --> SumMapper
+  Mapper --> Ser
   HCat --> Ports
   HCat --> CEM
-  Mapper --> JRepo
   AM --> JRepo
+  AM --> JpaRepo
+  AM --> SumMapper
+  AM --> Ser
   AM --> HCat
   AM --> Seed
   AM --> GS
@@ -137,6 +147,9 @@ flowchart TB
 - `GymCompletionHandler` gestisce solo le conseguenze del completamento palestra.
 - `SessionPersistenceFacade` gestisce solo persistenza slot; `DefaultGymStatusStrategy` solo stato palestre sulla mappa.
 - `CatalogEntityMapper` mappa solo entità JPA → template di dominio.
+- `SessioneSalvataJpaRepository` gestisce solo le query JPQL sugli slot locali.
+- `SessioneSalvataSummaryMapper` mappa solo `SessioneSalvataEntity` → `SavedSessionSummary`.
+- `HibernateGameStateRepository` orchestra persistenza slot (transazioni + serializzazione), senza JPQL inline.
 - I controller UI separano binding FXML da logica di schermata.
 - I validator (`model.validation.implementations`: `CreatureValidator`, `GameStateValidator`, …) validano un solo aggregato ciascuno.
 
@@ -179,6 +192,7 @@ flowchart TB
 | DTO / seed catalogo | `model.persistence.catalog.dto` | — |
 | Mapper / seed catalogo | `model.persistence.catalog.mapper` | `model.persistence.catalog.seed`, `.support` |
 | DTO / mapper sessione | `model.persistence.session.dto` | `session.mapper`, `session.serializer` |
+| JPQL / summary slot | — | `SessioneSalvataJpaRepository`, `SessioneSalvataSummaryMapper` |
 | Shell e routing UI | — | `controller.navigation` |
 | Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `ScreenNavigation`) |
 | Builder widget UI | — | `view.component.builder` |
