@@ -2,55 +2,116 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura)
 
-La specifica chiede che sia chiaro come il progetto possa crescere (nuove feature, altri dispositivi) anche se non tutto è nella v1. Qui descrivo i punti di aggancio già presenti nel codice.
+La specifica richiede che sia chiaro come il progetto possa crescere (nuove funzionalità, altri dispositivi) anche se non tutto è nella v1. Qui descrivo i **punti di aggancio già presenti** nel codice.
 
 ---
 
-## Layer sostituibili
+## Principio
 
-Oggi c'è solo UI JavaFX. Dominio e `model.service` restano stabili; si possono sostituire `view` e, se serve, gli model.persistence di persistenza. Un client web o mobile dovrebbe chiamare **`GameModel`** (o un'API equivalente) senza importare Hibernate, JPA o JavaFX.
+- **Stabile:** dominio + casi d'uso (`model.service`)
+- **Sostituibile:** UI (`view`) e model.persistence concreti (`model.persistence`)
+
+```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+flowchart LR
+  subgraph sostituibili [Sostituibili]
+    UI[view]
+    Adapters[model.persistence]
+  end
+  subgraph stabile [Stabile]
+    App[model.service]
+    Domain[model]
+  end
+  View --> Controller
+  Adapters --> Domain
+  Controller --> Model
+```
+
+Oggi c'è solo UI JavaFX. Un client web o mobile dovrebbe chiamare **`GameModel`** (o un'evoluzione tipo `GameApi`) senza importare Hibernate, JPA o JavaFX.
 
 ---
 
-## Nuova UI o nuovo backend
+## Nuova interfaccia utente
 
-- **Altro client** — nuovo package presentation che usa `GameModel`; opzionale wrapper REST che serializza DTO.
-- **Altro storage** — nuova classe che implementa `GameStateRepository`; wiring in `AppModule`. Stesso approccio per `GameCatalogLoader` se il catalogo non resta su H2.
+| Passo | Azione |
+|-------|--------|
+| 1 | Nuovo package presentation (es. `ui.web`) |
+| 2 | Chiamare solo `GameModel` |
+| 3 | Non importare entità JPA o classi JavaFX |
+| 4 | Opzionale: controller REST che serializza DTO |
+
+Il dominio e le regole (`canChallengeGym`, danno, gloria) restano identici.
+
+---
+
+## Nuovo backend di persistenza
+
+| Passo | Azione |
+|-------|--------|
+| 1 | Implementare `GameStateRepository` in `model.persistence.session` |
+| 2 | Opzionale: nuova impl di `GameCatalogLoader` se il catalogo non resta su H2 |
+| 3 | Registrare in `AppModule`; contratti in `model.persistence` |
+
+**Oggi:** `HibernateGameStateRepository` salva su `sessioni_salvate` con JSON in CLOB, JPQL in `SessioneSalvataJpaRepository`.
+
+**Futuro:** PostgreSQL, API REST, sync cloud — stesso contratto `GameStateRepository`.
 
 ---
 
 ## Nuove regole di gioco
 
-- **Combattimento** — nuova impl di `AttackResolutionStrategy` o `BossMoveStrategy`, registrata in `AppModule`.
-- **Mappa** — nuova impl di `GymStatusStrategy` in `model.overworld.strategy.implementations`.
-- **Eventi battaglia** — nuovi record in `BattleEvent` (sealed) + aggiornamento di `BattleEventTranslator`.
+| Estensione | Meccanismo |
+|------------|------------|
+| Danni, critici, status | Nuova `AttackResolutionStrategy` |
+| IA boss diversa | Nuova `BossMoveStrategy` |
+| Policy overworld | Nuova `GymStatusStrategy` in `model.overworld.strategy.implementations` |
+| Eventi battaglia | Nuovi record in `BattleEvent` (sealed) + `BattleEventTranslator` |
+
+Wiring in `AppModule`: sostituire le impl strategy senza modificare `BattleService`.
 
 ---
 
 ## Nuove creature, palestre, mosse
 
-1. Modificare `src/main/resources/game-data/catalog-seed.json`
-2. Riavviare l'app: `CatalogDatabaseSeeder` riallinea H2 se mancano dati
-
-Mapping entità → dominio in `CatalogEntityMapper`. Se i nuovi dati rispettano i validator esistenti, il dominio non va toccato.
+1. Aggiornare `src/main/resources/game-data/catalog-seed.json`
+2. Riavviare: `CatalogDatabaseSeeder` riallinea H2 se serve
+3. Mapping in `CatalogEntityMapper`; dominio invariato se i validator accettano i nuovi dati
 
 ---
 
 ## Nuova schermata JavaFX
 
-1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
-2. Creare controller in `controller` e controller sottile
-3. Registrare costruzione in `ScreenFactory` e transizione in `ScreenNavigator`
-4. Eventuale callback in `controller.navigation` + `*ActionsImpl`
+1. `NuovaSchermata.fxml` in `src/main/resources/fxml/`
+2. Controller in `controller` + controller sottile
+3. Costruzione in `ScreenFactory`, transizione in `ScreenNavigator`
+4. Callback opzionale: `*Actions` + `*ActionsImpl` → `*Navigation`
+5. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
+
+---
+
+## Validazione di nuovi aggregati
+
+- Costruzione via `*Builder`, poi `ValidatorFactory.get*Validator().validate(instance)`
+- Nuovo tipo: `{Type}Validator extends Validator<T>` in `validation.implementations` + registrazione in `ValidatorFactory`
+
+---
+
+## Lingua dell'interfaccia
+
+- Testi UI: `src/main/resources/i18n/messages_it.properties`
+- Accesso centralizzato: `Messages` e `FxmlScreenLoader` (bundle condiviso con FXML)
+- Altra lingua: creare `messages_en.properties` con le stesse chiavi + `Messages.setLocale(...)` all'avvio
+
+Nomi di creature e mosse in duello provengono dal **catalogo** (`catalog-seed.json`), non da `messages_*.properties`.
 
 ---
 
 ## Altre estensioni possibili
 
-- **Autosave** — chiamare `GameModel.saveCurrent()` da un listener (oggi solo save manuale dall'Hub)
+- **Autosave** — `GameModel.saveCurrent()` da listener (oggi solo save manuale Hub)
 - **Inventario, negozio, achievement** — nuovo servizio in `model.service` + modello in `model`
-- **Lingua UI** — `messages_it.properties` e classe `Messages`; FXML usa lo stesso bundle via `FxmlScreenLoader`
-- **Login multi-utente** — filtrare `sessioni_salvate` per `id_utente` negli model.persistence, senza cambiare `GameModel`
-- **Schema SQL normalizzato al posto del JSON** — nuovo mapper in model.persistence; `GameState` invariato
+- **Login multi-utente** — filtrare `sessioni_salvate` per `id_utente` negli model.persistence; `GameModel` invariato verso la UI
+- **Schema SQL normalizzato** — tabelle `sessione_*` + nuovo mapper; `GameState` invariato
+- **Versioning JSON** — colonna `format_version` + migrazioni in `SessioneJsonMapper`
 
-Per l'organizzazione dei layer vedi [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
+Organizzazione layer: [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).

@@ -19,26 +19,27 @@ Qui descrivo **solo** dove ho usato ChatGPT, Claude, Gemini o Copilot. Gioco, ar
 
 ---
 
-## Contributi per strumento
+## Contributi per area
 
-**ChatGPT / Claude**
+### Architettura e codice
 
-- Concetti: Model-View-Controller, separazione catalogo vs stato partita
-- Struttura cartelle e confronto design (es. grafo oggetti vs `catalogId` + HP nel save)
-- Builder, `Validator`, sealed interface `BattleEvent`
-- Errori JPA, `persistence.xml`, seed idempotente, Jackson
-- Bozze Mermaid per wiki (layer e flusso utente), poi corrette da me
+**ChatGPT / Claude:** Model-View-Controller, separazione catalogo/sessione, struttura cartelle, Builder, `Validator`, sealed `BattleEvent`, errori JPA, seed idempotente, Jackson.
 
-**Gemini**
+**GitHub Copilot:** boilerplate JavaFX, getter su entità catalogo, Javadoc.
 
-- Binding FXML e layout
-- Asset grafici (skin, texture mappa)
+### Interfaccia e asset
 
-**GitHub Copilot**
+**Gemini:** binding FXML, layout, texture e PNG in `src/main/resources/images/`.
 
-- Boilerplate JavaFX e entità catalogo
-- Stringhe i18n e messaggi log battaglia
-- Sidebar/footer wiki, link tra pagine, sintassi Mermaid (`curve: linear`)
+**Copilot:** stringhe in `messages_it.properties`, messaggi log battaglia.
+
+### Documentazione e build
+
+**ChatGPT / Claude:** bozze Mermaid (MVC e flusso utente), revisione wiki.
+
+**Claude:** Spotless 7.0.4 + google-java-format 1.28.0 in `build.gradle`.
+
+**Copilot:** sidebar/footer wiki, link tra pagine, sintassi Mermaid (`curve: linear`).
 
 ---
 
@@ -51,7 +52,7 @@ Qui descrivo **solo** dove ho usato ChatGPT, Claude, Gemini o Copilot. Gioco, ar
 | Getter su entità catalogo | Copilot | Bozza metodi |
 | Texture overworld | Gemini | File PNG |
 | Spotless in `build.gradle` | Claude | Bozza plugin + `spotlessApply` |
-| Flowchart architettura / flusso utente | ChatGPT / Claude | Bozza Mermaid (2 diagrammi nella wiki attuale) |
+| Flowchart architettura, flusso utente, persistenza DB | ChatGPT / Claude | Bozza Mermaid nella wiki |
 | Revisione testi wiki | Copilot | Correzioni su `.github/wiki-pages/` |
 
 ---
