@@ -83,7 +83,6 @@ Il team del boss non ha tabella dedicata: le creature hanno `creatura.id_giocato
 I **collegamenti** tra palestre non sono in H2: `PalestraCollegamentiSupport` costruisce al load una catena lineare da `ordine` (ogni palestra collegata a `ordine ± 1`).
 
 ```mermaid
-%%{init: {'flowchart': {'curve': 'linear'}}}%%
 erDiagram
   GIOCATORE ||--o{ CREATURA : possiede
   CREATURA ||--o{ MOSSE : ha
@@ -98,12 +97,17 @@ erDiagram
   CREATURA {
     long id_creatura PK
     long id_giocatore FK
-    int hp attacco difesa velocita
+    int hp
+    int attacco
+    int difesa
+    int velocita
   }
   MOSSE {
     long id_mossa PK
     long id_creatura FK
-    int ordine potenza precisione
+    int ordine
+    int potenza
+    int precisione
   }
   PALESTRA {
     long id_palestra PK
