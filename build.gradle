@@ -1,7 +1,7 @@
 plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'com.diffplug.spotless' version '6.25.0'
+    id 'com.diffplug.spotless' version '7.0.4'
 }
 
 group = 'it.unicam.cs.mpgc'
@@ -38,7 +38,7 @@ spotless {
     enforceCheck true
     java {
         target 'src/**/*.java'
-        googleJavaFormat('1.22.0')
+        googleJavaFormat('1.28.0')
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

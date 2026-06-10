@@ -14,18 +14,12 @@ import javafx.scene.layout.StackPane;
 
 public final class PlayerPortrait extends StackPane {
 
-  private static final String DEFAULT_TRAINER_IMAGE = "/images/player/player-skin.png";
-
-  /** Vecchio default PNG nel catalogo: stesso portrait del nuovo asset. */
-  private static final String LEGACY_TRAINER_PNG = "/images/player/trainer-default.png";
-
   private static final double INNER_PADDING = 12;
 
   public PlayerPortrait(String playerName, String skinPath, double size) {
     applyPortraitSizing(size);
     getStyleClass().addAll("creature-portrait", "player-portrait");
-    String resolvedPath = resolveSkinPath(skinPath);
-    loadPortraitOrFallback(playerName, resolvedPath, size);
+    loadPortraitOrFallback(playerName, skinPath, size);
   }
 
   public static PlayerPortraitBuilder builder() {
@@ -38,13 +32,6 @@ public final class PlayerPortrait extends StackPane {
     setMaxSize(size, size);
     setAlignment(Pos.CENTER);
     setFocusTraversable(false);
-  }
-
-  private static String resolveSkinPath(String skinPath) {
-    if (LEGACY_TRAINER_PNG.equals(skinPath)) {
-      return DEFAULT_TRAINER_IMAGE;
-    }
-    return skinPath;
   }
 
   private void loadPortraitOrFallback(String playerName, String path, double size) {

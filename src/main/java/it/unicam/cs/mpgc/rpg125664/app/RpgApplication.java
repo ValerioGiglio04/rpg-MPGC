@@ -22,7 +22,7 @@ public final class RpgApplication extends Application {
   @Override
   public void start(Stage stage) {
     appModule = AppModule.bootstrap();
-    MainView mainView = new MainView(appModule.gameModel());
+    MainView mainView = new MainView(appModule.gameModel(), appModule.portraitAssets());
 
     stage.setTitle(Messages.get("app.title"));
     stage.setMinWidth(STAGE_MIN_WIDTH);

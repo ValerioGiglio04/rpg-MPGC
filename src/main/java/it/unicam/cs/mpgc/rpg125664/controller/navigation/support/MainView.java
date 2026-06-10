@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigator;
 import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
@@ -11,9 +12,9 @@ public final class MainView {
   private final StackPane root;
   private final ScreenNavigator navigator;
 
-  public MainView(GameModel gameModel) {
+  public MainView(GameModel gameModel, PortraitAssetResolver portraitAssets) {
     this.root = (StackPane) FxmlScreenLoader.load("/fxml/MainShell.fxml", null);
-    this.navigator = new ScreenNavigator(root, gameModel);
+    this.navigator = new ScreenNavigator(root, gameModel, portraitAssets);
     navigator.showMainMenu();
   }
 

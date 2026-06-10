@@ -307,13 +307,15 @@ Convenzione: un tipo = un file nello stesso package (allineato a `catalog/dto/`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `ScreenNavigator` | Routing FXML; delega errori persistenza a `PersistenceUiGuard`; implementa tutte le interfacce navigazione |
+| C | `ScreenNavigator` | Policy di flusso (hub, battaglia, vittoria); delega costruzione schermate e swap root |
 
 #### Support (`controller.navigation.support`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `MainView` | Layout root JavaFX |
+| C | `RootScreenStack` | Swap figlio su `StackPane` + chiusura menu aperti |
+| C | `ScreenFactory` | Costruzione schermate FXML con controller/controller |
 | E | `PersistenceOperation` | SAVE / LOAD / DELETE con chiave i18n errore |
 | C | `PersistenceUiGuard` | `run(Runnable, PersistenceOperation)` — try/catch + dialogo errore |
 | C | `DialogHelper` | Alert e dialoghi save/load |
@@ -366,7 +368,7 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | C | `GameButton` | Pulsante stilizzato |
 | C | `HealthBar` | Barra HP |
 | C | `CreatureCard` | Card creatura nel team |
-| C | `CreaturePortrait` | Ritratto creatura |
+| C | `CreaturePortrait` | Ritratto creatura (path da `PortraitAssetResolver`) |
 | C | `PlayerPortrait` | Ritratto giocatore |
 | C | `HamburgerMenu` | Menu contestuale hub |
 | C | `BattleArenaView` | Layout arena con creature e barre HP |
@@ -381,11 +383,19 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | C | `CreatureCardBuilder` | Costruzione card creatura |
 | C | `PlayerPortraitBuilder` | Costruzione ritratto giocatore |
 
+### Mapper UI (`view.mapper`)
+
+| Tipo | Nome | Responsabilità |
+|------|------|----------------|
+| C | `PortraitAssetResolver` | Percorsi classpath ritratti da `GameCatalog` (giocatore e creature) |
+
 ### Overworld (`view.overworld`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `OverworldMap` | Rendering mappa + input; delega regole a `OverworldController` |
+| C | `OverworldMap` | Orchestrazione mappa: movimento, redraw, spawn; delega regole a `OverworldController` |
+| C | `OverworldZoomControls` | Pulsanti +/− e zoom rotella |
+| C | `OverworldGymModalController` | Modale sfida / palestra bloccata |
 | C | `OverworldLayoutSupport` | Posizionamento deterministico palestre e decor (seed `LAYOUT_SEED`) |
 | C | `OverworldTileRenderer` | Rendering tile mappa |
 | C | `OverworldTextures` | Caricamento texture |

@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -25,6 +26,7 @@ public final class BattleArenaView {
   public static StackPane create(
       Creature playerCreature,
       Creature bossCreature,
+      PortraitAssetResolver portraitAssets,
       double foePortraitSize,
       double playerPortraitSize) {
     StackPane arenaRoot = new StackPane();
@@ -32,7 +34,8 @@ public final class BattleArenaView {
         .getChildren()
         .addAll(
             backdrop(),
-            anchoredLayer(playerCreature, bossCreature, foePortraitSize, playerPortraitSize));
+            anchoredLayer(
+                playerCreature, bossCreature, portraitAssets, foePortraitSize, playerPortraitSize));
     return arenaRoot;
   }
 
@@ -46,12 +49,13 @@ public final class BattleArenaView {
   private static AnchorPane anchoredLayer(
       Creature playerCreature,
       Creature bossCreature,
+      PortraitAssetResolver portraitAssets,
       double foePortraitSize,
       double playerPortraitSize) {
     AnchorPane layer = new AnchorPane();
     layer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-    VBox foeColumn = foeColumn(bossCreature, foePortraitSize);
-    VBox allyColumn = allyColumn(playerCreature, playerPortraitSize);
+    VBox foeColumn = foeColumn(bossCreature, portraitAssets, foePortraitSize);
+    VBox allyColumn = allyColumn(playerCreature, portraitAssets, playerPortraitSize);
     layer.getChildren().addAll(foeColumn, allyColumn);
     AnchorPane.setTopAnchor(foeColumn, FOE_TOP_INSET);
     AnchorPane.setRightAnchor(foeColumn, FOE_RIGHT_INSET);
@@ -60,7 +64,8 @@ public final class BattleArenaView {
     return layer;
   }
 
-  private static VBox foeColumn(Creature bossCreature, double foePortraitSize) {
+  private static VBox foeColumn(
+      Creature bossCreature, PortraitAssetResolver portraitAssets, double foePortraitSize) {
     VBox foeColumn = new VBox(FOE_COLUMN_SPACING);
     foeColumn.setAlignment(Pos.TOP_RIGHT);
     Label foeName = new Label(bossCreature.name());
@@ -68,17 +73,20 @@ public final class BattleArenaView {
     Label foeRole = new Label(bossCreature.role());
     foeRole.getStyleClass().add("muted-label");
     HealthBar foeHp = new HealthBar("", bossCreature.currentHealth(), bossCreature.maxHealth());
-    CreaturePortrait foePortrait = new CreaturePortrait(bossCreature, foePortraitSize);
+    CreaturePortrait foePortrait =
+        new CreaturePortrait(bossCreature, portraitAssets, foePortraitSize);
     foeColumn.getChildren().addAll(foeName, foeRole, foeHp, foePortrait);
     return foeColumn;
   }
 
-  private static VBox allyColumn(Creature playerCreature, double playerPortraitSize) {
+  private static VBox allyColumn(
+      Creature playerCreature, PortraitAssetResolver portraitAssets, double playerPortraitSize) {
     VBox allyColumn = new VBox(ALLY_COLUMN_SPACING);
     allyColumn.setAlignment(Pos.BOTTOM_LEFT);
     Label allyName = new Label(playerCreature.name());
     allyName.getStyleClass().add("battle-arena-ally-name");
-    CreaturePortrait allyPortrait = new CreaturePortrait(playerCreature, playerPortraitSize);
+    CreaturePortrait allyPortrait =
+        new CreaturePortrait(playerCreature, portraitAssets, playerPortraitSize);
     HealthBar allyHp =
         new HealthBar("", playerCreature.currentHealth(), playerCreature.maxHealth());
     Label allyStats = statsLabel(playerCreature);

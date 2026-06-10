@@ -7,6 +7,7 @@ import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
 import it.unicam.cs.mpgc.rpg125664.view.component.HamburgerMenu;
 import it.unicam.cs.mpgc.rpg125664.view.component.PlayerPortrait;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.view.overworld.OverworldMap;
 import it.unicam.cs.mpgc.rpg125664.controller.HubPresenter;
 import it.unicam.cs.mpgc.rpg125664.controller.HubPresenter.TeamRowViewModel;
@@ -31,6 +32,7 @@ public final class HubController implements Initializable {
 
   private final HubPresenter presenter;
   private final OverworldPresenter overworldPresenter;
+  private final PortraitAssetResolver portraitAssets;
   private final HubActions actions;
 
   @FXML private Label subtitleLabel;
@@ -39,9 +41,11 @@ public final class HubController implements Initializable {
   @FXML private VBox teamList;
   @FXML private StackPane mapContentHost;
 
-  public HubController(GameModel gameModel, HubActions actions) {
+  public HubController(
+      GameModel gameModel, PortraitAssetResolver portraitAssets, HubActions actions) {
     this.presenter = new HubPresenter(gameModel);
     this.overworldPresenter = new OverworldPresenter(gameModel);
+    this.portraitAssets = portraitAssets;
     this.actions = actions;
   }
 
@@ -49,7 +53,7 @@ public final class HubController implements Initializable {
     PlayerPortrait portrait =
         PlayerPortrait.builder()
             .playerName(state.player().name())
-            .skinPath(state.player().skinPath())
+            .skinPath(portraitAssets.playerSkinPath())
             .size(PORTRAIT_SIZE)
             .build();
     portraitHost.getChildren().setAll(portrait);
@@ -81,7 +85,8 @@ public final class HubController implements Initializable {
     for (int index = 0; index < holder.creatures().size(); index++) {
       var creature = holder.creatures().get(index);
       TeamRowViewModel row = presenter.teamRow(creature, holder.isActive(creature), spendable);
-      CreatureCard card = CreatureCard.builder(creature).active(row.active()).build();
+      CreatureCard card =
+          CreatureCard.builder(creature, portraitAssets).active(row.active()).build();
       wireCreatureCardSelection(card, row);
       GameButton healButton = buildHealButton(row);
       teamList.getChildren().add(hubTeamRow(card, healButton));
@@ -122,7 +127,8 @@ public final class HubController implements Initializable {
   }
 
   private void initializeOverworldMap() {
-    OverworldMap overworldMap = new OverworldMap(overworldPresenter, actions::onStartBattle);
+    OverworldMap overworldMap =
+        new OverworldMap(overworldPresenter, portraitAssets, actions::onStartBattle);
     overworldMap.setMinSize(0, 0);
     overworldMap.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     mapContentHost.getChildren().setAll(overworldMap);

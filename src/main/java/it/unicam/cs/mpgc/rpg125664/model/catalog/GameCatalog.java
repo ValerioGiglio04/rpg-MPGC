@@ -104,6 +104,10 @@ public final class GameCatalog {
     return gymsById.containsKey(gymId);
   }
 
+  public String creatureSkinPath(long catalogId) {
+    return requireCreature(catalogId).skinPath();
+  }
+
   private Move toMove(MoveTemplate template) {
     return Move.builder()
         .name(template.name())

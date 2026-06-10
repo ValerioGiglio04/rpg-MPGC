@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.controller.BattleCommandColumnController;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlScreenLoader;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
@@ -18,12 +19,14 @@ public final class BattleCommandColumnView {
       Creature playerCreature,
       GymRoom gym,
       CreatureHolder holder,
+      PortraitAssetResolver portraitAssets,
       Runnable onBack,
       IntConsumer onMoveSelected,
       LongConsumer onSwitchCreature) {
     BattleCommandColumnController controller = new BattleCommandColumnController();
     VBox column = (VBox) FxmlScreenLoader.load("/fxml/BattleCommandColumn.fxml", controller);
-    controller.wire(playerCreature, gym, holder, onBack, onMoveSelected, onSwitchCreature);
+    controller.wire(
+        playerCreature, gym, holder, portraitAssets, onBack, onMoveSelected, onSwitchCreature);
     return column;
   }
 }

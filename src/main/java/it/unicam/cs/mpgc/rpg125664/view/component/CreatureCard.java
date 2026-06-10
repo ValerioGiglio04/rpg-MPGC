@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.view.component.builder.CreatureCardBuilder;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -9,8 +10,9 @@ import javafx.scene.layout.VBox;
 
 public final class CreatureCard extends VBox {
 
-  public static CreatureCardBuilder builder(Creature creature) {
-    return new CreatureCardBuilder(creature);
+  public static CreatureCardBuilder builder(
+      Creature creature, PortraitAssetResolver portraitAssets) {
+    return new CreatureCardBuilder(creature, portraitAssets);
   }
 
   private Label createStatsLabel(Creature creature) {
@@ -51,14 +53,18 @@ public final class CreatureCard extends VBox {
   }
 
   public CreatureCard(
-      Creature creature, boolean active, double portraitSize, String sideStyleClass) {
+      Creature creature,
+      PortraitAssetResolver portraitAssets,
+      boolean active,
+      double portraitSize,
+      String sideStyleClass) {
     super(8);
     initializeStyles(active, sideStyleClass, portraitSize);
     Label name = createNameLabel(creature, active);
     Label role = createRoleLabel(creature);
     Label stats = createStatsLabel(creature);
     HealthBar healthBar = new HealthBar("", creature.currentHealth(), creature.maxHealth());
-    CreaturePortrait portrait = new CreaturePortrait(creature, portraitSize);
+    CreaturePortrait portrait = new CreaturePortrait(creature, portraitAssets, portraitSize);
     getChildren().addAll(portrait, name, role, healthBar, stats);
   }
 }

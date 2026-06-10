@@ -212,7 +212,8 @@ flowchart TB
 | JPQL / summary slot | — | `session.implementations` (`SessioneSalvataJpaRepository`), `SessioneSalvataSummaryMapper` |
 | Base model.persistence Hibernate | — | `model.persistence.base` (`AbstractHibernateAdapter`) |
 | Utility UI | — | `view.support` (`Messages`, `UiErrorReporter`, …) |
-| Helper navigazione | — | `controller.navigation.support` (`FxmlScreenLoader`, `PersistenceUiGuard`, …) |
+| Helper navigazione | — | `controller.navigation.support` (`FxmlScreenLoader`, `RootScreenStack`, `ScreenFactory`, `PersistenceUiGuard`, …) |
+| Mapper asset UI | — | `view.mapper` (`PortraitAssetResolver`) |
 | Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `*Navigation`) |
 | Navigazione per schermata | `controller.navigation` (`MainMenuNavigation`, …) | `navigation.implementations.ScreenNavigator` |
 | Builder widget UI | — | `view.component.builder` |
@@ -262,17 +263,20 @@ Dettagli operativi in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MP
 | `BattleRoundExecutor` iniettato in `AppModule` | DIP | Composition root costruisce strategy + executor |
 | ISP navigazione (`*Navigation`) | ISP | Ogni `*ActionsImpl` vede solo i comandi della sua schermata |
 | `PersistenceUiGuard` + `PersistenceOperation` | DRY, SRP | Errori persistenza centralizzati; `ScreenNavigator` solo routing |
+| `PortraitAssetResolver` | SRP presentazione | Path ritratti da catalogo; UI non legge `skinPath()` dalle istanze runtime |
+| `RootScreenStack` + `ScreenFactory` | SRP | `ScreenNavigator` = policy di flusso; costruzione FXML e swap root separati |
+| `OverworldZoomControls` + `OverworldGymModalController` | SRP | Zoom e modale palestra estratti da `OverworldMap` |
+| Query `allGymsCompleted()` / `currentGym()` su `GameModel` | DIP verso UI | Navigazione senza drill-down su `gameState()` |
 
 ### Debito accettato in v1 (documentato, non refactorato)
 
 | Area | Scelta attuale | Perché resta così | Evoluzione |
 |------|----------------|-------------------|------------|
-| `skinPath` nel dominio | Campo su `Player` / `Creature` | Funziona; mapper catalogo→view richiederebbe più lavoro | Spostare in layer presentazione |
+| `skinPath` nel dominio | Campo ancora su `Player` / `Creature` (builder, validator, persistenza) | Rimozione completa tocca ~10 file; la UI è già migrata via `PortraitAssetResolver` | Eliminare campo da dominio in v2 |
 | `GameModel` facade larga | Un entry point per desktop | Difendibile per consegna v1 | `GameApi` per multi-client |
-| `OverworldMap` monolitico | ~450 righe UI | Rischio regressioni visive | Estrarre componenti mappa |
 | `GameState` mutabile in UI | Esposto via `GameModel.gameState()` | Un solo client JavaFX | DTO read-only verso controller |
 | `ValidatorFactory` static | Registry centralizzato | Coerente col corso | Injection opzionale |
 | Utility statiche (`Messages`, `DialogHelper`) | In `view.support` / `navigation.support` | Coerente con convenzione `support/` | Facade UI se serve test |
-| `ScreenNavigator` ancora orchestratore | Routing + factory FXML + policy battaglia | ISP navigazione già applicato; split `ScreenFactory` / `SessionSaveCoordinator` = Tier 2 futuro | Vedi [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) |
+| Persistenza in `ScreenNavigator` | Save/load/delete con dialoghi ancora nel router | Basso impatto pre-consegna | `SessionPersistenceCoordinator` (Tier 2) |
 
-Ogni scelta sopra è **consapevole**: i principi SOLID sono rispettati dove il costo/beneficio è favorevole; il resto è tracciato come evoluzione post-consegna.
+Ogni voce sopra è **debito residuo** tracciato per evoluzione post-consegna. Estensioni future in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).

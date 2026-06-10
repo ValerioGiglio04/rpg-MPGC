@@ -4,9 +4,8 @@ import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
-import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
-import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,24 +17,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.transform.Scale;
 
-public final class OverworldMap extends StackPane {
+public final class OverworldMap extends StackPane implements OverworldGymModalController.Host {
 
-  // Costanti di layout per la chrome della mappa overworld.
-  private static final Insets ZOOM_CONTROLS_MARGIN = new Insets(12);
   private static final Insets LABEL_BOTTOM_MARGIN = new Insets(0, 0, 12, 0);
-  private static final int MODAL_ACTIONS_SPACING = 12;
   private static final int MAP_GRID_GAP = 2;
-  private static final int ZOOM_BUTTONS_SPACING = 6;
-  private static final int ZOOM_BUTTON_SIZE = 36;
-  private static final int ACTION_BUTTON_PREF_WIDTH = 140;
 
   private static final OverworldTileRenderer TILE_RENDERER =
       new OverworldTileRenderer(
@@ -45,69 +35,62 @@ public final class OverworldMap extends StackPane {
           OverworldTextures.BUSH);
 
   private final OverworldPresenter presenter;
-  private final Runnable onStartBattle;
+  private final PortraitAssetResolver portraitAssets;
+  private final OverworldZoomControls zoomControls;
+  private final OverworldGymModalController gymModal;
   private final GridPane mapGrid;
   private final Map<String, GymRoom> gymsByCell;
   private final Map<String, OverworldDecor> decorByCell;
   private final boolean[][] blockedTiles;
   private final Scale scaleTransform;
   private ScrollPane mapScrollPane;
-  private VBox zoomControls;
   private Label legendLabel;
   private StackPane modalLayer;
-  private Label modalTitle;
-  private HBox modalActions;
   private int playerRow;
   private int playerCol;
   private int lastRow;
   private int lastCol;
-  private double currentZoom = OverworldMapConstants.DEFAULT_ZOOM;
-  private boolean modalOpen;
-  private GymRoom pendingGym;
 
-  public OverworldMap(OverworldPresenter presenter, Runnable onStartBattle) {
+  public OverworldMap(
+      OverworldPresenter presenter, PortraitAssetResolver portraitAssets, Runnable onStartBattle) {
     this.presenter = presenter;
-    this.onStartBattle = onStartBattle;
+    this.portraitAssets = portraitAssets;
     this.mapGrid = new GridPane();
     this.gymsByCell = new HashMap<>();
     this.decorByCell = new HashMap<>();
     this.blockedTiles = OverworldMapConstants.createBlockedTiles();
     this.scaleTransform =
         new Scale(OverworldMapConstants.DEFAULT_ZOOM, OverworldMapConstants.DEFAULT_ZOOM, 0, 0);
+    this.zoomControls = new OverworldZoomControls(scaleTransform);
     wireRootChrome();
     wireMapAndScroll();
-    wireModalShell();
+    Label modalTitle = new Label();
+    modalTitle.setFocusTraversable(false);
+    HBox modalActions = new HBox(12);
+    this.modalLayer = OverworldModalShell.buildLayer(modalTitle, modalActions);
+    modalLayer.setFocusTraversable(false);
+    modalLayer.setMouseTransparent(true);
+    this.gymModal =
+        new OverworldGymModalController(
+            presenter, onStartBattle, this, modalTitle, modalActions, modalLayer);
+    getChildren().addAll(mapScrollPane, zoomControls.root(), legendLabel, modalLayer);
+    ensureUiChromeVisible();
     completeInitialPopulation();
   }
 
   private void wireRootChrome() {
     getStyleClass().add("overworld-map");
     setFocusTraversable(true);
-    // Capture phase: receive movement keys even when focus drifts into the ScrollPane or a tile
-    // after redraw; bubbling handlers on this node would miss those events.
     addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
     setOnMouseClicked(event -> requestFocus());
-    setOnScroll(this::handleScroll);
+    setOnScroll(event -> zoomControls.onScroll(event, gymModal.isModalOpen()));
   }
 
   private void wireMapAndScroll() {
     configureMapGrid();
     this.mapScrollPane = createMapScrollPane();
-    this.zoomControls = buildZoomControls();
-    StackPane.setAlignment(zoomControls, Pos.TOP_RIGHT);
-    StackPane.setMargin(zoomControls, ZOOM_CONTROLS_MARGIN);
+    zoomControls.mountOn(this);
     this.legendLabel = createLegendLabel();
-  }
-
-  private void wireModalShell() {
-    this.modalTitle = new Label();
-    modalTitle.setFocusTraversable(false);
-    this.modalActions = new HBox(MODAL_ACTIONS_SPACING);
-    this.modalLayer = OverworldModalShell.buildLayer(modalTitle, modalActions);
-    modalLayer.setFocusTraversable(false);
-    modalLayer.setMouseTransparent(true);
-    getChildren().addAll(mapScrollPane, zoomControls, legendLabel, modalLayer);
-    ensureUiChromeVisible();
   }
 
   private void completeInitialPopulation() {
@@ -151,74 +134,22 @@ public final class OverworldMap extends StackPane {
     return label;
   }
 
-  private void handleScroll(ScrollEvent event) {
-    if (modalOpen) return;
-    if (event.getDeltaY() > 0) {
-      zoomIn();
-    } else if (event.getDeltaY() < 0) {
-      zoomOut();
-    }
-    event.consume();
-  }
-
   public void zoomIn() {
-    setZoom(currentZoom + OverworldMapConstants.ZOOM_STEP);
+    zoomControls.zoomIn();
   }
 
   public void zoomOut() {
-    setZoom(currentZoom - OverworldMapConstants.ZOOM_STEP);
+    zoomControls.zoomOut();
   }
 
   public void setZoom(double zoom) {
-    currentZoom =
-        Math.max(OverworldMapConstants.MIN_ZOOM, Math.min(OverworldMapConstants.MAX_ZOOM, zoom));
-    scaleTransform.setX(currentZoom);
-    scaleTransform.setY(currentZoom);
-  }
-
-  private VBox buildZoomControls() {
-    VBox controls =
-        new VBox(
-            ZOOM_BUTTONS_SPACING,
-            styledZoomButton("+", this::zoomIn),
-            styledZoomButton("\u2212", this::zoomOut));
-    controls.getStyleClass().add("zoom-controls");
-    controls.setPickOnBounds(false);
-    controls.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
-    return controls;
-  }
-
-  private GameButton styledZoomButton(String label, Runnable action) {
-    GameButton button = new GameButton(label);
-    button.getStyleClass().add("zoom-button");
-    button.setMaxWidth(ZOOM_BUTTON_SIZE);
-    button.setMinSize(ZOOM_BUTTON_SIZE, ZOOM_BUTTON_SIZE);
-    button.setPrefSize(ZOOM_BUTTON_SIZE, ZOOM_BUTTON_SIZE);
-    button.setFocusTraversable(false);
-    button.setOnAction(event -> action.run());
-    return button;
-  }
-
-  private GameButton modalButton(String text, Runnable handler) {
-    GameButton button = new GameButton(text);
-    button.setMaxWidth(Region.USE_PREF_SIZE);
-    button.setPrefWidth(ACTION_BUTTON_PREF_WIDTH);
-    button.setOnAction(event -> handler.run());
-    return button;
-  }
-
-  private void handleEnterKey() {
-    if (pendingGym != null) {
-      confirmChallenge();
-      return;
-    }
-    cancelChallenge();
+    zoomControls.setZoom(zoom);
   }
 
   private void handleKeyPressed(KeyEvent event) {
     KeyCode code = event.getCode();
-    if (modalOpen) {
-      handleModalKey(code);
+    if (gymModal.isModalOpen()) {
+      gymModal.handleModalKey(code);
       if (code == KeyCode.ENTER || code == KeyCode.ESCAPE) {
         event.consume();
       } else if (movementStep(code) != MapOffset.ZERO) {
@@ -232,14 +163,6 @@ public final class OverworldMap extends StackPane {
     }
   }
 
-  private void handleModalKey(KeyCode code) {
-    switch (code) {
-      case ENTER -> handleEnterKey();
-      case ESCAPE -> cancelChallenge();
-      default -> {}
-    }
-  }
-
   private void handleMovementKey(KeyCode code) {
     MapOffset step = movementStep(code);
     int nextRow = playerRow + step.rowDelta();
@@ -248,9 +171,6 @@ public final class OverworldMap extends StackPane {
     commitMove(nextRow, nextCol);
   }
 
-  /**
-   * Un passo di griglia per un tasto di movimento; {@link MapOffset#ZERO} se il tasto non muove.
-   */
   private static MapOffset movementStep(KeyCode code) {
     return switch (code) {
       case W, UP -> MapOffset.UP;
@@ -294,86 +214,41 @@ public final class OverworldMap extends StackPane {
     if (gym == null) return;
     GymStatus status = presenter.statusOf(gym);
     if (status == GymStatus.AVAILABLE) {
-      showChallengeModal(gym);
+      gymModal.showChallengeModal(gym);
       return;
     }
-    showBlockedModal(presenter.blockedReason(gym, status));
+    gymModal.showBlockedModal(presenter.blockedReason(gym, status));
   }
 
-  private void showChallengeModal(GymRoom gym) {
-    pendingGym = gym;
-    modalTitle.setText(challengePrompt(gym.name()));
-    GameButton challengeButton =
-        modalButton(Messages.get("overworld.modal.challenge"), this::confirmChallenge);
-    GameButton cancelButton =
-        modalButton(Messages.get("overworld.modal.cancel"), this::cancelChallenge).asSecondary();
-    modalActions.getChildren().setAll(challengeButton, cancelButton.asSecondary());
-    openModal();
+  @Override
+  public int lastRow() {
+    return lastRow;
   }
 
-  private static String challengePrompt(String gymName) {
-    return Messages.format("overworld.modal.challenge.prompt", gymName);
+  @Override
+  public int lastCol() {
+    return lastCol;
   }
 
-  private void showBlockedModal(String reason) {
-    pendingGym = null;
-    modalTitle.setText(reason);
-    GameButton closeButton =
-        modalButton(Messages.get("overworld.modal.close"), this::cancelChallenge);
-    modalActions.getChildren().setAll(closeButton.asSecondary());
-    openModal();
-  }
-
-  private void openModal() {
-    modalOpen = true;
-    modalLayer.setMouseTransparent(false);
-    modalLayer.setVisible(true);
-    ensureUiChromeVisible();
-  }
-
-  private void confirmChallenge() {
-    if (!modalOpen || pendingGym == null) return;
-    GymRoom gym = pendingGym;
-    hideModal();
-    moveSessionToGymIfNeeded(gym);
-    onStartBattle.run();
-  }
-
-  private void moveSessionToGymIfNeeded(GymRoom gym) {
-    GymRoom currentGym = presenter.gameState().currentGym();
-    if (currentGym.id() == gym.id()) return;
-
-    presenter.moveToGym(gym.id());
-  }
-
-  private void cancelChallenge() {
-    if (!modalOpen) return;
-    hideModal();
-    playerRow = lastRow;
-    playerCol = lastCol;
+  @Override
+  public void restorePlayerPosition(int row, int column) {
+    playerRow = row;
+    playerCol = column;
     syncOverworldPositionToSession();
-    redrawMap();
   }
 
-  private void hideModal() {
-    modalOpen = false;
-    pendingGym = null;
-    modalLayer.setVisible(false);
-    modalLayer.setMouseTransparent(true);
-    ensureUiChromeVisible();
-    requestFocus();
-  }
-
-  private void redrawMap() {
+  @Override
+  public void redrawMap() {
     mapGrid.getChildren().clear();
     var player = presenter.gameState().player();
+    String playerSkinPath = portraitAssets.playerSkinPath();
     for (int row = 0; row < OverworldMapConstants.MAP_ROWS; row++) {
       for (int col = 0; col < OverworldMapConstants.MAP_COLS; col++) {
-        addTileForCell(row, col, player.name(), player.skinPath());
+        addTileForCell(row, col, player.name(), playerSkinPath);
       }
     }
     ensureUiChromeVisible();
-    if (!modalOpen) {
+    if (!gymModal.isModalOpen()) {
       Platform.runLater(this::requestFocus);
     }
   }
@@ -389,21 +264,27 @@ public final class OverworldMap extends StackPane {
     mapGrid.add(tile, col, row);
   }
 
-  private void ensureUiChromeVisible() {
+  @Override
+  public void ensureUiChromeVisible() {
     mapScrollPane.setManaged(true);
     mapScrollPane.setVisible(true);
-    zoomControls.setManaged(true);
-    zoomControls.setVisible(true);
+    zoomControls.root().setManaged(true);
+    zoomControls.root().setVisible(true);
     legendLabel.setManaged(true);
     legendLabel.setVisible(true);
     modalLayer.setManaged(true);
-    modalLayer.setVisible(modalOpen);
-    if (modalOpen) {
+    modalLayer.setVisible(gymModal.isModalOpen());
+    if (gymModal.isModalOpen()) {
       modalLayer.toFront();
       return;
     }
     legendLabel.toFront();
-    zoomControls.toFront();
+    zoomControls.root().toFront();
+  }
+
+  @Override
+  public void requestMapFocus() {
+    requestFocus();
   }
 
   private void initializePlayerPosition() {

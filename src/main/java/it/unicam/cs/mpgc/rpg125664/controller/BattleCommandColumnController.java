@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
 import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
@@ -30,12 +31,13 @@ public final class BattleCommandColumnController {
       Creature playerCreature,
       GymRoom gym,
       CreatureHolder holder,
+      PortraitAssetResolver portraitAssets,
       Runnable onBack,
       IntConsumer onMoveSelected,
       LongConsumer onSwitchCreature) {
     backButton.setOnAction(event -> onBack.run());
     populateMoveGrid(playerCreature, gym, onMoveSelected);
-    populateTeamSwitches(holder, gym, onSwitchCreature);
+    populateTeamSwitches(holder, gym, portraitAssets, onSwitchCreature);
   }
 
   private void populateMoveGrid(Creature playerCreature, GymRoom gym, IntConsumer onMoveSelected) {
@@ -67,16 +69,23 @@ public final class BattleCommandColumnController {
   }
 
   private void populateTeamSwitches(
-      CreatureHolder playerHolder, GymRoom gym, LongConsumer onSwitchCreature) {
+      CreatureHolder playerHolder,
+      GymRoom gym,
+      PortraitAssetResolver portraitAssets,
+      LongConsumer onSwitchCreature) {
     teamSwitches.getChildren().clear();
     IntStream.range(0, playerHolder.creatures().size())
-        .forEach(index -> appendTeamRow(teamSwitches, playerHolder, gym, index, onSwitchCreature));
+        .forEach(
+            index ->
+                appendTeamRow(
+                    teamSwitches, playerHolder, gym, portraitAssets, index, onSwitchCreature));
   }
 
   private static void appendTeamRow(
       VBox switches,
       CreatureHolder playerHolder,
       GymRoom gym,
+      PortraitAssetResolver portraitAssets,
       int index,
       LongConsumer onSwitchCreature) {
     Creature creature = playerHolder.creatures().get(index);
@@ -88,7 +97,7 @@ public final class BattleCommandColumnController {
         playerHolder.isActive(creature) || !playerHolder.canSwitchTo(catalogId));
     switchButton.setOnAction(event -> onSwitchCreature.accept(catalogId));
     CreatureCard creatureCard =
-        CreatureCard.builder(creature)
+        CreatureCard.builder(creature, portraitAssets)
             .active(playerHolder.isActive(creature))
             .portraitSize(TEAM_PORTRAIT_SIZE)
             .sideStyleClass("player-creature-card")

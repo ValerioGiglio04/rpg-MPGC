@@ -26,6 +26,7 @@ import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.implementations.Accurac
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.implementations.TurnBasedAttackResolutionStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.GameStateRepository;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -43,6 +44,7 @@ public final class AppModule implements AutoCloseable {
   private final EntityManagerFactory entityManagerFactory;
   private final GameStateRepository repository;
   private final GameModel gameModel;
+  private final PortraitAssetResolver portraitAssets;
 
   public static AppModule create(
       EntityManagerFactory entityManagerFactory,
@@ -106,10 +108,15 @@ public final class AppModule implements AutoCloseable {
 
     this.gameModel =
         new GameModel(holder, newGame, battle, healing, persistence, gymStatusStrategy);
+    this.portraitAssets = new PortraitAssetResolver(catalog);
   }
 
   public GameModel gameModel() {
     return gameModel;
+  }
+
+  public PortraitAssetResolver portraitAssets() {
+    return portraitAssets;
   }
 
   @Override

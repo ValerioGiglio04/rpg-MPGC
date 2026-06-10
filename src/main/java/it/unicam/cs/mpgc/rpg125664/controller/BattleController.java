@@ -9,6 +9,7 @@ import it.unicam.cs.mpgc.rpg125664.view.component.BattleArenaView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleCommandColumnView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleEndOverlay;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleUiErrorPane;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter;
 import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter.RoundOutcome;
 import it.unicam.cs.mpgc.rpg125664.view.support.BattleLogLine;
@@ -36,6 +37,7 @@ public final class BattleController implements Initializable {
   private static final double PORTRAIT_PLAYER = 200;
 
   private final BattlePresenter presenter;
+  private final PortraitAssetResolver portraitAssets;
   private final Runnable onBack;
 
   @FXML private Label battleTitleLabel;
@@ -47,8 +49,10 @@ public final class BattleController implements Initializable {
   @FXML private TextFlow logFlow;
   @FXML private VBox commandHost;
 
-  public BattleController(GameModel gameModel, Runnable onBack) {
+  public BattleController(
+      GameModel gameModel, PortraitAssetResolver portraitAssets, Runnable onBack) {
     this.presenter = new BattlePresenter(gameModel);
+    this.portraitAssets = portraitAssets;
     this.onBack = onBack;
   }
 
@@ -120,7 +124,9 @@ public final class BattleController implements Initializable {
     arenaHost
         .getChildren()
         .add(
-            0, BattleArenaView.create(playerCreature, bossCreature, PORTRAIT_FOE, PORTRAIT_PLAYER));
+            0,
+            BattleArenaView.create(
+                playerCreature, bossCreature, portraitAssets, PORTRAIT_FOE, PORTRAIT_PLAYER));
     transcriptLayer.toFront();
     commandHost
         .getChildren()
@@ -129,6 +135,7 @@ public final class BattleController implements Initializable {
                 playerCreature,
                 gym,
                 state.player().holder(),
+                portraitAssets,
                 onBack,
                 this::playRound,
                 this::switchCreature));

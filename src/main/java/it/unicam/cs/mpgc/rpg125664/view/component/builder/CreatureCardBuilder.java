@@ -2,16 +2,20 @@ package it.unicam.cs.mpgc.rpg125664.view.component.builder;
 
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
+import java.util.Objects;
 
 public final class CreatureCardBuilder {
 
   private final Creature creature;
+  private final PortraitAssetResolver portraitAssets;
   private boolean active;
   private double portraitSize = 132;
   private String sideStyleClass;
 
-  public CreatureCardBuilder(Creature creature) {
+  public CreatureCardBuilder(Creature creature, PortraitAssetResolver portraitAssets) {
     this.creature = creature;
+    this.portraitAssets = Objects.requireNonNull(portraitAssets, "portraitAssets");
   }
 
   public CreatureCardBuilder active(boolean active) {
@@ -30,6 +34,6 @@ public final class CreatureCardBuilder {
   }
 
   public CreatureCard build() {
-    return new CreatureCard(creature, active, portraitSize, sideStyleClass);
+    return new CreatureCard(creature, portraitAssets, active, portraitSize, sideStyleClass);
   }
 }

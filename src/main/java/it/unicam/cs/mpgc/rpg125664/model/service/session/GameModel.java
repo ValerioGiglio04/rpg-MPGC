@@ -45,6 +45,14 @@ public final class GameModel {
     return holder.current();
   }
 
+  public boolean allGymsCompleted() {
+    return holder.current().allGymsCompleted();
+  }
+
+  public GymRoom currentGym() {
+    return holder.current().currentGym();
+  }
+
   public boolean hasAnySave() {
     return persistence.hasAnySave();
   }
