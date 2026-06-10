@@ -16,7 +16,7 @@ Il codice è organizzato in **architettura MVC** (model al centro, model.persist
 
 ```
 it.unicam.cs.mpgc.rpg125664
-├── app/                              Main, RpgApplication, AppModule
+├── app/                              Main, RpgApplication, AppModule (PortraitAssetResolver, GameModel)
 ├── model.service/                      BattleService, NewGameService, HealingService, …
 ├── model.service/              GameModel, SessionPersistenceFacade (Facade), GameStateHolder
 ├── model.overworld/
@@ -41,14 +41,15 @@ it.unicam.cs.mpgc.rpg125664
 │       └── entities/ dto/ mapper/ serializer/
 └── view/
     ├── support/                      Messages, UiErrorReporter, BattleEventTranslator, BattleLogLine
+    ├── mapper/                       PortraitAssetResolver
     ├── navigation/                   *Navigation, ScreenNavigation
-    │   ├── implementations/          ScreenNavigator
-    │   └── support/                  MainView, FxmlScreenLoader, DialogHelper, PersistenceUiGuard, PersistenceOperation
+    │   ├── implementations/          ScreenNavigator (router di flusso)
+    │   └── support/                  MainView, RootScreenStack, ScreenFactory, FxmlScreenLoader, DialogHelper, PersistenceUiGuard, PersistenceOperation
     ├── actions/                      MainMenuActions, HubActions, …
     │   └── implementations/          MainMenuActionsImpl, HubActionsImpl, …
     ├── controller/ controller/
     ├── component/ (+ component.builder/)
-    ├── overworld/
+    ├── overworld/                    OverworldMap, OverworldZoomControls, OverworldGymModalController, OverworldTileRenderer, …
     └── theme/ + theme.implementations/
 ```
 
@@ -65,7 +66,8 @@ it.unicam.cs.mpgc.rpg125664
 | Strategy combattimento | `model.combat.strategy` / `.implementations` |
 | Strategy mappa | `model.overworld.strategy` / `.implementations` |
 | Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) |
-| Shell e routing UI | `controller.navigation` |
+| Shell e routing UI | `controller.navigation` (`ScreenNavigator` + `RootScreenStack` + `ScreenFactory`) |
+| Mapper asset UI | `view.mapper` (`PortraitAssetResolver`) |
 | Callback schermata | `controller.navigation` (contratto) → `actions.implementations` (`*ActionsImpl`) |
 | Controller MVP | `controller` + `controller` |
 | Builder widget UI | `view.component.builder` |
@@ -124,8 +126,9 @@ cd rpg-MPGC
 | **Corso** | Metodologie di Programmazione, Modellazione e Gestione della Conoscenza — AA 2025/26 |
 | **Repository** | [rpg-MPGC](https://github.com/ValerioGiglio04/rpg-MPGC) |
 | **Linguaggio** | Java 25 (toolchain Gradle in `build.gradle`) |
-| **Build** | Gradle 8.14+ (Wrapper) |
+| **Build** | Gradle 8.14.4 (Wrapper) |
 | **UI** | JavaFX 25.0.1 + FXML |
+| **Qualità codice** | Spotless 7.0.4 + google-java-format 1.28.0 |
 | **Persistenza** | Catalogo e sessioni: Hibernate 6 + H2 (`~/.rpg-palestre-creature/save`); snapshot partita in `sessioni_salvate.dati_salvati_json` |
 | **Package** | `it.unicam.cs.mpgc.rpg125664` |
 

@@ -14,7 +14,7 @@ Il progetto segue un'**architettura MVC** (Model-View-Controller): il **dominio*
 | **model** | `...model` (+ `model.persistence`, `model.combat.strategy`) | Modello di gioco, regole, combattimento, validazione, eventi di battaglia; **porte** in `model.persistence` |
 | **model.service** | `...model.service` (+ `model.service`) | Servizi di caso d'uso e `GameModel` come unico entry point per la UI |
 | **model.persistence** | `...model.persistence` | Catalogo su H2 (JPA), sessione su JSON, mapping entità/DTO ↔ dominio, seed catalogo da JSON |
-| **view** / **controller** | `...view` (+ `navigation`, `actions`, `controller`, `controller`, `component`, `overworld`, `theme`) | Navigazione FXML, callback schermata, controller, componenti, mappa overworld, temi, i18n — **nessuna regola di business** |
+| **view** / **controller** | `...view` (+ `navigation`, `actions`, `controller`, `controller`, `component`, `mapper`, `overworld`, `theme`) | Navigazione FXML, callback schermata, controller, componenti, asset ritratti, mappa overworld, temi, i18n — **nessuna regola di business** |
 
 ### Regola di dipendenza
 
@@ -79,6 +79,8 @@ flowchart TB
     BP[BattleController]
     HP[HubController]
     OP[OverworldController]
+    LGP[LoadGameController]
+    VP[VictoryController]
   end
   UI --> controllers
   controllers --> GS
@@ -119,7 +121,7 @@ flowchart TB
 
 | Componente | Cosa fa |
 |------------|---------|
-| `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusStrategy` |
+| `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusStrategy`; query `allGymsCompleted()`, `currentGym()` |
 | `SessionPersistenceFacade` | Save/load/delete/list slot; incapsula `GameStateRepository` |
 | `DefaultGymStatusStrategy` | Implementazione default di `GymStatusStrategy` (`model.overworld.strategy.implementations`) |
 | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
@@ -262,9 +264,9 @@ Dettagli operativi in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MP
 | `SaveSlotLabels` | DRY | Formato data condiviso tra repository e `LoadGameController` |
 | `BattleRoundExecutor` iniettato in `AppModule` | DIP | Composition root costruisce strategy + executor |
 | ISP navigazione (`*Navigation`) | ISP | Ogni `*ActionsImpl` vede solo i comandi della sua schermata |
-| `PersistenceUiGuard` + `PersistenceOperation` | DRY, SRP | Errori persistenza centralizzati; `ScreenNavigator` solo routing |
+| `PersistenceUiGuard` + `PersistenceOperation` | DRY, SRP | Errori persistenza centralizzati; `ScreenNavigator` = routing + orchestrazione save/load/delete |
 | `PortraitAssetResolver` | SRP presentazione | Path ritratti da catalogo; UI non legge `skinPath()` dalle istanze runtime |
-| `RootScreenStack` + `ScreenFactory` | SRP | `ScreenNavigator` = policy di flusso; costruzione FXML e swap root separati |
+| `RootScreenStack` + `ScreenFactory` | SRP | `ScreenNavigator` = policy di flusso + persistenza UI; costruzione FXML e swap root separati |
 | `OverworldZoomControls` + `OverworldGymModalController` | SRP | Zoom e modale palestra estratti da `OverworldMap` |
 | Query `allGymsCompleted()` / `currentGym()` su `GameModel` | DIP verso UI | Navigazione senza drill-down su `gameState()` |
 

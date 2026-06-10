@@ -183,7 +183,7 @@ DTO in `model.persistence.session.dto` (un tipo = un file):
 
 ### Posizione sulla mappa
 
-Dopo `loadSession`, `GameModel` applica `LoadedSession.overworldPosition()` a `GameStateHolder` e alla `OverworldMap`. Il layout di palestre, alberi e cespugli è **deterministico** (`OverworldLayoutSupport`, seed fisso `42`).
+Dopo `loadSession`, `GameModel` applica `LoadedSession.overworldPosition()` a `GameStateHolder` e alla `OverworldMap`. Il layout di palestre, alberi e cespugli è **deterministico** (`OverworldLayoutSupport` con seed `OverworldGridLayout.LAYOUT_SEED = 42`).
 
 ---
 
@@ -223,6 +223,7 @@ erDiagram
   GIOCATORE {
     long id_giocatore PK
     string nome
+    boolean is_boss
     string percorso_skin
   }
   CREATURA {
@@ -243,6 +244,8 @@ erDiagram
   }
   PALESTRA {
     long id_palestra PK
+    string nome
+    int ordine
     int punti_richiesti
     int punti_ricompensa_boss
     long id_boss FK

@@ -37,7 +37,7 @@ Qui descrivo **solo** i punti in cui ho usato ChatGPT, Claude, Gemini o Copilot:
 
 **Strumenti:** ChatGPT, Claude, GitHub Copilot
 
-- Spiegazione del pattern Builder e del framework `Validator` (`model.validation`) / `ValidatorFactory` (`validation.implementations`).
+- Spiegazione del pattern Builder e del framework `Validator` (`model.validation`) / `ValidatorFactory` (`validation.support`).
 - Bozze di metodi ripetitivi (getter, costruttori).
 - Spiegazione della sintassi delle sealed interface per `BattleEvent`.
 
@@ -72,7 +72,7 @@ Qui descrivo **solo** i punti in cui ho usato ChatGPT, Claude, Gemini o Copilot:
 
 **Strumento:** Claude (chat)
 
-- Suggerimento del plugin Gradle **Spotless** con **Google Java Format** e comando `spotlessApply`.
+- Suggerimento del plugin Gradle **Spotless** 7.0.4 con **Google Java Format** 1.28.0 e comando `spotlessApply`.
 - Bozza del blocco `spotless { ... }` in `build.gradle` (anche formattazione JSON del catalogo).
 
 ### Documentazione — Wiki e README

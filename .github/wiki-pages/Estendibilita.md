@@ -120,10 +120,10 @@ Per logiche speciali (nuovo tipo di palestra) si possono estendere `GymTemplate`
 |----------------|--------------------------------|
 | Inventario oggetti | Nuovo servizio in `model.service` + modello in `model` |
 | Più slot di salvataggio | **Già presente** via `sessioni_salvate`; estendere con limite slot, autosave, cloud |
-| Autosave | Chiamare `repository.save()` da `navigation.implementations.ScreenNavigator` o listener |
+| Autosave | Chiamare `GameModel.saveCurrent()` da listener di navigazione o da un futuro `SessionPersistenceCoordinator` (oggi solo save manuale dall'Hub) |
 | Achievement | Listener su `BattleEvent` o hook in `GymCompletionHandler` |
 | Audio / effetti | Solo layer `ui`, nessun impatto su dominio |
-| Negozio | Nuovo caso d'uso + schermata FXML + voce in `navigation.implementations.ScreenNavigator` |
+| Negozio | Nuovo caso d'uso + schermata FXML + metodo in `ScreenFactory` e routing in `ScreenNavigator` |
 
 ---
 
@@ -134,7 +134,7 @@ Pattern consigliato (come hub, battaglia, overworld):
 1. Aggiungere `NuovaSchermata.fxml` in `src/main/resources/fxml/`
 2. Creare `NuovaSchermataController` in `controller` (stato + comandi verso `GameModel`)
 3. Creare `NuovaSchermataController` sottile: binding FXML + delega al controller
-4. Registrare transizione in `navigation.implementations.ScreenNavigator` e `navigation.support.FxmlScreenLoader`
+4. Registrare transizione in `navigation.implementations.ScreenNavigator` (policy) e costruzione schermata in `navigation.support.ScreenFactory`
 5. Eventuale interfaccia callback in `controller.navigation` + implementazione in `actions.implementations` (delega a `ScreenNavigation`)
 6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
 

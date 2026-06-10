@@ -21,7 +21,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 |------|------|----------------|
 | C | `Main` | Entry point Gradle; avvia `RpgApplication` |
 | C | `RpgApplication` | Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura risorse JPA |
-| C | `AppModule` | Composition root: EMF, seed catalogo, strategy combattimento + `BattleRoundExecutor` iniettato in `BattleService`, `SessionJsonSerializer` → `SessioneSalvataSummaryMapper`, `SessioneSalvataJpaRepository` → `HibernateGameStateRepository`, `GameModel`; `close()` rilascia EMF |
+| C | `AppModule` | Composition root: EMF, seed catalogo, strategy combattimento + `BattleRoundExecutor`, `PortraitAssetResolver`, `GameModel`; espone `gameModel()` e `portraitAssets()`; `close()` rilascia EMF |
 
 ---
 
@@ -44,12 +44,13 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `GameCatalog` | Indice di template; lookup che crea istanze di dominio mutabili |
+| C | `GameCatalog` | Indice di template; lookup che crea istanze mutabili; `creatureSkinPath(catalogId)` per asset UI |
 | R | `CreatureTemplate` | Definizione statica di una creatura |
 | R | `GymTemplate` | Definizione statica di una palestra |
 | R | `BossTemplate` | Definizione statica di un boss |
 | R | `MoveTemplate` | Definizione statica di una mossa |
 | R | `NewGameSettings` | Parametri per costruire la prima partita (starter, palestra iniziale) |
+| C | `CatalogIds` | Costanti ID catalogo (es. `GIOCATORE_UMANO = 1`) |
 
 ---
 
@@ -120,7 +121,7 @@ Elenco delle classi e interfacce del package `it.unicam.cs.mpgc.rpg125664`, ragg
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `ScoreValidator`, `PlayerValidator`, `GameStateValidator`, … | Sottoclassi finali; `GameStateValidator` compone validator su `player` e ogni `GymRoom`; `Score.add` / `Score.spend` ri-validano dopo mutazione |
+| C | `ScoreValidator`, `PlayerValidator`, `GameStateValidator`, `CreatureValidator`, `CreatureHolderValidator`, `GymRoomValidator`, `GymBossValidator`, `MoveValidator` | Sottoclassi finali; `GameStateValidator` compone validator su `player` e ogni `GymRoom`; `Score.add` / `Score.spend` ri-validano dopo mutazione |
 
 ### Support (`model.validation.support`)
 
@@ -163,7 +164,7 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | E | `GymStatus` | Stato UI di una palestra sulla mappa |
-| C | `OverworldGridLayout` | Griglia e celle candidate per layout palestre |
+| C | `OverworldGridLayout` | Griglia e celle candidate; seed fisso `LAYOUT_SEED = 42` per layout deterministico |
 | R | `GymCellPlacement` | Associazione cella ↔ palestra (dominio applicativo) |
 | C | `OverworldSpawnPosition` | Posizione di default al primo salvataggio |
 
@@ -183,7 +184,7 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `GameModel` | Facciata UI: delega a servizi, `SessionPersistenceFacade`, `GymStatusStrategy` |
+| C | `GameModel` | Facciata UI: delega a servizi, `SessionPersistenceFacade`, `GymStatusStrategy`; query `allGymsCompleted()`, `currentGym()` |
 | C | `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
 | C | `SessionPersistenceFacade` | Save/load/delete/list; incapsula `GameStateRepository` |
 
@@ -204,7 +205,6 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `HibernateGameCatalogLoader` | Implementazione `GameCatalogLoader`; costruisce `GameCatalog` da H2 + `NewGameSettings` già noti |
-| C | `CatalogIds` (dominio) | Costanti catalogo (es. `GIOCATORE_UMANO = 1`) |
 
 #### Entity JPA (`model.persistence.catalog.entities`)
 
@@ -241,6 +241,7 @@ Pattern builder: `T instance = new …; Validator<T> v = ValidatorFactory.get*Va
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `PalestraCollegamentiSupport` | Collegamenti palestre da `ordine` (catena lineare) |
+| C | `CatalogLoadSupport` | Helper caricamento entità catalogo da seed |
 
 ### Sessione H2 (`model.persistence.session`)
 
@@ -307,13 +308,13 @@ Convenzione: un tipo = un file nello stesso package (allineato a `catalog/dto/`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `ScreenNavigator` | Policy di flusso (hub, battaglia, vittoria); delega costruzione schermate e swap root |
+| C | `ScreenNavigator` | Policy di flusso (hub, battaglia, vittoria); save/load/delete con dialoghi; delega costruzione schermate e swap root |
 
 #### Support (`controller.navigation.support`)
 
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
-| C | `MainView` | Layout root JavaFX |
+| C | `MainView` | Layout root JavaFX; crea `ScreenNavigator` con `GameModel` e `PortraitAssetResolver` |
 | C | `RootScreenStack` | Swap figlio su `StackPane` + chiusura menu aperti |
 | C | `ScreenFactory` | Costruzione schermate FXML con controller/controller |
 | E | `PersistenceOperation` | SAVE / LOAD / DELETE con chiave i18n errore |
@@ -347,6 +348,8 @@ Convenzione: un tipo = un file nello stesso package (allineato a `catalog/dto/`)
 | C | `LoadGameController` | Logica schermata caricamento slot |
 | C | `HubController` | Logica hub: mappa, team, cura, save |
 | C | `BattleController` | Logica battaglia: mosse, log, overlay fine |
+| C | `BattleCommandColumnController` | Popola colonna comandi battaglia (FXML) |
+| C | `BattleEndOverlayController` | Popola overlay fine sconto (FXML) |
 | C | `VictoryController` | Logica schermata vittoria |
 
 ### Controller (`controller`)
@@ -357,6 +360,7 @@ Convenzione: un tipo = un file nello stesso package (allineato a `catalog/dto/`)
 | C | `HubController` | Team hub, cura, tooltip gloria |
 | C | `LoadGameController` | Elenco slot salvati, caricamento ed eliminazione |
 | C | `OverworldController` | Movimento mappa, sfida palestra, motivo blocco |
+| C | `VictoryController` | Schermata vittoria: stato campagna completata |
 
 I controller FXML restano sottili: binding visivo + delega al controller.
 
@@ -394,9 +398,9 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | Tipo | Nome | Responsabilità |
 |------|------|----------------|
 | C | `OverworldMap` | Orchestrazione mappa: movimento, redraw, spawn; delega regole a `OverworldController` |
-| C | `OverworldZoomControls` | Pulsanti +/− e zoom rotella |
-| C | `OverworldGymModalController` | Modale sfida / palestra bloccata |
-| C | `OverworldLayoutSupport` | Posizionamento deterministico palestre e decor (seed `LAYOUT_SEED`) |
+| F | `OverworldZoomControls` | Pulsanti +/− e zoom rotella |
+| F | `OverworldGymModalController` | Modale sfida / palestra bloccata |
+| C | `OverworldLayoutSupport` | Posizionamento deterministico palestre e decor (seed `OverworldGridLayout.LAYOUT_SEED = 42`) |
 | C | `OverworldTileRenderer` | Rendering tile mappa |
 | C | `OverworldTextures` | Caricamento texture |
 | C | `OverworldMapConstants` | Costanti griglia mappa |
@@ -430,12 +434,12 @@ I controller FXML restano sottili: binding visivo + delega al controller.
 | `Validator<T>` | model.validation | — (classe astratta) | `*Validator` in `validation.implementations`; `ValidatorFactory` in `validation.support` |
 | `BattleEvent` | model.event | Record sealed annidati |
 | `UiTheme` | view.theme | `DuelUiTheme` (`view.theme`); stili hub inline |
-| `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | `*ActionsImpl` → `*Navigation`; routing in `navigation.implementations.ScreenNavigator` |
+| `MainMenuActions`, `HubActions`, `VictoryActions`, `LoadGameActions` | controller.navigation | `*ActionsImpl` → `*Navigation`; routing in `ScreenNavigator`, costruzione in `ScreenFactory` |
 
 ---
 
 ## Conteggio
 
-Circa **120** file sorgente Java nel package principale, più risorse FXML, JSON, immagini e `persistence.xml`.
+Circa **162** file sorgente Java in `src/main/java`, più risorse FXML, JSON, immagini e `persistence.xml`.
 
 Per il significato dei layer e le dipendenze vedere [Responsabilità e architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).

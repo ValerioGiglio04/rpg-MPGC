@@ -26,7 +26,9 @@ Documentazione delle funzionalità presenti nella **prima release** del gioco. F
 | Battaglia | `Battle.fxml` | `BattleController` | Combattimento a turni |
 | Vittoria | `Victory.fxml` | `VictoryController` | Campagna completata |
 
-Navigazione e routing: `controller.navigation` (interfacce `*Navigation`), `navigation.implementations` (`ScreenNavigator`), `navigation.support` (`FxmlScreenLoader`, `PersistenceUiGuard`). Controller caricamento: `LoadGameController` (date via `SaveSlotLabels`). Callback: `controller.navigation` + `actions.implementations` (`*ActionsImpl` → `*Navigation`).
+Navigazione e routing: `controller.navigation` (interfacce `*Navigation`), `navigation.implementations` (`ScreenNavigator` — policy di flusso e save/load/delete), `navigation.support` (`RootScreenStack`, `ScreenFactory`, `MainView`, `FxmlScreenLoader`, `DialogHelper`, `PersistenceUiGuard`). `PortraitAssetResolver` (`view.mapper`) è creato in `AppModule` e iniettato via `MainView` → `ScreenFactory` → controller. Controller: `LoadGameController`, `VictoryController`, … (date slot via `SaveSlotLabels`). Callback: `controller.navigation` + `actions.implementations` (`*ActionsImpl` → `*Navigation`).
+
+La mappa overworld in hub usa `OverworldMap` con zoom (`OverworldZoomControls`) e modale palestra (`OverworldGymModalController`) estratti come componenti dedicati.
 
 La UI interagisce **solo** con `GameModel` (`model.service`): non accede direttamente a Hibernate né alle entità JPA.
 
