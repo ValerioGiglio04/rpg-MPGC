@@ -38,7 +38,7 @@ Qui descrivo **solo** dove ho usato ChatGPT, Claude, Gemini o Copilot. Gioco, ar
 
 - Boilerplate JavaFX e entità catalogo
 - Stringhe i18n e messaggi log battaglia
-- Sidebar/footer wiki, link tra pagine, sintassi Mermaid (`curve: stepAfter`)
+- Sidebar/footer wiki, link tra pagine, sintassi Mermaid (`curve: linear`)
 
 ---
 

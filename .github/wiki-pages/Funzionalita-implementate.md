@@ -74,6 +74,7 @@ In caso di errore di load resto al menu con un alert.
 ## Flusso utente
 
 ```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
 flowchart TD
   Boot[Avvio] --> MainMenu[Menu principale]
   MainMenu -->|Nuova o continua| Hub[Hub]

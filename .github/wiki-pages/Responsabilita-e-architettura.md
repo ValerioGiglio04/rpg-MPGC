@@ -9,6 +9,7 @@ Ho organizzato il progetto in architettura MVC: al centro c'è il dominio (regol
 ## Layer e dipendenze
 
 ```mermaid
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
 flowchart TB
   UI[view]
   App[model.service]
