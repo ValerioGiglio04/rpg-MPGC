@@ -121,7 +121,7 @@ Nei flowchart compare spesso `curve: stepAfter` (frecce a **angolo retto**): sce
 | Logica di cura: service vs dominio | ChatGPT / Claude | Confronto tra alternative |
 | Getter ripetitivi su entità catalogo | Copilot | Bozza metodi |
 | Texture mappa overworld | Gemini | File PNG |
-| Sintassi sealed interface Java 21 | ChatGPT / Claude | Spiegazione sintassi |
+| Sintassi sealed interface (`BattleEvent`) | ChatGPT / Claude | Spiegazione sintassi |
 | Formattazione uniforme Java/Gradle | Claude | Spiegazione Spotless + bozza `build.gradle` |
 | Diagramma dipendenze layer (Wiki) | ChatGPT / Claude | Blocco Mermaid flowchart |
 | ER catalogo H2 (Wiki) | Claude | Blocco Mermaid `erDiagram` |

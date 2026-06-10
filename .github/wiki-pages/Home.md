@@ -105,6 +105,8 @@ Pattern documentati senza suffisso dedicato: `GameModel` (Facade), `AppModule` (
 
 ## Avvio rapido
 
+**Prerequisiti:** Java 25 (LTS), Gradle via Wrapper (8.14+).
+
 ```bash
 git clone https://github.com/ValerioGiglio04/rpg-MPGC.git
 cd rpg-MPGC
@@ -121,9 +123,9 @@ cd rpg-MPGC
 | **Studente** | Valerio Giglio — matricola `125664` — `valerio.giglio@studenti.unicam.it` |
 | **Corso** | Metodologie di Programmazione, Modellazione e Gestione della Conoscenza — AA 2025/26 |
 | **Repository** | [rpg-MPGC](https://github.com/ValerioGiglio04/rpg-MPGC) |
-| **Linguaggio** | Java 25 |
-| **Build** | Gradle |
-| **UI** | JavaFX 25 + FXML |
+| **Linguaggio** | Java 25 (toolchain Gradle in `build.gradle`) |
+| **Build** | Gradle 8.14+ (Wrapper) |
+| **UI** | JavaFX 25.0.1 + FXML |
 | **Persistenza** | Catalogo e sessioni: Hibernate 6 + H2 (`~/.rpg-palestre-creature/save`); snapshot partita in `sessioni_salvate.dati_salvati_json` |
 | **Package** | `it.unicam.cs.mpgc.rpg125664` |
 

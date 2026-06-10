@@ -10,7 +10,8 @@ import javafx.scene.transform.Scale;
 
 /** Controlli zoom (+/− e rotella) per la mappa overworld. */
 final class OverworldZoomControls {
-
+  private static final String ZOOM_IN_SIGN = "+";
+  private static final String ZOOM_OUT_SIGN = "-";
   private static final Insets MARGIN = new Insets(12);
   private static final int BUTTONS_SPACING = 6;
   private static final int BUTTON_SIZE = 36;
@@ -63,8 +64,8 @@ final class OverworldZoomControls {
     VBox controls =
         new VBox(
             BUTTONS_SPACING,
-            styledZoomButton("+", this::zoomIn),
-            styledZoomButton("\u2212", this::zoomOut));
+            styledZoomButton(ZOOM_IN_SIGN, this::zoomIn),
+            styledZoomButton(ZOOM_OUT_SIGN, this::zoomOut));
     controls.getStyleClass().add("zoom-controls");
     controls.setPickOnBounds(false);
     controls.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);

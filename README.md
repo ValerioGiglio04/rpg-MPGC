@@ -11,7 +11,7 @@ RPG a palestre in stile Pokémon: il giocatore esplora una mappa overworld, sfid
 ### Prerequisiti
 
 - Java 25 (LTS)
-- Gradle (incluso tramite Gradle Wrapper)
+- Gradle 8.14+ (incluso tramite Gradle Wrapper)
 
 ### Istruzioni
 
