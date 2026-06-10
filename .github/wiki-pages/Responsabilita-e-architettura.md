@@ -1,284 +1,79 @@
 # Responsabilità e architettura
 
-> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) · [Classi](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) · [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita)
+← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home)
 
-Il progetto segue un'**architettura MVC** (Model-View-Controller): il **dominio** è al centro e non dipende da JavaFX, Hibernate o dettagli di I/O. L'**applicazione** orchestra i casi d'uso. Gli **model.persistence** implementano le porte verso H2. La **UI** presenta i dati e inoltra le azioni dell'utente.
-
----
-
-## Responsabilità per layer
-
-| Layer | Package | Responsabilità principale |
-|-------|---------|---------------------------|
-| **app** | `it.unicam.cs.mpgc.rpg125664.app` | Composition root: bootstrap JPA, seed catalogo, wiring di servizi e `GameModel`, avvio JavaFX, rilascio risorse |
-| **model** | `...model` (+ `model.persistence`, `model.combat.strategy`) | Modello di gioco, regole, combattimento, validazione, eventi di battaglia; **porte** in `model.persistence` |
-| **model.service** | `...model.service` (+ `model.service`) | Servizi di caso d'uso e `GameModel` come unico entry point per la UI |
-| **model.persistence** | `...model.persistence` | Catalogo su H2 (JPA), sessione su JSON, mapping entità/DTO ↔ dominio, seed catalogo da JSON |
-| **view** / **controller** | `...view` (+ `navigation`, `actions`, `controller`, `controller`, `component`, `mapper`, `overworld`, `theme`) | Navigazione FXML, callback schermata, controller, componenti, asset ritratti, mappa overworld, temi, i18n — **nessuna regola di business** |
-
-### Regola di dipendenza
-
-Le frecce vanno sempre **verso il dominio**:
-
-- `ui` → `model.service` → `model`
-- `model.persistence` → `model` (implementa le porte)
-- `app` → tutti i layer (solo per composizione all'avvio)
-
-Il dominio **non importa** classi da `ui`, `model.persistence` o `model.service`.
-
-**Vietato:** `model.service` → `ui` e `model.persistence` → `ui`. Le coordinate overworld usano solo `OverworldPosition` (dominio); layout di spawn e posizione di default stanno in `model.overworld`, non nel package UI.
+Ho organizzato il progetto in architettura MVC: al centro c'è il dominio (regole di gioco), intorno i casi d'uso (`model.service`), gli model.persistence verso H2 e la UI JavaFX. Il dominio non importa JavaFX, Hibernate o classi di presentazione.
 
 ---
 
-## Diagramma delle dipendenze
-
-> Diagramma in sintassi Mermaid: bozza creata con **ChatGPT / Claude**, integrata e verificata da me. Dettaglio in [Dichiarazione AI](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dichiarazione-AI#grafici-mermaid-nella-wiki-chatgpt-e-claude).
+## Layer e dipendenze
 
 ```mermaid
-%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%
 flowchart TB
-  subgraph presentation [Presentazione]
-    UI[view controllers e componenti]
-  end
-  subgraph model.service_layer [Applicazione]
-    GS[GameModel]
-    SPF[SessionPersistenceFacade]
-    GSS[GymStatusStrategy]
-    BS[BattleService]
-    NG[NewGameService]
-    HS[HealingService]
-    GCH[GymCompletionHandler]
-    GSH[GameStateHolder]
-    OSP[OverworldSpawnPosition]
-  end
-  subgraph model_layer [Dominio]
-    Models[model catalog combat event]
-    BRE[BattleRoundExecutor]
-    Ports[model.persistence]
-    Strat[combat.strategy]
-    Valid[validation + implementations, builder]
-  end
-  subgraph infrastructure [Infrastruttura]
-    subgraph catalog_model.persistence [catalog]
-      HCat[HibernateGameCatalogLoader]
-      CEM[catalog.mapper]
-      Seed[catalog.seed]
-    end
-    subgraph session_model.persistence [session]
-      JRepo[HibernateGameStateRepository]
-      JpaRepo[SessioneSalvataJpaRepository]
-      SumMapper[SessioneSalvataSummaryMapper]
-      Ser[session.serializer]
-      Mapper[session.mapper]
-    end
-  end
-  subgraph bootstrap [Bootstrap]
-    AM[AppModule]
-  end
-  subgraph controllers [Controller UI]
-    BP[BattleController]
-    HP[HubController]
-    OP[OverworldController]
-    LGP[LoadGameController]
-    VP[VictoryController]
-  end
-  UI --> controllers
-  controllers --> GS
-  GS --> SPF
-  GS --> GSS
-  GS --> BS
-  GS --> NG
-  GS --> HS
-  GS --> GSH
-  GS --> Ports
-  SPF --> Ports
-  BS --> BRE
-  BRE --> Strat
-  BS --> GCH
-  NG --> Models
-  HS --> Models
-  OSP --> GSH
-  JRepo --> Ports
-  JpaRepo --> JRepo
-  SumMapper --> JRepo
-  Ser --> JRepo
-  Ser --> SumMapper
-  Mapper --> Ser
-  HCat --> Ports
-  HCat --> CEM
-  AM --> JRepo
-  AM --> JpaRepo
-  AM --> SumMapper
-  AM --> Ser
-  AM --> HCat
-  AM --> Seed
-  AM --> GS
+  UI[view]
+  App[model.service]
+  Domain[model]
+  Adapter[model.persistence]
+  Bootstrap[app]
+  View --> Controller
+  Controller --> Model
+  Model.persistence --> Model
+  Bootstrap --> UI
+  Bootstrap --> App
+  Bootstrap --> Adapter
 ```
 
----
+| Layer | Package | Ruolo |
+|-------|---------|-------|
+| **app** | `...app` | Avvio: JPA, seed catalogo, wiring di `GameModel`, JavaFX |
+| **model** | `...model` | Modello, combattimento, validazione, porte (`model.persistence`) |
+| **model.service** | `...model.service` | Servizi di gioco e `GameModel` per la UI |
+| **model.persistence** | `...model.persistence` | Catalogo e sessioni su H2, mapping JPA/JSON |
+| **view** / **controller** | `...view` | FXML, controller, navigazione — nessuna regola di business |
 
-## Responsabilità di alto livello (use case)
-
-| Componente | Cosa fa |
-|------------|---------|
-| `GameModel` | Facciata per la UI: delega a servizi, `SessionPersistenceFacade` e `GymStatusStrategy`; query `allGymsCompleted()`, `currentGym()` |
-| `SessionPersistenceFacade` | Save/load/delete/list slot; incapsula `GameStateRepository` |
-| `DefaultGymStatusStrategy` | Implementazione default di `GymStatusStrategy` (`model.overworld.strategy.implementations`) |
-| `GameStateHolder` | `GameState` corrente, `currentSessionId`, `OverworldPosition` |
-| `BattleService` | Precondizioni battaglia, delega round a `BattleRoundExecutor`, completamento palestra |
-| `BattleRoundExecutor` | Un round: ordine turni, doppio attacco, switch su KO, assembly `BattleEvent` |
-| `NewGameService` | Costruisce e sostituisce lo stato iniziale da catalogo |
-| `HealingService` | Cura a pagamento; errori tipizzati via `HealingError` / `HealingException` |
-| `GymCompletionHandler` | Ricompense al KO boss; usa `GameCatalog.buildCreature()` |
-| `OverworldSpawnPosition` | Posizione di default al primo salvataggio (senza dipendere dalla UI) |
-| `GameState` | Invarianti di mondo: palestra corrente, raggiungibilità, possibilità di sfida |
-| `GameCatalog` | Lookup dati statici; istanze di dominio **mutabili** separate dal catalogo |
-| `TurnBasedAttackResolutionStrategy` | Risoluzione matematica di un singolo attacco (`model.combat.strategy.implementations`) |
-| `BossMoveStrategy` | Scelta mossa del boss (`model.combat.strategy`; impl: soglia accuratezza) |
-| `*Controller` (UI) | Stato schermata + comandi verso `GameModel`; controller FXML sottili |
+Le dipendenze vanno sempre verso il dominio: `ui` → `model.service` → `model`, e `model.persistence` → `model`. Vietato `model.service` → `ui` e `model.persistence` → `ui`.
 
 ---
 
-## Convenzione package (contratto vs concreto)
+## Componenti principali
 
-| Sottocartella | Contenuto | Esempi nel progetto |
-|---------------|-----------|---------------------|
-| *(package padre)* | Interfacce, classi astratte, regole condivise | `HubActions`, `Validator<T>`, `*Navigation` |
-| `implementations/` | Classi che **implementano** un contratto del padre | `HubActionsImpl`, `ScreenNavigator`, `HibernateGameStateRepository` |
-| `support/` | Factory, helper, utility senza contratto dedicato | `ValidatorFactory`, `FxmlScreenLoader`, `Messages`, `catalog.support` |
-| `base/` | Classe astratta condivisa tra più model.persistence | `AbstractHibernateAdapter` |
-
-**Eccezioni volute (nessuna sottocartella contract/impl):** `model.entity`, `model.builder`, `model.persistence` (sole porte), `model.service` (servizi concreti), `controller` / `controller` / `component` / `overworld` (MVP per ruolo), sottocartelle model.persistence per ruolo tecnico (`entities`, `dto`, `mapper`, `serializer`, `seed`).
-
----
-
-## Principi SOLID nel progetto
-
-### Single Responsibility (SRP)
-
-- `AttackResolutionStrategy` calcola solo l'esito di un attacco.
-- `BattleRoundExecutor` esegue solo un round di battaglia.
-- `BossMoveStrategy` decide solo quale mossa usare il boss.
-- `GymCompletionHandler` gestisce solo le conseguenze del completamento palestra.
-- `SessionPersistenceFacade` gestisce solo persistenza slot; `DefaultGymStatusStrategy` solo stato palestre sulla mappa.
-- `CatalogEntityMapper` mappa solo entità JPA → template di dominio.
-- `SessioneSalvataJpaRepository` gestisce solo le query JPQL sugli slot locali.
-- `SessioneSalvataSummaryMapper` mappa solo `SessioneSalvataEntity` → `SavedSessionSummary`.
-- `HibernateGameStateRepository` orchestra persistenza slot (transazioni + serializzazione), senza JPQL inline.
-- I controller UI separano binding FXML da logica di schermata.
-- I validator (`model.validation.implementations`: `CreatureValidator`, `GameStateValidator`, …) validano un aggregato ciascuno; `GameStateValidator` compone `PlayerValidator` e `GymRoomValidator` sui figli.
-- `SessionJsonSerializer.deserialize` esegue un solo parse JSON al load (SRP + DRY).
-- `PersistenceUiGuard` centralizza la gestione UI di `SessionPersistenceException` (save/load/delete).
-
-### Open/Closed (OCP)
-
-- Nuova IA boss: nuova classe che implementa `BossMoveStrategy` senza modificare `BattleService`.
-- Nuova strategy di risoluzione attacco: nuova implementazione di `AttackResolutionStrategy`.
-- Nuova policy overworld: nuova implementazione di `GymStatusStrategy`.
-- Nuovo backend di salvataggio: nuova implementazione di `GameStateRepository`.
-- Nuovo validator di dominio: sottoclasse di `Validator<T>` in `validation.implementations` + `get*Validator()` in `ValidatorFactory`.
-- Nuovo model.persistence Hibernate: sottoclasse di `AbstractHibernateAdapter` che implementa una porta di dominio.
-
-### Liskov Substitution (LSP)
-
-- Qualsiasi `AttackResolutionStrategy` o `BossMoveStrategy` iniettata in `BattleService` è intercambiabile se rispetta il contratto delle interfacce.
-- I validator concreti estendono `Validator<T>`; i loader/repository Hibernate sostituiscono la base astratta mantenendo le porte.
-
-### Interface Segregation (ISP)
-
-- Porte piccole: `GameCatalogLoader` ha un solo metodo `load()`; `BossMoveStrategy` un solo metodo `pickMove()`.
-- Navigazione UI: `MainMenuNavigation`, `LoadGameNavigation`, `HubNavigation`, `VictoryNavigation` — ogni `*ActionsImpl` dipende solo dalla propria interfaccia; `ScreenNavigation` le unisce per `ScreenNavigator`.
-- Callback schermata: `*Actions` verso i controller FXML (già presenti).
-
-### Dependency Inversion (DIP)
-
-- `BattleService` riceve `BattleRoundExecutor` dal composition root; le strategy combattimento sono create in `AppModule` e iniettate nell'executor, non costruite dentro il servizio.
-- La UI dipende da `GameModel`, non da `HibernateGameStateRepository` né dalle entità JPA.
+- **`GameModel`** — unico ingresso per la UI: battaglia, cura, save/load, stato mappa.
+- **`BattleService`**, **`NewGameService`**, **`HealingService`** — casi d'uso; la battaglia delega i round a `BattleRoundExecutor`.
+- **`GymCompletionHandler`** — gloria e creature al KO del boss.
+- **`SessionPersistenceFacade`** — save/load/delete slot tramite la porta `GameStateRepository`.
+- **`GameState`** — palestra corrente, collegamenti, `canChallengeGym`, progresso campagna.
+- **`GameCatalog`** — dati statici (creature, mosse, palestre); le istanze in partita sono mutabili e separate dal catalogo.
+- **`AttackResolutionStrategy`** / **`BossMoveStrategy`** — algoritmi di combattimento intercambiabili (implementazioni in `model.combat.strategy.implementations`).
+- **`GymStatusStrategy`** — stato palestre sulla mappa (`model.overworld.strategy`).
+- **`HibernateGameCatalogLoader`**, **`HibernateGameStateRepository`** — model.persistence Hibernate; il salvataggio serializza lo stato in JSON dentro `sessioni_salvate`.
+- **UI** — controller FXML sottili + controller (`BattleController`, `HubController`, …); routing in `ScreenNavigator`, costruzione schermate in `ScreenFactory`.
 
 ---
 
-## Dove trovare contratto vs implementazione
+## Organizzazione package
 
-| Cerchi… | Contratto (tipo) | Implementazione |
-|---------|------------------|-----------------|
-| Porta persistenza | `model.persistence` | `model.persistence.session.implementations` / `catalog.implementations` |
-| Strategy combattimento | `model.combat.strategy` | `model.combat.strategy.implementations` |
-| Strategy mappa | `model.overworld.strategy` | `model.overworld.strategy.implementations` |
-| Facade UI | `model.service` (`GameModel`, `SessionPersistenceFacade`) | — (concrete, no `facade/`) |
-| Tema UI | `view.theme` (`UiTheme`) | `view.theme` |
-| Controller MVP | `controller` | controller in `controller` |
-| Entity JPA catalogo | — | `model.persistence.catalog.entities` |
-| DTO / seed catalogo | `model.persistence.catalog.dto` | — |
-| Mapper / seed catalogo | `model.persistence.catalog.mapper` | `model.persistence.catalog.seed`, `.support` |
-| DTO / mapper sessione | `model.persistence.session.dto` | `session.mapper`, `session.serializer` |
-| JPQL / summary slot | — | `session.implementations` (`SessioneSalvataJpaRepository`), `SessioneSalvataSummaryMapper` |
-| Base model.persistence Hibernate | — | `model.persistence.base` (`AbstractHibernateAdapter`) |
-| Utility UI | — | `view.support` (`Messages`, `UiErrorReporter`, …) |
-| Helper navigazione | — | `controller.navigation.support` (`FxmlScreenLoader`, `RootScreenStack`, `ScreenFactory`, `PersistenceUiGuard`, …) |
-| Mapper asset UI | — | `view.mapper` (`PortraitAssetResolver`) |
-| Callback schermata | `controller.navigation` (`*Actions`) | `controller.navigation` (`*ActionsImpl` → `*Navigation`) |
-| Navigazione per schermata | `controller.navigation` (`MainMenuNavigation`, …) | `navigation.implementations.ScreenNavigator` |
-| Builder widget UI | — | `view.component.builder` |
-| Validazione dominio | `model.validation` (`Validator`, `Rules`) | `validation.implementations` (`*Validator`), `validation.support` (`ValidatorFactory`) |
+```
+it.unicam.cs.mpgc.rpg125664
+├── app/                    Main, RpgApplication, AppModule
+├── model/                 model, catalog, combat, event, validation, builder, port
+├── model.service/            servizi, session, overworld
+├── model.persistence/    catalog/, session/, base/
+└── view/              navigation, actions, controller, controller,
+                            component, mapper, overworld, support, theme
+```
+
+Nei package dove serve estensione uso sottocartelle **`implementations/`** (classi che implementano un contratto) e **`support/`** (helper e factory). Eccezioni volute: `model.entity`, `model.builder`, servizi in `model.service` e package UI per ruolo (controller, controller, component).
 
 ---
 
-## Pattern utilizzati
+## Scelte di design
 
-| Pattern | Package | Scopo |
-|---------|---------|-------|
-| **Facade** | `model.service` (`GameModel`, `SessionPersistenceFacade`) | API stabile per la UI |
-| **Controller** | `controller` | Controller sottili; stato e comandi verso `GameModel` |
-| **Builder** | `model.builder` | Costruzione validata di aggregati |
-| **Strategy** | `model.combat.strategy`, `model.overworld.strategy` | Algoritmi intercambiabili; implementazioni in `*.strategy.implementations` |
-| **Template Method** | `model.validation`, `model.persistence` | Passi comuni in `validate(T)` e gestione `EntityManager`; dettaglio in `*Validator` / sottoclassi model.persistence |
-| **Repository** | `model.persistence` (`GameStateRepository`) | Astrazione persistenza stato dinamico |
-| **Composition root** | `app` (`AppModule`) | Unico punto di creazione dipendenze |
-| **Sealed interface** | `model.event` (`BattleEvent`) | Eventi di battaglia esaustivi per il translator UI |
+Ho applicato SOLID in modo concreto, non come checklist:
 
-Gerarchia tipica dove serve estensione: **interfaccia** (in `model.persistence` o `*.strategy`) → **classe astratta** (model.persistence o `Validator<T>`) → **implementazione concreta** (in `model.persistence`, `*.strategy.implementations` o `validation.implementations`). I validator di dominio sono classi finali che estendono `Validator<T>`.
+- **Responsabilità singola** — es. `BattleRoundExecutor` fa solo un round; i controller separano logica schermata e binding FXML.
+- **Aperto/chiuso** — nuova IA boss = nuova classe `BossMoveStrategy`, senza toccare `BattleService`.
+- **Dipendenze verso astrazioni** — la UI usa `GameModel`, non Hibernate; le porte (`GameStateRepository`, `GameCatalogLoader`) stanno in `model.persistence` e le implementazioni negli model.persistence.
 
----
+Pattern usati: **Facade** (`GameModel`), **Builder** + **Validator** per costruire aggregati validati, **Strategy** per combattimento e mappa, **Repository** per la persistenza, **Controller** in UI. Il wiring avviene in **`AppModule`** (composition root).
 
-## Estendibilità multi-dispositivo
-
-La specifica richiede che sia chiaro come il progetto possa girare su **desktop, mobile, web** in futuro:
-
-- **Oggi:** solo UI JavaFX (`view`).
-- **Domani:** sostituire il package `ui` con un model.persistence REST, CLI o mobile che chiami gli stessi servizi dietro `GameModel` (o una sua evoluzione tipo API model.service service).
-- Il **dominio** e l'**applicazione** restano invariati; cambiano solo presentation e, se necessario, model.persistence di persistenza.
-
-Dettagli operativi in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).
-
----
-
-## Trade-off e miglioramenti applicati (v1)
-
-### Miglioramenti applicati in questo ciclo
-
-| Intervento | Principio | Effetto |
-|------------|-----------|---------|
-| `SessionJsonSerializer.deserialize` | SRP, DRY | Un solo `fromJson` al load di sessione |
-| `GameStateValidator` composito + `Score.add` ri-valida | Coerenza dominio | Invarianti su player, palestre e punteggio dopo mutazione |
-| `markLastPlayed` via `requireLocal` | SRP model.persistence | Stesso percorso slot locale di save/delete |
-| `SaveSlotLabels` | DRY | Formato data condiviso tra repository e `LoadGameController` |
-| `BattleRoundExecutor` iniettato in `AppModule` | DIP | Composition root costruisce strategy + executor |
-| ISP navigazione (`*Navigation`) | ISP | Ogni `*ActionsImpl` vede solo i comandi della sua schermata |
-| `PersistenceUiGuard` + `PersistenceOperation` | DRY, SRP | Errori persistenza centralizzati; `ScreenNavigator` = routing + orchestrazione save/load/delete |
-| `PortraitAssetResolver` | SRP presentazione | Path ritratti da catalogo; UI non legge `skinPath()` dalle istanze runtime |
-| `RootScreenStack` + `ScreenFactory` | SRP | `ScreenNavigator` = policy di flusso + persistenza UI; costruzione FXML e swap root separati |
-| `OverworldZoomControls` + `OverworldGymModalController` | SRP | Zoom e modale palestra estratti da `OverworldMap` |
-| Query `allGymsCompleted()` / `currentGym()` su `GameModel` | DIP verso UI | Navigazione senza drill-down su `gameState()` |
-
-### Debito accettato in v1 (documentato, non refactorato)
-
-| Area | Scelta attuale | Perché resta così | Evoluzione |
-|------|----------------|-------------------|------------|
-| `skinPath` nel dominio | Campo ancora su `Player` / `Creature` (builder, validator, persistenza) | Rimozione completa tocca ~10 file; la UI è già migrata via `PortraitAssetResolver` | Eliminare campo da dominio in v2 |
-| `GameModel` facade larga | Un entry point per desktop | Difendibile per consegna v1 | `GameApi` per multi-client |
-| `GameState` mutabile in UI | Esposto via `GameModel.gameState()` | Un solo client JavaFX | DTO read-only verso controller |
-| `ValidatorFactory` static | Registry centralizzato | Coerente col corso | Injection opzionale |
-| Utility statiche (`Messages`, `DialogHelper`) | In `view.support` / `navigation.support` | Coerente con convenzione `support/` | Facade UI se serve test |
-| Persistenza in `ScreenNavigator` | Save/load/delete con dialoghi ancora nel router | Basso impatto pre-consegna | `SessionPersistenceCoordinator` (Tier 2) |
-
-Ogni voce sopra è **debito residuo** tracciato per evoluzione post-consegna. Estensioni future in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).
+Per l'elenco delle classi principali vedi [Classi e interfacce](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce). Per persistenza ed estensioni future: [Dati e persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza), [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).

@@ -1,142 +1,64 @@
 # Dichiarazione dettagliata di uso di strumenti di AI
 
-> [← Indice Wiki](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Repository](https://github.com/ValerioGiglio04/rpg-MPGC)
+← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Repository](https://github.com/ValerioGiglio04/rpg-MPGC)
 
-Questa pagina espande la dichiarazione breve presente nel [README](https://github.com/ValerioGiglio04/rpg-MPGC#-uso-di-strumenti-di-ai) del repository, come richiesto dalla specifica del progetto AA 2025/26.
+Espansione della dichiarazione breve nel [README](https://github.com/ValerioGiglio04/rpg-MPGC#-uso-di-strumenti-di-ai), come richiesto dalla specifica AA 2025/26.
 
----
-
-## Premessa
-
-Qui descrivo **solo** i punti in cui ho usato ChatGPT, Claude, Gemini o Copilot: bozze, suggerimenti, pezzi di testo o codice che poi ho rivisto io. Il gioco, l'architettura e la maggior parte della Wiki sono stati scritti e verificati da me; in questa pagina trovi cosa mi ha aiutato l'AI e in che modo.
+Qui descrivo **solo** dove ho usato ChatGPT, Claude, Gemini o Copilot. Gioco, architettura e wiki li ho scritti e verificati io; l'AI ha accelerato spiegazioni, bozze e autocompletamento.
 
 ---
 
 ## Strumenti utilizzati
 
-| Strumento | Tipologia | Contributo dell'AI |
-|-----------|-----------|-------------------|
-| **ChatGPT** (OpenAI) | Chat | Spiegazioni (architettura MVC, Hibernate, SOLID), confronto tra alternative di design, bozze **Mermaid** per la Wiki |
-| **Claude** (Anthropic) | Chat | Spiegazioni su architettura e JPA, suggerimento configurazione **Spotless** / `spotlessApply`, bozze **Mermaid** per la Wiki |
-| **Gemini** (Google) | Chat + immagini | Risposte su JavaFX/FXML; generazione di texture e PNG in `src/main/resources/images/` |
-| **GitHub Copilot** | IDE inline | Autocompletamento, bozze di getter/setter, Javadoc, stringhe in `messages_it.properties` e revisione dei Markdown della Wiki |
+| Strumento | Uso principale |
+|-----------|----------------|
+| **ChatGPT** | Spiegazioni (architettura MVC, Hibernate, SOLID); bozze diagrammi wiki |
+| **Claude** | JPA, Spotless 7.0.4 + google-java-format 1.28.0; bozze diagrammi wiki |
+| **Gemini** | JavaFX/FXML; texture PNG in `src/main/resources/images/` |
+| **GitHub Copilot** | Autocompletamento, getter/setter, Javadoc, `messages_it.properties`, revisione Markdown wiki |
 
 ---
 
-## Contributi dell'AI per area
+## Contributi per strumento
 
-### Architettura e organizzazione del codice
+**ChatGPT / Claude**
 
-**Strumenti:** ChatGPT, Claude
+- Concetti: Model-View-Controller, separazione catalogo vs stato partita
+- Struttura cartelle e confronto design (es. grafo oggetti vs `catalogId` + HP nel save)
+- Builder, `Validator`, sealed interface `BattleEvent`
+- Errori JPA, `persistence.xml`, seed idempotente, Jackson
+- Bozze Mermaid per wiki (layer e flusso utente), poi corrette da me
 
-- Spiegazione di concetti (Model-View-Controller, separazione catalogo / stato di partita).
-- Suggerimenti sulla struttura delle cartelle (`model`, `model.service`, `model.persistence`, `ui`).
-- Confronto tra alternative (es. grafo oggetti completo vs `catalogId` + HP nel salvataggio).
+**Gemini**
 
-### Dominio, combattimento e validazione
+- Binding FXML e layout
+- Asset grafici (skin, texture mappa)
 
-**Strumenti:** ChatGPT, Claude, GitHub Copilot
+**GitHub Copilot**
 
-- Spiegazione del pattern Builder e del framework `Validator` (`model.validation`) / `ValidatorFactory` (`validation.support`).
-- Bozze di metodi ripetitivi (getter, costruttori).
-- Spiegazione della sintassi delle sealed interface per `BattleEvent`.
-
-### Persistenza (Hibernate + sessione JSON)
-
-**Strumenti:** ChatGPT, Claude
-
-- Spiegazione di errori JPA e mapping (`@ElementCollection`, tabelle catalogo).
-- Suggerimenti su `hbm2ddl.auto`, `persistence.xml`, Jackson (`JavaTimeModule`).
-- Discussione su seed idempotente e separazione catalogo H2 / sessione JSON.
-
-### Interfaccia JavaFX
-
-**Strumenti:** Gemini, ChatGPT, GitHub Copilot
-
-- Risposte su binding FXML, layout, `ScreenNavigator`.
-- Boilerplate di controller e proprietà JavaFX (Copilot).
-
-### Asset grafici
-
-**Strumento:** Gemini
-
-- Generazione di texture e immagini (es. skin in `src/main/resources/images/`).
-
-### Internazionalizzazione
-
-**Strumento:** GitHub Copilot
-
-- Bozze di voci in `messages_it.properties` e messaggi del log di battaglia.
-
-### Formattazione del codice (Spotless)
-
-**Strumento:** Claude (chat)
-
-- Suggerimento del plugin Gradle **Spotless** 7.0.4 con **Google Java Format** 1.28.0 e comando `spotlessApply`.
-- Bozza del blocco `spotless { ... }` in `build.gradle` (anche formattazione JSON del catalogo).
-
-### Documentazione — Wiki e README
-
-**Strumenti:** ChatGPT, Claude, GitHub Copilot
-
-#### Testo e struttura Wiki (GitHub Copilot)
-
-Suggerimenti e completamenti su `.github/wiki-pages/`, ad esempio:
-
-| Intervento dell'AI | File / ambito |
-|:-------------------|:--------------|
-| Sidebar e footer di navigazione | `_Sidebar.md`, `_Footer.md` |
-| Intestazioni con link tra pagine | Pagine Wiki principali |
-| Sezioni della dichiarazione AI | `Dichiarazione-AI.md` |
-| `curve: stepAfter` nei flowchart Mermaid | Pagine con diagrammi |
-| Allineamento nomi classi nei diagrammi | Es. `HibernateGameStateRepository`, `SessioneSalvataJpaRepository` nei flowchart |
-
-#### Grafici Mermaid nella Wiki (ChatGPT e Claude)
-
-**Alcuni diagrammi di questa Wiki** (flowchart e `erDiagram`) sono stati **creati con l’aiuto di ChatGPT e Claude**: ho descritto a parole il contenuto che volevo (layer, flussi, tabelle del catalogo), ho ricevuto bozze in sintassi Mermaid, le ho **corrette e adattate** al progetto (nomi classi reali, legenda, link tra pagine) e poi le ho incollate nelle pagine sotto.
-
-| Strumento | Ruolo sui diagrammi Wiki |
-|:----------|:-------------------------|
-| **ChatGPT** | Bozze iniziali di flowchart (architettura a layer, flusso utente, catalogo/sessione) |
-| **Claude** | Bozze e revisioni di `erDiagram` (schema catalogo H2, modello sessioni SQL futuro) e affinamento di alcuni flowchart |
-
-Il testo intorno ai diagrammi, la struttura delle pagine e le scelte architetturali restano **mie**; l’AI ha accelerato soprattutto la **scrittura del codice Mermaid**, non la sostituzione del ragionamento sul design.
-
-| Pagina Wiki | Tipo di diagramma | Strumento usato per la bozza Mermaid |
-|:------------|:------------------|:-------------------------------------|
-| [Responsabilità e architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) | Flowchart dipendenze tra layer | ChatGPT / Claude |
-| [Funzionalità implementate](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) | Flowchart flusso utente | ChatGPT |
-| [Dati e persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) | Flowchart catalogo/sessione; `erDiagram` catalogo H2 | ChatGPT / Claude |
-| [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) | Flowchart layer; login futuro; `erDiagram` sessioni SQL | Claude |
-
-Nei flowchart compare spesso `curve: stepAfter` (frecce a **angolo retto**): scelta di resa grafica applicata dopo le bozze, in parte con suggerimenti di GitHub Copilot sulla sintassi `%%{init: ...}%%`.
+- Boilerplate JavaFX e entità catalogo
+- Stringhe i18n e messaggi log battaglia
+- Sidebar/footer wiki, link tra pagine, sintassi Mermaid (`curve: stepAfter`)
 
 ---
 
-## Esempi di output dell'AI
+## Esempi concreti
 
-| Richiesta / contesto | Strumento | Output dell'AI |
-|----------------------|-----------|----------------|
-| Errore JPA su collection eager | ChatGPT / Claude | Spiegazione del messaggio d'errore |
-| Logica di cura: service vs dominio | ChatGPT / Claude | Confronto tra alternative |
-| Getter ripetitivi su entità catalogo | Copilot | Bozza metodi |
-| Texture mappa overworld | Gemini | File PNG |
-| Sintassi sealed interface (`BattleEvent`) | ChatGPT / Claude | Spiegazione sintassi |
-| Formattazione uniforme Java/Gradle | Claude | Spiegazione Spotless + bozza `build.gradle` |
-| Diagramma dipendenze layer (Wiki) | ChatGPT / Claude | Blocco Mermaid flowchart |
-| ER catalogo H2 (Wiki) | Claude | Blocco Mermaid `erDiagram` |
-| Formattazione sidebar Wiki | GitHub Copilot | Bozze e correzioni su `.github/wiki-pages/*.md` |
-| Linee ortogonali nei flowchart | GitHub Copilot | Aggiunta `%%{init: {'flowchart': {'curve': 'stepAfter'}}}%%` |
+| Contesto | Strumento | Cosa ha prodotto l'AI |
+|----------|-----------|------------------------|
+| Errore JPA su collection | ChatGPT / Claude | Spiegazione messaggio |
+| Cura: service vs dominio | ChatGPT / Claude | Confronto alternative |
+| Getter su entità catalogo | Copilot | Bozza metodi |
+| Texture overworld | Gemini | File PNG |
+| Spotless in `build.gradle` | Claude | Bozza plugin + `spotlessApply` |
+| Flowchart architettura / flusso utente | ChatGPT / Claude | Bozza Mermaid (2 diagrammi nella wiki attuale) |
+| Revisione testi wiki | Copilot | Correzioni su `.github/wiki-pages/` |
 
 ---
 
-## Limiti e rischi (mitigazione generale)
+## Limiti
 
-| Rischio | Nota |
-|---------|------|
-| Output errato o non idomatico | Tutto quanto sopra è stato integrato nel progetto solo dopo controllo |
-| Allucinazioni su API | Incrociato con documentazione ufficiale e build Gradle |
-| Uso eccessivo dell'AI | Limitato ai contributi elencati in questa pagina |
+Tutto quanto sopra è entrato nel progetto solo dopo controllo manuale. Per API e configurazioni ho incrociato con documentazione ufficiale e build Gradle.
 
 ---
 
