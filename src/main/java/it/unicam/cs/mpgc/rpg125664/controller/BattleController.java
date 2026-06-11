@@ -1,17 +1,16 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter.RoundOutcome;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleArenaView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleCommandColumnView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleEndOverlay;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleUiErrorPane;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter;
-import it.unicam.cs.mpgc.rpg125664.controller.BattlePresenter.RoundOutcome;
 import it.unicam.cs.mpgc.rpg125664.view.support.BattleLogLine;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;

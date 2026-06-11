@@ -8,23 +8,21 @@ La specifica richiede che sia chiaro come il progetto possa crescere (nuove funz
 
 ## Principio
 
-- **Stabile:** dominio + casi d'uso (`model.service`)
-- **Sostituibile:** UI (`view`) e model.persistence concreti (`model.persistence`)
+- **Stabile:** `model` (entità, servizi, regole di gioco)
+- **Sostituibile:** `view` + `controller` (JavaFX oggi), implementazioni in `model.persistence`
 
 ```mermaid
 %%{init: {'flowchart': {'curve': 'linear'}}}%%
 flowchart LR
   subgraph sostituibili [Sostituibili]
-    UI[view]
-    Adapters[model.persistence]
+    View[view + controller]
+    Persistence[model.persistence]
   end
   subgraph stabile [Stabile]
-    App[model.service]
-    Domain[model]
+    Model[model]
   end
-  View --> Controller
-  Adapters --> Domain
-  Controller --> Model
+  View --> Model
+  Persistence --> Model
 ```
 
 Oggi c'è solo UI JavaFX. Un client web o mobile dovrebbe chiamare **`GameModel`** (o un'evoluzione tipo `GameApi`) senza importare Hibernate, JPA o JavaFX.
@@ -50,7 +48,7 @@ Il dominio e le regole (`canChallengeGym`, danno, gloria) restano identici.
 |-------|--------|
 | 1 | Implementare `GameStateRepository` in `model.persistence.session` |
 | 2 | Opzionale: nuova impl di `GameCatalogLoader` se il catalogo non resta su H2 |
-| 3 | Registrare in `AppModule`; contratti in `model.persistence` |
+| 3 | Registrare in `AppModule`; contratto in `model.persistence` |
 
 **Oggi:** `HibernateGameStateRepository` salva su `sessioni_salvate` con JSON in CLOB, JPQL in `SessioneSalvataJpaRepository`.
 
@@ -82,7 +80,7 @@ Wiring in `AppModule`: sostituire le impl strategy senza modificare `BattleServi
 ## Nuova schermata JavaFX
 
 1. `NuovaSchermata.fxml` in `src/main/resources/fxml/`
-2. Controller in `controller` + controller sottile
+2. Controller in `controller` + componenti in `view`
 3. Costruzione in `ScreenFactory`, transizione in `ScreenNavigator`
 4. Callback opzionale: `*Actions` + `*ActionsImpl` → `*Navigation`
 5. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
@@ -109,8 +107,8 @@ Nomi di creature e mosse in duello provengono dal **catalogo** (`catalog-seed.js
 ## Altre estensioni possibili
 
 - **Autosave** — `GameModel.saveCurrent()` da listener (oggi solo save manuale Hub)
-- **Inventario, negozio, achievement** — nuovo servizio in `model.service` + modello in `model`
-- **Login multi-utente** — filtrare `sessioni_salvate` per `id_utente` negli model.persistence; `GameModel` invariato verso la UI
+- **Inventario, negozio, achievement** — nuovo servizio in `model.service` + entità in `model.entity`
+- **Login multi-utente** — filtrare `sessioni_salvate` per `id_utente` in `model.persistence`; `GameModel` invariato verso i controller
 - **Schema SQL normalizzato** — tabelle `sessione_*` + nuovo mapper; `GameState` invariato
 - **Versioning JSON** — colonna `format_version` + migrazioni in `SessioneJsonMapper`
 

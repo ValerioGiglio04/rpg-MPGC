@@ -194,6 +194,6 @@ Dopo `loadSession`, `GameModel` applica `LoadedSession.overworldPosition()` a `G
 
 - Payload piccolo (solo progresso e coordinate)
 - Aggiornare il seed non invalida i save se gli `id` restano stabili
-- Possibile sostituire il backend sessione (cloud, SQL normalizzato) cambiando solo l'model.persistence — il dominio `GameState` resta invariato
+- Possibile sostituire il backend sessione (cloud, SQL normalizzato) cambiando solo l'adapter — il dominio `GameState` resta invariato
 
 Estensioni future: [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).

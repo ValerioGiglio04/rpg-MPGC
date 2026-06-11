@@ -2,12 +2,12 @@ package it.unicam.cs.mpgc.rpg125664.model.combat;
 
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.AttackResolutionStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.combat.strategy.BossMoveStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
-import it.unicam.cs.mpgc.rpg125664.model.event.Side;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
+import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
+import it.unicam.cs.mpgc.rpg125664.model.event.Side;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

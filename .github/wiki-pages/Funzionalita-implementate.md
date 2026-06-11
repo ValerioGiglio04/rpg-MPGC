@@ -26,7 +26,7 @@ Documentazione delle funzionalità presenti nella **prima release**. Feature non
 | Battaglia | `Battle.fxml` | `BattleController` | Combattimento a turni |
 | Vittoria | `Victory.fxml` | `VictoryController` | Campagna completata |
 
-La UI interagisce **solo** con `GameModel`: non accede a Hibernate né alle entità JPA. I **controller** contengono logica di schermata; i controller FXML fanno binding e delega. Il routing è in `ScreenNavigator`; la costruzione schermate in `ScreenFactory`. I ritratti usano `PortraitAssetResolver` (creato in `AppModule`).
+I **controller** interagiscono con `GameModel`: non accedono direttamente a Hibernate né alle entità JPA. Il routing è in `ScreenNavigator`; la costruzione schermate in `ScreenFactory`. I ritratti usano `PortraitAssetResolver` (creato in `AppModule`).
 
 ---
 

@@ -1,7 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.support;
 
-import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.DialogHelper;
+import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

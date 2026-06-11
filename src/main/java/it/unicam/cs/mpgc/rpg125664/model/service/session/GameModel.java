@@ -1,13 +1,10 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
-import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
-import it.unicam.cs.mpgc.rpg125664.model.service.NewGameService;
-import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
-import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
-import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.session.LoadedSession;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.SaveSessionCommand;

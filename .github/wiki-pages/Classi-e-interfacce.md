@@ -10,7 +10,7 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 - `Main` — entry point Gradle; avvia `RpgApplication`
 - `RpgApplication` — Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura EMF
-- `AppModule` — composition root: EMF, seed catalogo, strategy combattimento, `BattleRoundExecutor`, `PortraitAssetResolver`, `GameModel`
+- `AppModule` — bootstrap: EMF, seed catalogo, strategy combattimento, `BattleRoundExecutor`, `PortraitAssetResolver`, `GameModel`
 
 ---
 
@@ -52,7 +52,7 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 ## model.service
 
-- `GameModel` — facciata UI verso tutti i servizi e la persistenza
+- `GameModel` — facciata usata dai controller verso servizi e persistenza
 - `BattleService`, `NewGameService`, `HealingService` — casi d'uso principali
 - `GymCompletionHandler` — ricompense al completamento palestra
 - `SessionPersistenceFacade`, `GameStateHolder` — persistenza e stato in memoria
@@ -62,9 +62,9 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 ---
 
-## model.persistence
+## model.persistence (dettaglio)
 
-- `AbstractHibernateAdapter` — base condivisa model.persistence Hibernate
+- `AbstractHibernateAdapter` — base condivisa adapter Hibernate
 - `HibernateGameCatalogLoader`, `CatalogEntityMapper`, `CatalogDatabaseSeeder`, `CatalogSeedJsonLoader` — catalogo da JSON → H2 → dominio
 - `PalestraCollegamentiSupport`, `CatalogLoadSupport` — collegamenti palestre e helper seed
 - `HibernateGameStateRepository`, `SessioneSalvataJpaRepository` — persistenza slot
@@ -75,9 +75,9 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 ---
 
-## view
+## controller e view
 
-### Navigazione e azioni
+### Navigazione (controller)
 
 - `MainView` — layout root; crea `ScreenNavigator` con `GameModel` e `PortraitAssetResolver`
 - `ScreenNavigator` — routing hub/battaglia/vittoria e save/load/delete
@@ -86,9 +86,9 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 - `MainMenuNavigation`, `HubNavigation`, `LoadGameNavigation`, `VictoryNavigation`, `ScreenNavigation`
 - `MainMenuActions`, `HubActions`, … + `*ActionsImpl` in `actions.implementations`
 
-### Controller e controller
+### Presenter e controller
 
-- `BattleController`, `HubController`, `OverworldController`, `LoadGameController`, `VictoryController`
+- `BattlePresenter`, `HubPresenter`, `OverworldPresenter`, `LoadGamePresenter`, `VictoryPresenter`
 - `MainMenuController`, `LoadGameController`, `HubController`, `BattleController`, `VictoryController`
 - `BattleCommandColumnController`, `BattleEndOverlayController` — sotto-pannelli FXML battaglia
 

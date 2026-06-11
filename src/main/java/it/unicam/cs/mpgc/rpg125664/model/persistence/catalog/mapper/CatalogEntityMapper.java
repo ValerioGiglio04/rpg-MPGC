@@ -1,12 +1,12 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.mapper;
 
-import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
-import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.BossTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.CreatureTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GymTemplate;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.MoveTemplate;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import java.util.List;
 import java.util.Map;
 

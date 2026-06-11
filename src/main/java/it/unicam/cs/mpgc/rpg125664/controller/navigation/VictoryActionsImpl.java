@@ -1,7 +1,5 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryNavigation;
 import java.util.Objects;
 
 public final class VictoryActionsImpl implements VictoryActions {

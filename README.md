@@ -1,4 +1,4 @@
-# 📌 RPG Palestre e Creature
+# 📌 GymQuest
 
 RPG a palestre in stile Pokémon: il giocatore esplora una mappa overworld, sfida i boss delle palestre con combattimenti a turni tra creature e accumula punti fama per sbloccare le palestre successive.
 

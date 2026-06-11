@@ -1,8 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.view.overworld;
 
+import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
-import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.view.component.PlayerPortrait;
 import java.util.Map;
 import java.util.Objects;

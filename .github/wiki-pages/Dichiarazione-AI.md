@@ -23,7 +23,7 @@ Qui descrivo **solo** dove ho usato ChatGPT, Claude, Gemini o Copilot. Gioco, ar
 
 ### Architettura e codice
 
-**ChatGPT / Claude:** Model-View-Controller, separazione catalogo/sessione, struttura cartelle, Builder, `Validator`, sealed `BattleEvent`, errori JPA, seed idempotente, Jackson.
+**ChatGPT / Claude:** pattern MVC, separazione catalogo/sessione, struttura cartelle, Builder, `Validator`, sealed `BattleEvent`, errori JPA, seed idempotente, Jackson.
 
 **GitHub Copilot:** boilerplate JavaFX, getter su entità catalogo, Javadoc.
 

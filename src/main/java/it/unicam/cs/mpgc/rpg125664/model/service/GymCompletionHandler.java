@@ -1,11 +1,11 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
-import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
 import java.util.List;
 import java.util.Objects;
 

@@ -1,6 +1,5 @@
 package it.unicam.cs.mpgc.rpg125664.view.theme;
 
-import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
 import javafx.scene.Parent;
 
 /** Presentazione di default in stile handheld del duello: attiva {@code theme-duel} sulla root. */

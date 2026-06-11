@@ -1,7 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
-import it.unicam.cs.mpgc.rpg125664.controller.VictoryPresenter;
+import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -11,7 +12,7 @@ import javafx.scene.control.Label;
 
 public final class VictoryController implements Initializable {
 
-  private final VictoryPresenter presenter;
+  private final GameModel gameModel;
   private final VictoryActions actions;
 
   @FXML private Label scoreLabel;
@@ -20,14 +21,15 @@ public final class VictoryController implements Initializable {
 
   @FXML private Button menuButton;
 
-  public VictoryController(VictoryPresenter presenter, VictoryActions actions) {
-    this.presenter = presenter;
+  public VictoryController(GameModel gameModel, VictoryActions actions) {
+    this.gameModel = gameModel;
     this.actions = actions;
   }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    scoreLabel.setText(presenter.scoreText());
+    int points = gameModel.gameState().player().score().points();
+    scoreLabel.setText(Messages.format("victory.score", points));
     newRunButton.setOnAction(event -> actions.onNewRun());
     menuButton.setOnAction(event -> actions.onBackToMenu());
   }

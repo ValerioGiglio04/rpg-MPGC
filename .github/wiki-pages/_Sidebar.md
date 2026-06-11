@@ -1,4 +1,4 @@
-### Wiki RPG Palestre e Creature
+### Wiki GymQuest
 
 **[Home — indice](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home)**
 

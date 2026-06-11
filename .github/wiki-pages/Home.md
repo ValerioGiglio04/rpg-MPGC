@@ -1,4 +1,4 @@
-# Wiki — RPG Palestre e Creature
+# Wiki — GymQuest
 
 ← [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) · [Classi](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) · [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) · [AI](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dichiarazione-AI)
 
@@ -10,7 +10,7 @@ RPG a palestre in stile Pokémon: il giocatore esplora una mappa overworld, sfid
 - Completando una palestra si ottengono ricompense e, spesso, le creature del boss nel proprio team
 - L'obiettivo della campagna è **completare tutte le palestre**
 
-Il codice segue un'**architettura MVC**: model al centro, casi d'uso in `model.service`, model.persistence Hibernate verso H2, UI JavaFX. Scelte e layer in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
+Il codice segue il pattern **MVC**: `model` (regole + persistenza), `view` (FXML e componenti JavaFX), `controller` (schermate e navigazione). Dettagli in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
 
 ---
 

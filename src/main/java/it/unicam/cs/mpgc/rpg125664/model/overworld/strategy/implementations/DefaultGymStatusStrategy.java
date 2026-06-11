@@ -1,9 +1,9 @@
 package it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.implementations;
 
-import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
-import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.GymStatusStrategy;
 
 /** Implementazione default delle regole {@link GymStatus} per la mappa overworld. */
 public final class DefaultGymStatusStrategy implements GymStatusStrategy {

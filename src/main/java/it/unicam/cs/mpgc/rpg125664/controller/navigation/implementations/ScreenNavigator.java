@@ -1,23 +1,14 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
-import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActionsImpl;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActionsImpl;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActionsImpl;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActionsImpl;
-import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigation;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.DialogHelper;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.MainView;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.PersistenceOperation;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.PersistenceUiGuard;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.RootScreenStack;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.ScreenFactory;
+import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
+import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.Objects;
 import java.util.Optional;

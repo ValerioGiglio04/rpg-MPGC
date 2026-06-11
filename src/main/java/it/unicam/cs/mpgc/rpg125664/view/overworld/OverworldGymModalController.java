@@ -1,8 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.view.overworld;
 
+import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.view.component.GameButton;
-import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -11,12 +11,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
 /** State machine del modale palestra (challenge / blocked / cancel). */
-final class OverworldGymModalController {
+public final class OverworldGymModalController {
 
   private static final int ACTIONS_SPACING = 12;
   private static final int ACTION_BUTTON_PREF_WIDTH = 140;
 
-  interface Host {
+  public interface Host {
     int lastRow();
 
     int lastCol();
@@ -40,7 +40,7 @@ final class OverworldGymModalController {
   private boolean modalOpen;
   private GymRoom pendingGym;
 
-  OverworldGymModalController(
+  public OverworldGymModalController(
       OverworldPresenter presenter,
       Runnable onStartBattle,
       Host host,

@@ -1,9 +1,9 @@
 package it.unicam.cs.mpgc.rpg125664.controller;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.HealingException;
-import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
+import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.model.service.HealingException;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;
 import java.util.Objects;

@@ -1,11 +1,11 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
+import it.unicam.cs.mpgc.rpg125664.controller.BattleCommandColumnController;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlScreenLoader;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
-import it.unicam.cs.mpgc.rpg125664.controller.BattleCommandColumnController;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlScreenLoader;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 import javafx.scene.layout.VBox;

@@ -1,7 +1,5 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubNavigation;
 import java.util.Objects;
 
 public final class HubActionsImpl implements HubActions {

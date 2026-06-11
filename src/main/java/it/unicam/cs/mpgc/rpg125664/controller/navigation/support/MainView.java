@@ -1,8 +1,8 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigator;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigator;
 import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
 

@@ -1,7 +1,5 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation;
 
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuNavigation;
 import java.util.Objects;
 import javafx.application.Platform;
 

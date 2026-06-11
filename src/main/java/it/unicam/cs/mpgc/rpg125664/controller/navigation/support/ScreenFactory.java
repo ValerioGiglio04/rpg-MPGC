@@ -1,20 +1,18 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
-import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
 import it.unicam.cs.mpgc.rpg125664.controller.BattleController;
 import it.unicam.cs.mpgc.rpg125664.controller.HubController;
 import it.unicam.cs.mpgc.rpg125664.controller.LoadGameController;
 import it.unicam.cs.mpgc.rpg125664.controller.MainMenuController;
 import it.unicam.cs.mpgc.rpg125664.controller.VictoryController;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
+import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.controller.LoadGamePresenter;
-import it.unicam.cs.mpgc.rpg125664.controller.VictoryPresenter;
-import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
 import it.unicam.cs.mpgc.rpg125664.view.theme.DuelUiTheme;
+import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
 import java.util.Objects;
 import javafx.scene.Parent;
 
@@ -37,8 +35,7 @@ public final class ScreenFactory {
   }
 
   public Parent createLoadGame(LoadGameActions actions) {
-    return FxmlScreenLoader.load(
-        "/fxml/LoadGame.fxml", new LoadGameController(new LoadGamePresenter(gameModel), actions));
+    return FxmlScreenLoader.load("/fxml/LoadGame.fxml", new LoadGameController(gameModel, actions));
   }
 
   public Parent createHub(HubActions actions) {
@@ -54,7 +51,6 @@ public final class ScreenFactory {
   }
 
   public Parent createVictory(VictoryActions actions) {
-    return FxmlScreenLoader.load(
-        "/fxml/Victory.fxml", new VictoryController(new VictoryPresenter(gameModel), actions));
+    return FxmlScreenLoader.load("/fxml/Victory.fxml", new VictoryController(gameModel, actions));
   }
 }

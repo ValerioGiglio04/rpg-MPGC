@@ -1,11 +1,11 @@
 package it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed;
 
+import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBundle;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.CreaturaEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.GiocatoreEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntity;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
-import it.unicam.cs.mpgc.rpg125664.model.catalog.CatalogIds;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;

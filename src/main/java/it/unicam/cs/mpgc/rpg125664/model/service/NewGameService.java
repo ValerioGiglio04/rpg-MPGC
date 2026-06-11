@@ -1,6 +1,5 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
-import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
 import it.unicam.cs.mpgc.rpg125664.model.catalog.NewGameSettings;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
