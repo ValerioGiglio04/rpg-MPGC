@@ -12,7 +12,11 @@ Ho scelto di fare un RPG a palestre in stile Pokémon: si esplora una mappa, si 
 
 L'applicazione ha **interfaccia grafica** (JavaFX + FXML) e **persistenza** dei salvataggi su file H2 locale. Il codice sta nel package `it.unicam.cs.mpgc.rpg125664`, come richiesto dalla specifica.
 
-![Hub di gioco — mappa overworld e gestione team](images/hub-overworld.png)
+<p align="center">
+  <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-overworld.png">
+    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-overworld.png" alt="Hub di gioco" width="640">
+  </a>
+</p>
 
 Screenshot e descrizione schermata per schermata in [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate).
 
