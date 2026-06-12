@@ -2,65 +2,62 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Repository](https://github.com/ValerioGiglio04/rpg-MPGC)
 
-Espansione della dichiarazione breve nel [README](https://github.com/ValerioGiglio04/rpg-MPGC#-uso-di-strumenti-di-ai), come richiesto dalla specifica AA 2025/26.
+La specifica del corso chiede una dichiarazione **dettagliata** sull'uso di AI, oltre al paragrafo breve nel [README](https://github.com/ValerioGiglio04/rpg-MPGC#-uso-di-strumenti-di-ai).
 
-Qui descrivo **solo** dove ho usato ChatGPT, Claude, Gemini o Copilot. Gioco, architettura e wiki li ho scritti e verificati io; l'AI ha accelerato spiegazioni, bozze e autocompletamento.
-
----
-
-## Strumenti utilizzati
-
-| Strumento | Uso principale |
-|-----------|----------------|
-| **ChatGPT** | Spiegazioni (architettura MVC, Hibernate, SOLID); bozze diagrammi wiki |
-| **Claude** | JPA, Spotless 7.0.4 + google-java-format 1.28.0; bozze diagrammi wiki |
-| **Gemini** | JavaFX/FXML; texture PNG in `src/main/resources/images/` |
-| **GitHub Copilot** | Autocompletamento, getter/setter, Javadoc, `messages_it.properties`, revisione Markdown wiki |
+**GymQuest, le regole di gioco, l'architettura MVC e le scelte di persistenza le ho progettate e implementate io.** Ho usato strumenti di AI come supporto: spiegazioni quando bloccavo su Hibernate o JavaFX, bozze di codice o testi che poi ho modificato, autocompletamento. Prima di tenere qualcosa nel repo l'ho letto, provato con `./gradlew build` e adattato al mio codice.
 
 ---
 
-## Contributi per area
+## Strumenti usati
 
-### Architettura e codice
+| Strumento | Per cosa l'ho usato |
+|-----------|---------------------|
+| **ChatGPT** | Domande su MVC, Hibernate, SOLID; bozze diagrammi per la wiki |
+| **Claude** | Errori JPA, configurazione Gradle/Spotless; revisione testi wiki |
+| **Gemini** | Dubbi su JavaFX/FXML; alcune texture PNG in `src/main/resources/images/` |
+| **GitHub Copilot** | Autocompletamento metodi semplici, Javadoc, stringhe in `messages_it.properties`, correzioni Markdown wiki |
 
-**ChatGPT / Claude:** pattern MVC, separazione catalogo/sessione, struttura cartelle, Builder, `Validator`, sealed `BattleEvent`, errori JPA, seed idempotente, Jackson.
+---
 
-**GitHub Copilot:** boilerplate JavaFX, getter su entità catalogo, Javadoc.
+## Dove l'AI ha aiutato (e cosa ho fatto io dopo)
 
-### Interfaccia e asset
+### Codice e architettura
 
-**Gemini:** binding FXML, layout, texture e PNG in `src/main/resources/images/`.
+- **ChatGPT / Claude** — mi hanno spiegato pattern visti a lezione (MVC, Repository, Strategy, Builder). La struttura package, `GameModel`, separazione catalogo/sessione e validator li ho applicati io sul progetto reale.
+- **Copilot** — suggerimenti su getter, boilerplate JavaFX, Javadoc su classi semplici. Ho controllato nomi e responsabilità prima di committare.
 
-**Copilot:** stringhe in `messages_it.properties`, messaggi log battaglia.
+### Interfaccia
+
+- **Gemini** — alcune immagini overworld e idee layout; ho integrato quelle che encavano col resto del gioco.
+- **Copilot** — bozze righe in `messages_it.properties` e messaggi log battaglia, poi rivisti in italiano.
 
 ### Documentazione e build
 
-**ChatGPT / Claude:** bozze Mermaid (MVC e flusso utente), revisione wiki.
-
-**Claude:** Spotless 7.0.4 + google-java-format 1.28.0 in `build.gradle`.
-
-**Copilot:** sidebar/footer wiki, link tra pagine, sintassi Mermaid (`curve: linear`).
+- **ChatGPT / Claude** — bozze iniziali di diagrammi Mermaid (flusso utente, persistenza). Li ho corretti e allineati al codice effettivo.
+- **Claude** — bozza plugin Spotless in `build.gradle`; oggi uso Prettier via Spotless (versione aggiornata nel tempo).
+- **Copilot** — link tra pagine wiki, sidebar, piccole correzioni di forma.
 
 ---
 
-## Esempi concreti
+## Esempi puntuali
 
-| Contesto | Strumento | Cosa ha prodotto l'AI |
-|----------|-----------|------------------------|
-| Errore JPA su collection | ChatGPT / Claude | Spiegazione messaggio |
-| Cura: service vs dominio | ChatGPT / Claude | Confronto alternative |
-| Getter su entità catalogo | Copilot | Bozza metodi |
-| Texture overworld | Gemini | File PNG |
-| Spotless in `build.gradle` | Claude | Bozza plugin + `spotlessApply` |
-| Flowchart architettura, flusso utente, persistenza DB | ChatGPT / Claude | Bozza Mermaid nella wiki |
-| Revisione testi wiki | Copilot | Correzioni su `.github/wiki-pages/` |
+| Situazione | Strumento | Esito |
+|------------|-----------|--------|
+| Errore Hibernate su collection | ChatGPT / Claude | Spiegazione del messaggio; fix scritto da me |
+| Dove mettere la cura (service vs dominio) | ChatGPT / Claude | Confronto opzioni; scelta `HealingService` |
+| Texture mappa / palestra | Gemini | File PNG usati o sostituiti |
+| Spotless / formattazione | Claude | Bozza `build.gradle`; io ho scelto regole e quando applicarle |
+| Testi wiki e diagrammi | ChatGPT / Claude / Copilot | Bozze riviste manualmente (questa pagina inclusa) |
 
 ---
 
-## Limiti
+## Cosa non ho delegato
 
-Tutto quanto sopra è entrato nel progetto solo dopo controllo manuale. Per API e configurazioni ho incrociato con documentazione ufficiale e build Gradle.
+- Scelta del gioco (RPG palestre), regole combattimento, progressione gloria.
+- Design persistenza catalogo H2 + JSON sessione.
+- Refactoring MVC, navigazione, presenter, naming package `rpg125664`.
+- Verifica finale: build Gradle, prova manuale delle schermate, commit Git.
 
 ---
 
-**Valerio Giglio — matricola 125664**
+**Valerio Giglio — matricola 125664 — valerio.giglio@studenti.unicam.it**

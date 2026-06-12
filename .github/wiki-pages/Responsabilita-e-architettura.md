@@ -2,7 +2,9 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home)
 
-Ho organizzato **GymQuest** in **MVC** (Model–View–Controller): il **model** contiene regole di gioco, servizi e persistenza; la **view** espone FXML e componenti JavaFX; i **controller** gestiscono input utente e navigazione verso il model.
+Ho organizzato **GymQuest** in **MVC** perché mi permette di separare bene regole di gioco, interfaccia e input utente. Il **model** (`model`) contiene entità, servizi e persistenza **senza JavaFX**; la **view** (`view`) disegna FXML e componenti; i **controller** (`controller`) collegano eventi UI al model.
+
+La specifica chiede anche estendibilità su più dispositivi: tenendo il model indipendente dalla UI desktop, in futuro potrei aggiungere un client diverso che chiama sempre `GameModel` (vedi [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita)).
 
 ---
 
@@ -22,48 +24,47 @@ flowchart TB
   Bootstrap --> Model
 ```
 
-| Layer | Package | Ruolo |
-|-------|---------|-------|
-| **app** | `...app` | Bootstrap: JPA, seed catalogo, wiring `GameModel`, avvio JavaFX |
-| **model** | `...model` | Entità, combattimento, servizi, persistenza H2 — nessuna dipendenza da JavaFX |
-| **view** | `...view` | Componenti UI, tema, mappa overworld, FXML in `resources/fxml` |
-| **controller** | `...controller` | Controller FXML, navigazione schermate, coordinamento verso `GameModel` |
+| Layer | Package | Cosa fa |
+|-------|---------|---------|
+| **app** | `...app` | Avvio: JPA, seed catalogo, wiring `GameModel`, JavaFX |
+| **model** | `...model` | Regole di gioco, combattimento, servizi, Hibernate — niente JavaFX |
+| **view** | `...view` | Componenti UI, mappa, tema, messaggi |
+| **controller** | `...controller` | Controller FXML, navigazione, presenter |
 
-Le dipendenze vanno **controller → model** e **view → controller** (callback). Il model non importa JavaFX.
+Le frecce vanno **controller → model** e **view → controller**. Il model non importa classi JavaFX.
 
 ---
 
-## Componenti principali
+## Chi fa cosa (componenti principali)
 
 ### Model
 
-- **`GameModel`** — facciata usata dai controller: battaglia, cura, save/load, stato mappa
-- **`GameState`** — giocatore, palestre, regole `moveTo`, `canChallengeGym`, `allGymsCompleted`
-- **`BattleService`** / **`BattleRoundExecutor`** — ciclo battaglia e calcolo turni
-- **`NewGameService`**, **`HealingService`**, **`GymCompletionHandler`** — casi d'uso di gioco
-- **`model.persistence`** — Hibernate, entità JPA, JSON sessioni, catalogo su H2
+- **`GameModel`** — unico punto d'ingresso per i controller: battaglia, cura, save/load, stato mappa.
+- **`GameState`** — mondo di gioco: giocatore, palestre, `moveTo`, `canChallengeGym`.
+- **`BattleService` / `BattleRoundExecutor`** — inizio/fine battaglia ed esecuzione di un round.
+- **`NewGameService`, `HealingService`, `GymCompletionHandler`** — nuova partita, cura hub, ricompense palestra.
+- **`model.persistence`** — Hibernate, JSON sessioni, catalogo H2.
 
 ### View
 
-- **FXML** (`MainMenu.fxml`, `Hub.fxml`, `Battle.fxml`, …) in `src/main/resources/fxml/`; path Java in `FxmlPaths`
+- FXML in `src/main/resources/fxml/`; path Java in `FxmlPaths`.
 - **`view.component`** — `CreatureCard`, `BattleArenaView`, `HealthBar`, …
-- **`view.overworld`** — `OverworldMap`, tile renderer, modale palestra; helper `OverworldPlayerSpawn`, `OverworldMovement`, `OverworldMapChrome`
-- **`view.support`** — `Messages`, `BattleEventTranslator`, `BattleSideMessages`, `BattleLogRenderer`, caricamento FXML
+- **`view.overworld`** — mappa, tile, modale palestra, movimento.
+- **`view.support`** — `Messages`, traduzione log battaglia, errori UI.
 
 ### Controller
 
-- **`ScreenNavigator`** (`navigation.implementations`) — flusso tra schermate e dialoghi save/load
-- **`ScreenFactory`** — monta FXML + controller via `FxmlPaths`
-- **Controller FXML** (`HubController`, `BattleController`, …) — gestiscono eventi e aggiornano la view
-- **Presenter** (`BattlePresenter`, `HubPresenter`, `OverworldPresenter`) — logica schermata estratta dai controller
-- **Helper UI** — `SavedSessionSummaryCell`, `HubTeamRowFactory`
+- **`ScreenNavigator`** — passa da menu a hub, battaglia, vittoria; save/load.
+- **`ScreenFactory`** — carica FXML + controller.
+- **Controller FXML** — gestiscono click e input.
+- **Presenter** (`BattlePresenter`, `HubPresenter`, …) — logica schermata tolta dai controller FXML per non gonfiarli.
 
 ### Bootstrap
 
-- **`AppModule`** — crea EMF, repository, delega wiring a **`ServiceGraph`**
-- **`CatalogBootstrap`** — seed catalogo H2 e caricamento `GameCatalog` all'avvio
-- **`ServiceGraph`** — assembla servizi e **`GameModel`**
-- **`RpgApplication`** — avvia JavaFX e passa `GameModel` a `MainView`
+- **`AppModule`** — crea EMF e repository.
+- **`CatalogBootstrap`** — seed e catalogo all'avvio.
+- **`ServiceGraph`** — assembla servizi e `GameModel`.
+- **`RpgApplication`** — entry JavaFX.
 
 ---
 
@@ -71,203 +72,83 @@ Le dipendenze vanno **controller → model** e **view → controller** (callback
 
 ```
 it.unicam.cs.mpgc.rpg125664
-├── app/                    Main, RpgApplication, AppModule, CatalogBootstrap, ServiceGraph
-├── model/
-│   ├── entity/             GameState, Creature, GymRoom, …
-│   ├── combat/             BattleRoundExecutor, strategy/
-│   ├── catalog/            GameCatalog, template creature
-│   ├── service/            GameModel, BattleService, NewGameService, GameStateHolder, …
-│   ├── overworld/          GymStatus, layout mappa
-│   ├── persistence/        Hibernate, entità JPA, mapper, seed
-│   ├── builder/, validation/, event/, session/
-├── view/
-│   ├── component/          widget riusabili
-│   ├── overworld/          mappa, spawn/movimento, modale palestra
-│   ├── theme/implementations/
-│   └── support/, mapper/   Messages, BattleLogRenderer, BattleEventTranslator, …
-└── controller/
-    ├── *Controller.java    controller FXML
-    ├── *Presenter.java     BattlePresenter, HubPresenter, OverworldPresenter
-    ├── SavedSessionSummaryCell, HubTeamRowFactory
-    └── navigation/         interfacce *Actions/*Navigation
-        ├── implementations/  ScreenNavigator, *ActionsImpl
-        └── support/          MainView, ScreenFactory, FxmlPaths, …
+├── app/
+├── model/          entity, combat, service, persistence, validation, …
+├── view/           component, overworld, support, theme
+└── controller/     *Controller, *Presenter, navigation/
 ```
+
+Interfacce nel package padre (`Validator`, `*Navigation`, strategy combattimento), implementazioni in sottocartella `implementations/` — stessa idea in più punti del progetto.
 
 ---
 
 ## Flusso tipico (nuova partita → battaglia → save)
 
-### 1. Avvio
-
-1. `Main` → `RpgApplication.start()`
-2. `AppModule.bootstrap()` — `CatalogBootstrap` (seed + catalogo), poi `ServiceGraph` → `GameModel`
-3. `MainView` + `ScreenNavigator` → menu principale
-
-### 2. Nuova partita
-
-1. `MainMenuController` → `ScreenNavigator.startNewGame()`
-2. `NewGameService` costruisce `GameState` iniziale
-3. Navigazione verso Hub
-
-### 3. Hub e battaglia
-
-1. `HubController` legge stato da `GameModel`, monta `OverworldMap`
-2. Sfida palestra → `ScreenNavigator.showBattle()`
-3. `BattleController` → `GameModel.attack()` → eventi tradotti nel log (`BattleEventTranslator` + `BattleLogRenderer`)
-
-### 4. Salvataggio
-
-1. Menu Hub → `ScreenNavigator.saveCurrent()`
-2. `GameModel` → `SessionPersistenceFacade` → `HibernateGameStateRepository`
+1. **Avvio** — `Main` → `RpgApplication` → `AppModule.bootstrap()` → menu.
+2. **Nuova partita** — `MainMenuController` → `NewGameService` → hub.
+3. **Hub** — `HubController` + `OverworldMap`; sfida → `ScreenNavigator.showBattle()`.
+4. **Battaglia** — `BattleController` → `GameModel.attack()` → eventi nel log.
+5. **Salvataggio** — menu hub → `GameModel.persistSession()` → `HibernateGameStateRepository`.
 
 ---
 
 ## Scelte di design (SOLID nel contesto MVC)
 
-I principi **SOLID** guidano come separo responsabilità tra model, view e controller. Non sono etichette astratte: nel codice compaiono come interfacce piccole, classi con un solo motivo di cambiamento e wiring centralizzato in `ServiceGraph`.
+Durante il corso abbiamo visto i principi SOLID; li ho applicati così, legati al MVC che ho scelto.
 
-### S — Single Responsibility Principle
+### S — Single Responsibility
 
-*Ogni classe ha un solo motivo per cambiare.*
+Ogni classe ha un compito preciso. Alcuni esempi:
 
-| Classe / componente | Responsabilità unica | Layer MVC |
-|---------------------|----------------------|-----------|
-| `BattleRoundExecutor` | Esegue **un round** di combattimento (ordine attacchi, KO, swap) | Model |
-| `BattleService` | Avvia e chiude una **battaglia** delegando al round executor | Model |
-| `BattleController` | Collega input UI (bottoni mosse) alla view del duello | Controller |
-| `BattlePresenter` | Stato schermata battaglia: log, turni, messaggi di esito | Controller |
-| `BattleEventTranslator` | Traduce `BattleEvent` del model in righe leggibili per la UI | View |
-| `SessionPersistenceFacade` | API save/load verso il repository, senza dettagli Hibernate | Model |
-| `ScreenFactory` | Carica FXML + controller da `FxmlPaths` | Controller |
-| `CatalogBootstrap` | Seed e caricamento catalogo all'avvio | app |
+- `BattleRoundExecutor` — esegue **un round** (ordine attacchi, KO, swap).
+- `BattleController` — solo UI del duello (bottoni, pannelli).
+- `BattleEventTranslator` — traduce eventi del model in testo per la view.
+- `SessionPersistenceFacade` — save/load senza spargere JPQL nei controller.
+- `CatalogBootstrap` — solo seed e caricamento catalogo all'avvio.
 
-**Esempio concreto:** quando cambio come si calcola il danno, tocco `TurnBasedAttackResolutionStrategy`, non `BattleController`. Quando cambio come si disegna il log, tocco `BattleLogRenderer`, non `GameState`.
+Se cambio come calcolo il danno modifico `TurnBasedAttackResolutionStrategy`, non il controller. Se cambio come scrivo nel log modifico `BattleLogRenderer`, non `GameState`.
 
----
+### O — Open/Closed
 
-### O — Open/Closed Principle
+Per aggiungere comportamenti nuovi implemento interfacce esistenti e le registro in `ServiceGraph`, senza riscrivere `BattleService` o `BattleRoundExecutor`:
 
-*Aperto all'estensione, chiuso alla modifica.*
+- danno / miss → nuova `AttackResolutionStrategy`;
+- IA boss → nuova `BossMoveStrategy`;
+- colori palestre sulla mappa → nuova `GymStatusStrategy`;
+- validazione → nuovo `Validator<T>` registrato in `ValidatorFactory`.
 
-Aggiungo comportamenti nuovi **implementando** interfacce esistenti o registrando strategy in `ServiceGraph`, senza riscrivere il codice client.
+### L — Liskov Substitution
 
-| Estensione | Interfaccia | Implementazione attuale | Dove si collega |
-|------------|-------------|-------------------------|-----------------|
-| Regole danno / precisione | `AttackResolutionStrategy` | `TurnBasedAttackResolutionStrategy` | `BattleRoundExecutor` |
-| IA scelta mossa del boss | `BossMoveStrategy` | `AccuracyThresholdBossMoveStrategy` | `BattleRoundExecutor` |
-| Stato visivo palestra sulla mappa | `GymStatusStrategy` | `DefaultGymStatusStrategy` | `GameModel.gymStatus()` |
-| Validazione entità | `Validator<T>` | `CreatureValidator`, `MoveValidator`, … | `ValidatorFactory` |
-| Skin CSS alternativa | `UiTheme` | `DuelUiTheme` | root FXML battaglia |
+Le implementazioni rispettano il contratto dell'interfaccia. Esempio: `GameModel` dipende da `GymStatusStrategy`, non dalla classe concreta `DefaultGymStatusStrategy`. Stessa cosa per `GameStateRepository` (`HibernateGameStateRepository`) e per le interfacce `*Actions` usate dai controller.
 
-**Esempio concreto:** per un boss con IA diversa creo `RandomBossMoveStrategy implements BossMoveStrategy` e in `ServiceGraph.assemble()` sostituisco la riga che istanzia `AccuracyThresholdBossMoveStrategy`. `BattleRoundExecutor` e `BattleService` restano invariati.
+### I — Interface Segregation
 
----
+Evito un'unica interfaccia gigante "Gioco". Ogni schermata ha le sue azioni:
 
-### L — Liskov Substitution Principle
+- `HubActions` per l'hub, `LoadGameActions` per il caricamento, ecc.
 
-*Ogni implementazione rispetta il contratto dell'interfaccia e può sostituirla senza rompere i client.*
+`HubController` conosce solo `HubActions`, non i metodi del menu principale. `ScreenNavigator` implementa tutto, ma ogni `*ActionsImpl` resta piccolo.
 
-| Interfaccia | Implementazioni sostituibili | Client che le usa |
-|-------------|------------------------------|-------------------|
-| `AttackResolutionStrategy` | `TurnBasedAttackResolutionStrategy` (e future varianti) | `BattleRoundExecutor` |
-| `BossMoveStrategy` | `AccuracyThresholdBossMoveStrategy` | `BattleRoundExecutor` |
-| `GymStatusStrategy` | `DefaultGymStatusStrategy` | `GameModel` |
-| `GameStateRepository` | `HibernateGameStateRepository` | `SessionPersistenceFacade` via `AppModule` |
-| `GameCatalogLoader` | `HibernateGameCatalogLoader` | `CatalogBootstrap` |
-| `HubActions` | `HubActionsImpl` (via `ScreenNavigator`) | `HubController` |
-| `UiTheme` | `DuelUiTheme` | schermata battaglia |
+### D — Dependency Inversion
 
-**Esempio concreto:** `GameModel` dipende da `GymStatusStrategy`, non da `DefaultGymStatusStrategy`. In test o in una variante del gioco posso passare un'altra implementazione con lo stesso metodo `resolve(...)` e `OverworldMap` continua a funzionare.
+Controller e presenter dipendono da **`GameModel`**, non da Hibernate. Il model dipende da **`GameStateRepository`**, non dalla tabella SQL. Le implementazioni concrete le creo in **`AppModule` / `ServiceGraph`** e le passo dentro `GameModelOptions` o al repository.
+
+Il model **non importa JavaFX**; i controller **non importano** entità JPA. Così resta chiaro cosa è regola di gioco e cosa è infrastruttura.
 
 ---
 
-### I — Interface Segregation Principle
+## Altri pattern che ho usato
 
-*Interfacce piccole e ruolo-specifiche, così ogni client dipende solo da ciò che usa.*
-
-| Interfaccia | Cosa espone | Chi la usa |
-|-------------|-------------|------------|
-| `MainMenuActions` | Nuova partita, carica, esci | `MainMenuController` |
-| `LoadGameActions` | Selezione slot, elimina save | `LoadGameController` |
-| `HubActions` | Duello, salva, menu | `HubController` |
-| `HubNavigation` | Navigazione verso battaglia / menu | `HubController` |
-| `VictoryActions` | Ritorno al menu dopo vittoria | `VictoryController` |
-| `ScreenNavigation` | Unione di tutte le navigation (implementata da `ScreenNavigator`) | bootstrap / wiring |
-| `BossMoveStrategy` | Solo scelta mossa IA | `BattleRoundExecutor` |
-| `AttackResolutionStrategy` | Solo risoluzione danno | `BattleRoundExecutor` |
-
-**Perché non un'unica interfaccia "Gioco"?** Un controller FXML conosce solo le azioni della **sua** schermata: `HubController` riceve `HubActions`, non l'intera API di navigazione del menu o del load game. `ScreenNavigator` implementa tutto, ma ogni `*ActionsImpl` resta focalizzato.
-
-**Esempio concreto:** `LoadGameActionsImpl` dipende da `LoadGameNavigation` + persistenza, non da metodi dell'hub come `onStartBattle()`.
+- **Facade** — `GameModel` unifica i servizi per la UI.
+- **Strategy** — combattimento, stato palestre, tema CSS.
+- **Repository** — `GameStateRepository` dietro la persistenza slot.
+- **Factory** — `ScreenFactory`, `HubTeamRowFactory`.
+- **Builder** — quando servono più di 3 parametri (regola che mi sono dato per leggibilità): `GameModelOptions`, `HealingCheck`, `ArenaLayoutSpec`, …
 
 ---
 
-### D — Dependency Inversion Principle
+## Firme metodo
 
-*I moduli alto livello non dipendono dai dettagli di basso livello: entrambi dipendono da astrazioni.*
+Nessun metodo pubblico con più di **3 parametri**. Se ne servono di più uso un builder (`*Options` per wiring, `*Context` per contesto condiviso, `*Bindings` per callback UI). I **record** li tengo per DTO, comandi sessione ed eventi — non per collegare componenti.
 
-```mermaid
-%%{init: {'flowchart': {'curve': 'linear'}}}%%
-flowchart TB
-  subgraph controller [Controller / View]
-    BC[BattleController]
-    BP[BattlePresenter]
-  end
-  subgraph model [Model — astrazioni]
-    GM[GameModel]
-    GSR[GameStateRepository]
-    STR[AttackResolutionStrategy]
-  end
-  subgraph infra [Implementazioni]
-    HIB[HibernateGameStateRepository]
-    TURN[TurnBasedAttackResolutionStrategy]
-  end
-  BC --> BP
-  BP --> GM
-  GM --> GSR
-  GM --> STR
-  GSR -.-> HIB
-  STR -.-> TURN
-  SG[ServiceGraph / AppModule] --> HIB
-  SG --> TURN
-  SG --> GM
-```
-
-| Alto livello | Astrazione | Dettaglio concreto (basso livello) | Dove avviene l'injection |
-|--------------|------------|----------------------------------|--------------------------|
-| `BattlePresenter`, tutti i controller | `GameModel` | `BattleService`, `HealingService`, … | `ServiceGraph` → `GameModelOptions` |
-| `SessionPersistenceFacade` | `GameStateRepository` | `HibernateGameStateRepository` | `AppModule` |
-| `BattleRoundExecutor` | `AttackResolutionStrategy`, `BossMoveStrategy` | impl in `strategy.implementations` | `ServiceGraph` |
-| Controller FXML | `HubActions`, `ScreenNavigation`, … | `ScreenNavigator`, `*ActionsImpl` | `MainView` / `ScreenFactory` |
-
-**Regola MVC:** il **model non importa JavaFX**; i controller non importano Hibernate. Le dipendenze verso il database o verso FXML restano ai bordi (`app`, `persistence`, `view`).
-
-**Esempio concreto:** `HubController` chiama `gameModel.healActiveCreature()` e `hubActions.onSave()` — non apre sessioni JPA né costruisce dialoghi save: delega a `GameModel` e a `ScreenNavigator`.
-
----
-
-### Pattern ricorrenti (oltre SOLID)
-
-| Pattern | Ruolo nel progetto | Esempi |
-|---------|-------------------|--------|
-| **Facade** | API unica per la UI | `GameModel` |
-| **Strategy** | Algoritmi intercambiabili | combattimento, stato palestre, tema UI |
-| **Repository** | Persistenza dietro port | `GameStateRepository` |
-| **Factory** | Creazione schermate / righe UI | `ScreenFactory`, `HubTeamRowFactory` |
-| **Builder** | Parameter object (>3 argomenti vietati) | `GameModelOptions`, `HealingCheck`, `ArenaLayoutSpec` |
-
-Convenzione package: interfacce nel package padre (`*Navigation`, `Validator`, `UiTheme`), implementazioni in `implementations/`.
-
-### Firme metodo e parameter object
-
-Per evitare code smell da troppi parametri, **nessun metodo pubblico supera 3 argomenti**. Se servono più valori:
-
-1. **Builder fluente** (scelta preferita per leggibilità): es. `HealingCheck.builder().creature(...).state(...).build()`, `BattleCommandBindings.builder()`, `GymPlacementRequest.builder()`.
-2. **Record** solo per DTO, comandi e eventi immutabili (`SaveSessionCommand`, `BattleEvent`, `MoveDto`, …), non per wiring o helper UI.
-
-**Naming** dei parameter object: per assemblaggio e configurazione usiamo **`Options`** (`GameModelOptions`, `SessionRepositoryOptions`); per contesto condiviso `Context` (`MapGridContext`); per callback UI `Bindings` (`BattleCommandBindings`); per layout `Spec` (`ArenaLayoutSpec`).
-
-Esempi di builder introdotti per raggruppare parametri: `MapGridContext`, `GameModelOptions`, `SessionRepositoryOptions`, `ArenaLayoutSpec`, `TileRenderAssets`, `GymModalUi`, `OverworldTileRenderer.PlayerMarker`.
-
-Vedi anche [Classi e interfacce](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) ed [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).
+Elenco classi con responsabilità punto per punto: [Classi e interfacce](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce). Estensioni future: [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).

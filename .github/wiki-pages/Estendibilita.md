@@ -2,122 +2,101 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura)
 
-La specifica richiede che sia chiaro come il progetto possa crescere (nuove funzionalità, altri dispositivi) anche se non tutto è nella v1. Qui descrivo i **punti di aggancio già presenti** nel codice.
+La specifica dice che **non serve avere tutte le funzionalità nella prima release**, ma che deve essere chiaro come integrarne di nuove e come usare l'app su **più dispositivi** (desktop, mobile, web…). Qui spiego cosa ho lasciato fuori da v1 e **dove agganciare** le estensioni nel codice che ho già scritto.
 
 ---
 
-## Principio
+## Idea generale
 
-- **Stabile:** `model` (entità, servizi, regole di gioco)
-- **Sostituibile:** `view` + `controller` (JavaFX oggi), implementazioni in `model.persistence`
+Ho tenuto **stabile** il package `model` (regole, entità, servizi) e **sostituibile** la UI (`view` + `controller`) e la persistenza concreta (`model.persistence`).
+
+Oggi c'è solo client **JavaFX desktop**. Un client web o mobile dovrebbe chiamare **`GameModel`** (o un wrapper REST sopra di esso) senza importare Hibernate o JavaFX.
 
 ```mermaid
 %%{init: {'flowchart': {'curve': 'linear'}}}%%
 flowchart LR
-  subgraph sostituibili [Sostituibili]
-    View[view + controller]
-    Persistence[model.persistence]
-  end
-  subgraph stabile [Stabile]
-    Model[model]
-  end
+  View[view + controller]
+  Model[model]
+  Pers[persistence]
   View --> Model
-  Persistence --> Model
+  Pers --> Model
 ```
 
-Oggi c'è solo UI JavaFX. Un client web o mobile dovrebbe chiamare **`GameModel`** (o un'evoluzione tipo `GameApi`) senza importare Hibernate, JPA o JavaFX.
+---
+
+## Altro dispositivo (web, mobile, …)
+
+Passi che farei:
+
+1. Nuovo modulo/pacchetto presentation (es. API REST o app mobile).
+2. Chiamate solo a `GameModel` (o DTO derivati).
+3. Nessun import di classi JavaFX o entity JPA nel client.
+
+Regole come `canChallengeGym`, danno, gloria resterebbero identiche perché vivono nel model.
 
 ---
 
-## Nuova interfaccia utente
+## Nuovo backend salvataggi
 
-| Passo | Azione |
-|-------|--------|
-| 1 | Nuovo package presentation (es. `ui.web`) |
-| 2 | Chiamare solo `GameModel` |
-| 3 | Non importare entità JPA o classi JavaFX |
-| 4 | Opzionale: controller REST che serializza DTO |
+1. Nuova classe che **implementa `GameStateRepository`**.
+2. Registrazione in `AppModule` / `ServiceGraph` al posto di `HibernateGameStateRepository`.
+3. I controller non cambiano: continuano a usare `GameModel`.
 
-Il dominio e le regole (`canChallengeGym`, danno, gloria) restano identici.
-
----
-
-## Nuovo backend di persistenza
-
-| Passo | Azione |
-|-------|--------|
-| 1 | Implementare `GameStateRepository` in `model.persistence.session` |
-| 2 | Opzionale: nuova impl di `GameCatalogLoader` se il catalogo non resta su H2 |
-| 3 | Registrare in `ServiceGraph` / `AppModule`; contratto in `model.persistence` |
-
-**Oggi:** `HibernateGameStateRepository` salva su `sessioni_salvate` con JSON in CLOB, JPQL in `SessioneSalvataJpaRepository`.
-
-**Futuro:** PostgreSQL, API REST, sync cloud — stesso contratto `GameStateRepository`.
+Oggi salvo JSON in H2 locale. In futuro: PostgreSQL, sync cloud, ecc. — stesso contratto.
 
 ---
 
 ## Nuove regole di gioco
 
-| Estensione | Meccanismo |
-|------------|------------|
-| Danni, critici, status | Nuova `AttackResolutionStrategy` |
-| IA boss diversa | Nuova `BossMoveStrategy` |
-| Policy overworld | Nuova `GymStatusStrategy` in `model.overworld.strategy.implementations` |
-| Eventi battaglia | Nuovi record in `BattleEvent` (sealed) + traduzione in `BattleEventTranslator` / `BattleSideMessages` |
+| Cosa aggiungere | Dove |
+|-----------------|------|
+| Nuovo calcolo danno / critici | `AttackResolutionStrategy` + impl in `strategy.implementations` |
+| IA boss diversa | `BossMoveStrategy` |
+| Logica stato palestre mappa | `GymStatusStrategy` |
+| Nuovo tipo evento in log | Record in `BattleEvent` + riga in `BattleEventTranslator` |
 
-Wiring in `ServiceGraph` (chiamato da `AppModule`): sostituire le impl strategy senza modificare `BattleService`.
+Le collego in **`ServiceGraph`**: cambio l'istanza strategy senza modificare `BattleService`.
 
 ---
 
 ## Nuove creature, palestre, mosse
 
-1. Aggiornare `src/main/resources/game-data/catalog-seed.json`
-2. Riavviare: `CatalogDatabaseSeeder` riallinea H2 se serve
-3. Mapping in `CatalogEntityMapper`; dominio invariato se i validator accettano i nuovi dati
+1. Modifico `catalog-seed.json`.
+2. Riavvio: `CatalogDatabaseSeeder` aggiorna H2.
+3. Se i validator accettano i dati, il dominio non richiede altre modifiche.
 
 ---
 
 ## Nuova schermata JavaFX
 
-1. `NuovaSchermata.fxml` in `src/main/resources/fxml/`
-2. Aggiungere il path in `FxmlPaths` (`controller.navigation.support`)
-3. Controller in `controller` + componenti in `view`
-4. Costruzione in `ScreenFactory`, transizione in `ScreenNavigator` (`navigation.implementations`)
-5. Callback opzionale: interfaccia `*Actions` nel package `navigation` + `*ActionsImpl` in `navigation.implementations` → `*Navigation`
-6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
+1. FXML in `src/main/resources/fxml/`.
+2. Path in `FxmlPaths`.
+3. Controller in `controller/`, eventuale presenter.
+4. Montaggio in `ScreenFactory`, transizione in `ScreenNavigator`.
+5. Se servono callback verso il navigator: interfaccia `*Actions` + `*ActionsImpl`.
 
 ---
 
-## Validazione di nuovi aggregati
+## Validazione nuovi tipi
 
-- Costruzione via `*Builder`, poi `ValidatorFactory.get*Validator().validate(instance)`
-- Nuovo tipo: `{Type}Validator extends Validator<T>` in `validation.implementations` + registrazione in `ValidatorFactory`
-
-## Firme metodo e parameter object
-
-- Massimo **3 parametri** per metodo pubblico
-- Per raggruppare valori aggiuntivi: **builder fluente** con `.builder()…build()` (es. `GymPlacementRequest`, `BattleCommandBindings`)
-- Suffisso **`Options`** per assemblaggio/wiring (`GameModelOptions`, `SessionRepositoryOptions`); evitare `Dependencies` salvo riferimento letterale a DI esterna
-- I **record** restano per DTO JSON, comandi sessione, eventi `BattleEvent`, template catalogo — non per wiring o helper UI
+Nuovo aggregato → `{Tipo}Validator extends Validator<T>` + registrazione in `ValidatorFactory`. Costruzione con `*Builder` prima della validazione.
 
 ---
 
-## Lingua dell'interfaccia
+## Altre idee (non in v1)
 
-- Testi UI: `src/main/resources/i18n/messages_it.properties`
-- Accesso centralizzato: `Messages` e `FxmlScreenLoader` (bundle condiviso con FXML)
-- Altra lingua: creare `messages_en.properties` con le stesse chiavi + `Messages.setLocale(...)` all'avvio
-
-Nomi di creature e mosse in duello provengono dal **catalogo** (`catalog-seed.json`), non da `messages_*.properties`.
+- **Autosave** — oggi salvo solo manualmente dall'hub; basterebbe chiamare `GameModel.persistSession()` da un listener.
+- **Inventario / negozio** — nuovo servizio in `model.service` + UI hub.
+- **Login multi-utente** — filtrare `sessioni_salvate` per `id_utente` (colonna già presente).
+- **Schema SQL normalizzato per sessione** — nuove tabelle + mapper; `GameState` invariato.
+- **Altra lingua UI** — secondo file `messages_xx.properties` + `Messages.setLocale(...)`.
 
 ---
 
-## Altre estensioni possibili
+## Convenzioni che aiutano le estensioni
 
-- **Autosave** — `GameModel.saveCurrent()` da listener (oggi solo save manuale Hub)
-- **Inventario, negozio, achievement** — nuovo servizio in `model.service` + entità in `model.entity`
-- **Login multi-utente** — filtrare `sessioni_salvate` per `id_utente` in `model.persistence`; `GameModel` invariato verso i controller
-- **Schema SQL normalizzato** — tabelle `sessione_*` + nuovo mapper; `GameState` invariato
-- **Versioning JSON** — colonna `format_version` + migrazioni in `SessioneJsonMapper`
+- Max **3 parametri** per metodo pubblico; altrimenti builder (`GameModelOptions`, `HealingCheck`, …).
+- Interfacce nel package padre, impl in `implementations/`.
+- Record per DTO/eventi, non per wiring.
 
 Organizzazione layer: [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).

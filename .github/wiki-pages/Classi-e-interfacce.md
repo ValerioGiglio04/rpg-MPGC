@@ -2,127 +2,138 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura)
 
-Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, DTO, entity JPA, componenti UI minori) seguono la stessa organizzazione descritta in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
+La specifica chiede l'elenco delle classi e interfacce con la **responsabilità** di ciascuna. Qui metto quelle centrali del progetto; builder, DTO JPA e widget minori seguono la stessa logica descritta in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
+
+Package base: `it.unicam.cs.mpgc.rpg125664`.
 
 ---
 
-## app
+## app — avvio applicazione
 
-- `Main` — entry point Gradle; avvia `RpgApplication`
-- `RpgApplication` — Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura EMF
-- `AppModule` — composition root: EMF, repository, wiring verso `GameModel`
-- `CatalogBootstrap` — seed catalogo H2 + caricamento `GameCatalog` (usato da `AppModule.bootstrap()`)
-- `ServiceGraph` — assembla servizi di gioco e restituisce `GameModel` + `PortraitAssetResolver`
-
----
-
-## model.entity e model.catalog
-
-- `GameState` — stato mondo: giocatore, palestre, `moveTo`, `canChallengeGym`, `allGymsCompleted`
-- `Player`, `Creature`, `CreatureHolder` — giocatore, creature in partita, team e creatura attiva
-- `GymRoom`, `GymBoss` — palestra con connessioni, soglia punti, boss e team
-- `Move`, `Score` — mossa e punti fama (gloria)
-- `GameCatalog` — indice template; lookup e `creatureSkinPath(catalogId)` per asset UI
-- `CreatureTemplate`, `GymTemplate`, `BossTemplate`, `MoveTemplate` — definizioni statiche
-- `NewGameSettings`, `CatalogIds` — parametri nuova partita e costanti id catalogo
+| Classe | Responsabilità |
+|--------|----------------|
+| `Main` | Entry point Gradle; lancia JavaFX. |
+| `RpgApplication` | `Application` JavaFX: bootstrap, `MainView`, chiusura EMF a fine app. |
+| `AppModule` | Composition root: EntityManagerFactory, repository, chiama `ServiceGraph`. |
+| `CatalogBootstrap` | Seed catalogo H2 da JSON + caricamento `GameCatalog`. |
+| `ServiceGraph` | Crea servizi, strategy e `GameModel`; restituisce anche `PortraitAssetResolver`. |
 
 ---
 
-## model.combat, model.event, model.persistence
+## model.entity e model.catalog — dominio di gioco
 
-- `BattleRoundExecutor` — esecuzione di un round (turni, attacchi, switch, eventi)
-- `AttackOutcome` — esito colpo: hit/miss, danno, KO
-- `AttackResolutionStrategy`, `BossMoveStrategy` — contratti strategy combattimento
-- `TurnBasedAttackResolutionStrategy`, `AccuracyThresholdBossMoveStrategy` — implementazioni default
-- `BattleEvent` — sealed interface: `RoundStarted`, `AttackHit`, `AttackMissed`, `CreatureKnockedOut`, `BossDefeated`, `CreaturesAcquired`, …
-- `Side` — lato in battaglia (giocatore o boss)
-- `GameStateRepository` — multi-save: `listSaves`, `save`, `load`, `delete`, `markLastPlayed`
-- `GameCatalogLoader` — caricamento `GameCatalog`
-- `SavedSessionSummary`, `LoadedSession`, `SaveSessionCommand`, `OverworldPosition` — tipi sessione
-- `SaveSlotLabels` — formato data condiviso per nomi slot e lista caricamento
+| Classe / interfaccia | Responsabilità |
+|----------------------|----------------|
+| `GameState` | Stato partita: giocatore, palestre, spostamento, check sfida boss, vittoria campagna. |
+| `Player` | Giocatore umano: gloria (`Score`), team (`CreatureHolder`), palestra corrente. |
+| `Creature` | Creatura in partita: statistiche, HP, mosse, KO. |
+| `CreatureHolder` | Team e creatura attiva; switch e prima viva disponibile. |
+| `GymRoom` | Palestra: connessioni, soglia gloria, flag completamento. |
+| `GymBoss` | Boss di palestra con il suo team. |
+| `Move` | Mossa: potenza, precisione, nome. |
+| `Score` | Punti fama (gloria) del giocatore. |
+| `GameCatalog` | Lookup template creature/palestre/mosse per id; path skin UI. |
+| `CreatureTemplate`, `GymTemplate`, `BossTemplate` | Dati statici letti dal catalogo. |
+| `NewGameSettings`, `CatalogIds` | Parametri nuova partita e costanti id. |
+
+---
+
+## model.combat e model.event — battaglia
+
+| Classe / interfaccia | Responsabilità |
+|----------------------|----------------|
+| `BattleRoundExecutor` | Un round: ordine turni, attacchi, KO, switch automatico se creatura attiva KO. |
+| `BattleService` | Inizio/fine battaglia; delega i round all'executor. |
+| `AttackOutcome` | Risultato colpo: hit/miss, danno, KO difensore. |
+| `AttackResolutionStrategy` | Contratto: risolvere danno di una mossa. |
+| `BossMoveStrategy` | Contratto: scegliere mossa del boss. |
+| `TurnBasedAttackResolutionStrategy` | Impl default danno/miss. |
+| `AccuracyThresholdBossMoveStrategy` | Impl default IA boss. |
+| `BattleEvent` | Eventi immutabili del combattimento (sealed interface). |
+| `Side` | Lato in battaglia (giocatore o boss). |
+
+---
+
+## model.service — casi d'uso
+
+| Classe | Responsabilità |
+|--------|----------------|
+| `GameModel` | Facciata per i controller: battaglia, cura, save/load, stato mappa. |
+| `GameStateHolder` | `GameState` corrente in memoria. |
+| `NewGameService` | Crea/resetta partita da catalogo. |
+| `HealingService` | Cura creatura attiva in hub (costo gloria). |
+| `GymCompletionHandler` | Ricompense quando una palestra viene completata. |
+| `SessionPersistenceFacade` | Save/load/delete slot verso il repository. |
+| `GymStatusStrategy` / `DefaultGymStatusStrategy` | Stato visivo palestra sulla mappa. |
+| `GymStatus` | Enum: completata, disponibile, corrente, gloria insufficiente, irraggiungibile. |
+| `OverworldGridLayout`, `GymCellPlacement` | Posizionamento deterministico palestre sulla griglia. |
+| `GameModelOptions` | Builder opzioni per costruire `GameModel`. |
+| `HealingCheck` | Builder condiviso per abilitare/tooltip cura in hub. |
+
+---
+
+## model.persistence — dati su disco
+
+| Classe / interfaccia | Responsabilità |
+|----------------------|----------------|
+| `GameStateRepository` | Porta save/load multi-slot (contratto). |
+| `HibernateGameStateRepository` | Impl Hibernate: JSON in `sessioni_salvate`. |
+| `GameCatalogLoader` | Porta caricamento catalogo. |
+| `HibernateGameCatalogLoader` | Impl: catalogo da H2 a `GameCatalog`. |
+| `CatalogSeedJsonLoader` | Legge `catalog-seed.json`. |
+| `CatalogDatabaseSeeder` | Scrive/aggiorna tabelle catalogo su H2. |
+| `CatalogEntityMapper` | Entity JPA → oggetti dominio/catalogo. |
+| `SessioneJsonMapper` | JSON sessione ↔ `GameState` + posizione mappa. |
+| `SessionJsonSerializer` | Serializza/deserializza payload JSON. |
+| `SessioneSalvataJpaRepository` | Query JPQL su tabella slot. |
+| `SessionRepositoryOptions` | Builder dipendenze repository sessione. |
+| `SavedSessionSummary`, `LoadedSession`, `SaveSessionCommand` | Tipi per lista slot, load e save. |
+| Entity JPA (`CreaturaEntity`, `PalestraEntity`, …) | Mapping tabelle H2 catalogo e slot. |
+
+Dettaglio tabelle e JSON: [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza).
 
 ---
 
 ## model.validation e model.builder
 
-- `Validator<T>` — template method `validate(T)`; implementazioni in `validation.implementations`
-- `ScoreValidator`, `PlayerValidator`, `GameStateValidator`, `CreatureValidator`, `CreatureHolderValidator`, `GymRoomValidator`, `GymBossValidator`, `MoveValidator`
-- `ValidatorFactory` — registry `get*Validator()` in `validation.support`
-- `GameStateBuilder`, `PlayerBuilder`, `CreatureBuilder`, … — costruzione aggregati con validazione
+| Classe | Responsabilità |
+|--------|----------------|
+| `Validator<T>` | Template method: valida un aggregato; impl in `validation.implementations`. |
+| `ValidatorFactory` | Restituisce validator per tipo (`getCreatureValidator()`, …). |
+| `*Validator` (Creature, Move, GameState, …) | Regole di coerenza su entità e aggregati. |
+| `*Builder` (Creature, Player, GameState, …) | Costruzione controllata con validazione. |
 
 ---
 
-## model.service
+## controller — schermate e navigazione
 
-- `GameModel` — facciata usata dai controller verso servizi e persistenza; `persistSession()` unifica il flusso di salvataggio
-- `BattleService`, `NewGameService`, `HealingService` — casi d'uso principali
-- `GymCompletionHandler` — ricompense al completamento palestra
-- `SessionPersistenceFacade`, `GameStateHolder` — persistenza e stato in memoria
-- `GymStatusStrategy`, `DefaultGymStatusStrategy` — stato palestre sulla mappa
-- `GymStatus` — enum: `COMPLETED`, `AVAILABLE`, `CURRENT`, `NEEDS_POINTS`, `UNREACHABLE`
-- `OverworldGridLayout`, `OverworldSpawnPosition`, `GymCellPlacement` — layout deterministico mappa (seed `LAYOUT_SEED = 42`)
-- `MapGridContext`, `GymPlacementRequest` — builder per contesto griglia e assegnazione palestre
-- `HealingCheck` — builder condiviso tra `HealingService` e `HubPresenter` (cura abilitata / tooltip)
-- `GameModelOptions` — builder opzioni assemblate in `ServiceGraph`
-
----
-
-## model.persistence (dettaglio)
-
-- `AbstractHibernateAdapter` — base condivisa adapter Hibernate
-- `HibernateGameCatalogLoader`, `CatalogEntityMapper`, `CatalogDatabaseSeeder`, `CatalogSeedJsonLoader` — catalogo da JSON → H2 → dominio
-- `PalestraCollegamentiSupport`, `CatalogLoadSupport` — collegamenti palestre e helper seed
-- `HibernateGameStateRepository`, `SessioneSalvataJpaRepository` — persistenza slot
-- `SessionRepositoryOptions` — builder opzioni repository (EMF, JPA, serializer, mapper)
-- `SessioneSalvataEntity.SaveRowDraft` — builder campi iniziali nuova riga salvataggio
-- `SessioneSalvataSummaryMapper` — metadati slot per lista UI
-- `SessioneJsonMapper`, `SessionJsonSerializer`, `LoadedSessionPayload` — serializzazione JSON
-- `UltimaSessioneSalvataDto`, `CreaturaTeamDto`, `PalestraProgressoDto`, `PosizioneMappaDto` — DTO sessione
-- Entity JPA: `GiocatoreEntity`, `CreaturaEntity`, `MossaEntity`, `PalestraEntity`, `SessioneSalvataEntity`
+| Classe / interfaccia | Responsabilità |
+|----------------------|----------------|
+| `MainMenuController`, `LoadGameController`, `HubController`, `BattleController`, `VictoryController` | Controller FXML: eventi UI della rispettiva schermata. |
+| `BattlePresenter`, `HubPresenter`, `OverworldPresenter` | Logica schermata estratta dal controller FXML. |
+| `ScreenNavigator` | Implementa navigazione e save/load tra schermate. |
+| `ScreenFactory` | Monta FXML + controller da `FxmlPaths`. |
+| `MainView` | Shell root applicazione. |
+| `*Actions`, `*Navigation` | Interfacce piccole per azioni/navigazione di ogni schermata. |
+| `*ActionsImpl` | Delegano al `ScreenNavigator`. |
+| `FxmlPaths`, `FxmlScreenLoader`, `DialogHelper` | Path FXML, caricamento, dialoghi. |
+| `SavedSessionSummaryCell` | Cella lista slot in carica partita. |
+| `HubTeamRowFactory` | Riga team nell'hub (carta + cura). |
+| `BattleCommandBindings` | Builder binding bottoni mosse/switch in battaglia. |
 
 ---
 
-## controller e view
+## view — interfaccia grafica
 
-### Navigazione (`controller.navigation`)
-
-Convenzione del progetto: **interfacce nel package padre**, **implementazioni concrete in `implementations/`**, helper in `support/` (come in `model.validation`, `model.combat.strategy`, ecc.).
-
-```
-controller/navigation/
-├── MainMenuNavigation, HubNavigation, LoadGameNavigation, VictoryNavigation
-├── MainMenuActions, HubActions, LoadGameActions, VictoryActions
-├── ScreenNavigation
-├── implementations/
-│   ├── ScreenNavigator
-│   └── MainMenuActionsImpl, HubActionsImpl, LoadGameActionsImpl, VictoryActionsImpl
-└── support/
-    ├── MainView, ScreenFactory, FxmlScreenLoader, FxmlPaths
-    ├── RootScreenStack, DialogHelper
-    └── PersistenceUiGuard, PersistenceOperation
-```
-
-- `MainView` — layout root (`FxmlPaths.MAIN_SHELL`); crea `ScreenNavigator`
-- `ScreenNavigator` — routing hub/battaglia/vittoria, save/load/delete; policy `redirectToVictoryIfCompleted()`
-- `ScreenFactory` — monta FXML + controller; path centralizzati in `FxmlPaths`
-- `*Navigation` / `*Actions` — contratti per schermata; `*ActionsImpl` delegano al navigator
-
-### Presenter, controller e helper schermata
-
-- `BattlePresenter`, `HubPresenter`, `OverworldPresenter` — logica schermata estratta dai controller FXML
-- `BattleCommandBindings` — builder binding colonna comandi duello (mosse, switch, callback)
-- `MainMenuController`, `LoadGameController`, `HubController`, `BattleController`, `VictoryController`
-- `BattleCommandColumnController`, `BattleEndOverlayController` — sotto-pannelli FXML battaglia
-- `SavedSessionSummaryCell` — cella lista slot in `LoadGameController`
-- `HubTeamRowFactory` — wiring riga team (carta creatura + cura) in `HubController`
-
-### Componenti e overworld
-
-- `OverworldMap`, `OverworldZoomControls`, `OverworldGymModalController`, `OverworldLayoutSupport`, `OverworldTileRenderer`
-- `TileRenderAssets`, `GymModalUi`, `OverworldTileRenderer.PlayerMarker` — builder asset tile, UI modale, overlay giocatore
-- `ArenaLayoutSpec` — builder layout arena duello
-- `OverworldPlayerSpawn`, `OverworldMovement`, `OverworldMapChrome` — spawn, movimento e chrome UI mappa
-- `CreaturePortrait`, `CreatureCard`, `BattleArenaView`, `HealthBar`, `HamburgerMenu`
-- `PortraitAssetResolver` — path ritratti da `GameCatalog`
-- `Messages`, `BattleEventTranslator`, `BattleSideMessages`, `BattleLogRenderer`, `UiErrorReporter` — i18n, log battaglia, rendering cronaca
-- `DuelUiTheme` — tema schermata battaglia (`view.theme.implementations`)
+| Classe | Responsabilità |
+|--------|----------------|
+| `OverworldMap` | Griglia mappa, input movimento, modale palestra. |
+| `OverworldTileRenderer` | Disegno singolo tile (terreno, palestra, giocatore, decor). |
+| `OverworldMovement`, `OverworldPlayerSpawn` | Movimento tastiera e posizione iniziale. |
+| `OverworldZoomControls` | Zoom mappa. |
+| `CreatureCard`, `CreaturePortrait`, `HealthBar` | Widget creature e barra HP. |
+| `BattleArenaView`, `ArenaLayoutSpec` | Layout arena duello. |
+| `BattleLogRenderer`, `BattleEventTranslator` | Cronaca battaglia in italiano. |
+| `Messages` | Accesso a `messages_it.properties`. |
+| `PortraitAssetResolver` | Path immagini creature/giocatore da catalogo. |
+| `UiTheme` / `DuelUiTheme` | Skin CSS alternativa sulla root FXML. |
