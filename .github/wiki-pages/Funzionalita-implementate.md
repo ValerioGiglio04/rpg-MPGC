@@ -101,17 +101,17 @@ Messaggi UI e log battaglia in `messages_it.properties`, letti tramite `Messages
 ## Flusso tipico
 
 ```mermaid
-%%{init: {'flowchart': {'curve': 'linear'}}}%%
 flowchart TD
-  Boot[Avvio] --> MainMenu[Menu]
-  MainMenu -->|Nuova / Continua| Hub[Hub]
+  Boot[Avvio] --> MainMenu[Menu principale]
+  MainMenu -->|Nuova partita| Hub[Hub]
+  MainMenu -->|Continua| Hub
   MainMenu -->|Esci| End[Fine]
   Hub -->|Salva| Hub
   Hub -->|Menu| MainMenu
   Hub -->|Palestra| Battle[Battaglia]
   Battle --> Hub
   Hub -->|Campagna finita| Victory[Vittoria]
-  Victory --> MainMenu
+  Victory -->|Menu| MainMenu
 ```
 
 ---

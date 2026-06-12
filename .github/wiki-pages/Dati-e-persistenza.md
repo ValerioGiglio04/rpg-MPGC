@@ -41,7 +41,6 @@ In memoria lo stato sta in `GameStateHolder`. Quando l'utente salva:
 Al **load**, `SessioneJsonMapper.fromDto()` ricostruisce `GameState` usando gli **id salvati** e recuperando nomi, mosse e statistiche base dal catalogo.
 
 ```mermaid
-%%{init: {'flowchart': {'curve': 'linear'}}}%%
 flowchart LR
   JSON[catalog-seed.json] --> Seeder[CatalogDatabaseSeeder]
   Seeder --> H2Cat[(H2 catalogo)]
