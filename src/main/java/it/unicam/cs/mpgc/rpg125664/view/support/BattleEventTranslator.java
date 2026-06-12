@@ -10,6 +10,22 @@ import java.util.Optional;
  */
 public final class BattleEventTranslator {
 
+  private static final BattleSideMessages.SideMessageKeys MOVE_USED =
+      new BattleSideMessages.SideMessageKeys(
+          "battle.event.move.used.player", "battle.event.move.used.boss");
+  private static final BattleSideMessages.SideMessageKeys ATTACK_HIT =
+      new BattleSideMessages.SideMessageKeys(
+          "battle.event.attack.hit.player", "battle.event.attack.hit.boss");
+  private static final BattleSideMessages.SideMessageKeys ATTACK_MISSED =
+      new BattleSideMessages.SideMessageKeys(
+          "battle.event.attack.missed.player", "battle.event.attack.missed.boss");
+  private static final BattleSideMessages.SideMessageKeys KNOCKED_OUT =
+      new BattleSideMessages.SideMessageKeys(
+          "battle.event.creature.knocked.out.player", "battle.event.creature.knocked.out.boss");
+  private static final BattleSideMessages.SideMessageKeys SWITCHED =
+      new BattleSideMessages.SideMessageKeys(
+          "battle.event.creature.switched.player", "battle.event.creature.switched.boss");
+
   private BattleEventTranslator() {}
 
   public static List<BattleLogLine> translate(List<BattleEvent> events) {
@@ -22,50 +38,28 @@ public final class BattleEventTranslator {
   }
 
   private static BattleLogLine translateMoveUsed(BattleEvent.MoveUsed used) {
-    String sideFormatted =
-        BattleSideMessages.format(
-            used.side(),
-            "battle.event.move.used.player",
-            "battle.event.move.used.boss",
-            used.moveName());
+    String sideFormatted = BattleSideMessages.format(used.side(), MOVE_USED, used.moveName());
     return new BattleLogLine(BattleSideMessages.logKind(used.side()), sideFormatted);
   }
 
   private static BattleLogLine translateAttackHit(BattleEvent.AttackHit hit) {
     String sideFormatted =
-        BattleSideMessages.format(
-            hit.side(),
-            "battle.event.attack.hit.player",
-            "battle.event.attack.hit.boss",
-            hit.defenderName(),
-            hit.damage());
+        BattleSideMessages.format(hit.side(), ATTACK_HIT, hit.defenderName(), hit.damage());
     return new BattleLogLine(BattleSideMessages.logKind(hit.side()), sideFormatted);
   }
 
   private static BattleLogLine translateAttackMissed(BattleEvent.AttackMissed missed) {
-    String sideFormatted =
-        BattleSideMessages.get(
-            missed.side(), "battle.event.attack.missed.player", "battle.event.attack.missed.boss");
+    String sideFormatted = BattleSideMessages.get(missed.side(), ATTACK_MISSED);
     return new BattleLogLine(BattleSideMessages.logKind(missed.side()), sideFormatted);
   }
 
   private static BattleLogLine translateCreatureKnockedOut(BattleEvent.CreatureKnockedOut ko) {
-    String sideFormatted =
-        BattleSideMessages.format(
-            ko.side(),
-            "battle.event.creature.knocked.out.player",
-            "battle.event.creature.knocked.out.boss",
-            ko.creatureName());
+    String sideFormatted = BattleSideMessages.format(ko.side(), KNOCKED_OUT, ko.creatureName());
     return new BattleLogLine(BattleSideMessages.logKind(ko.side()), sideFormatted);
   }
 
   private static BattleLogLine translateCreatureSwitched(BattleEvent.CreatureSwitched switched) {
-    String sideFormatted =
-        BattleSideMessages.format(
-            switched.side(),
-            "battle.event.creature.switched.player",
-            "battle.event.creature.switched.boss",
-            switched.toName());
+    String sideFormatted = BattleSideMessages.format(switched.side(), SWITCHED, switched.toName());
     return new BattleLogLine(BattleSideMessages.logKind(switched.side()), sideFormatted);
   }
 

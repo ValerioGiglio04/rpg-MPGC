@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.view.overworld;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.GymPlacementRequest;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.OverworldGridLayout;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.OverworldSpawnPosition;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
@@ -21,10 +22,12 @@ public final class OverworldLayoutSupport {
   public static Map<String, GymRoom> assignGymsDeterministic(List<GymRoom> gyms) {
     boolean[][] blockedTiles = OverworldMapConstants.createBlockedTiles();
     return GymCellPlacement.assignCells(
-        gyms,
-        blockedTiles,
-        new Random(OverworldGridLayout.LAYOUT_SEED),
-        OverworldGridLayout.GYM_MIN_DISTANCE);
+        GymPlacementRequest.builder()
+            .gyms(gyms)
+            .blockedTiles(blockedTiles)
+            .random(new Random(OverworldGridLayout.LAYOUT_SEED))
+            .minDistance(OverworldGridLayout.GYM_MIN_DISTANCE)
+            .build());
   }
 
   /** Alberi e cespugli: stesso seed del posizionamento palestre, indipendente dal numero di gym. */

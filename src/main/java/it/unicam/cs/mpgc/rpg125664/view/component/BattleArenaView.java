@@ -23,19 +23,9 @@ public final class BattleArenaView {
 
   private BattleArenaView() {}
 
-  public static StackPane create(
-      Creature playerCreature,
-      Creature bossCreature,
-      PortraitAssetResolver portraitAssets,
-      double foePortraitSize,
-      double playerPortraitSize) {
+  public static StackPane create(ArenaLayoutSpec spec) {
     StackPane arenaRoot = new StackPane();
-    arenaRoot
-        .getChildren()
-        .addAll(
-            backdrop(),
-            anchoredLayer(
-                playerCreature, bossCreature, portraitAssets, foePortraitSize, playerPortraitSize));
+    arenaRoot.getChildren().addAll(backdrop(), anchoredLayer(spec));
     return arenaRoot;
   }
 
@@ -46,16 +36,12 @@ public final class BattleArenaView {
     return backdrop;
   }
 
-  private static AnchorPane anchoredLayer(
-      Creature playerCreature,
-      Creature bossCreature,
-      PortraitAssetResolver portraitAssets,
-      double foePortraitSize,
-      double playerPortraitSize) {
+  private static AnchorPane anchoredLayer(ArenaLayoutSpec spec) {
     AnchorPane layer = new AnchorPane();
     layer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-    VBox foeColumn = foeColumn(bossCreature, portraitAssets, foePortraitSize);
-    VBox allyColumn = allyColumn(playerCreature, portraitAssets, playerPortraitSize);
+    VBox foeColumn = foeColumn(spec.bossCreature(), spec.portraitAssets(), spec.foePortraitSize());
+    VBox allyColumn =
+        allyColumn(spec.playerCreature(), spec.portraitAssets(), spec.playerPortraitSize());
     layer.getChildren().addAll(foeColumn, allyColumn);
     AnchorPane.setTopAnchor(foeColumn, FOE_TOP_INSET);
     AnchorPane.setRightAnchor(foeColumn, FOE_RIGHT_INSET);

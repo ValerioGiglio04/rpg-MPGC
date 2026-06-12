@@ -12,6 +12,7 @@ import it.unicam.cs.mpgc.rpg125664.model.overworld.strategy.implementations.Defa
 import it.unicam.cs.mpgc.rpg125664.model.persistence.GameStateRepository;
 import it.unicam.cs.mpgc.rpg125664.model.service.BattleService;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.model.service.GameModelOptions;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameStateHolder;
 import it.unicam.cs.mpgc.rpg125664.model.service.GymCompletionHandler;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingService;
@@ -46,7 +47,15 @@ final class ServiceGraph {
     GymStatusStrategy gymStatusStrategy = new DefaultGymStatusStrategy();
 
     GameModel gameModel =
-        new GameModel(holder, newGame, battle, healing, persistence, gymStatusStrategy);
+        new GameModel(
+            GameModelOptions.builder()
+                .holder(holder)
+                .newGame(newGame)
+                .battle(battle)
+                .healing(healing)
+                .persistence(persistence)
+                .gymStatusStrategy(gymStatusStrategy)
+                .build());
     PortraitAssetResolver portraitAssets = new PortraitAssetResolver(catalog);
     return new Runtime(gameModel, portraitAssets);
   }

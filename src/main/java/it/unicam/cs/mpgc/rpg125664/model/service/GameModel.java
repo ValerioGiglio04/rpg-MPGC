@@ -23,19 +23,14 @@ public final class GameModel {
   private final SessionPersistenceFacade persistence;
   private final GymStatusStrategy gymStatusStrategy;
 
-  public GameModel(
-      GameStateHolder holder,
-      NewGameService newGame,
-      BattleService battle,
-      HealingService healing,
-      SessionPersistenceFacade persistence,
-      GymStatusStrategy gymStatusStrategy) {
-    this.holder = Objects.requireNonNull(holder, "holder");
-    this.newGame = Objects.requireNonNull(newGame, "newGame");
-    this.battle = Objects.requireNonNull(battle, "battle");
-    this.healing = Objects.requireNonNull(healing, "healing");
-    this.persistence = Objects.requireNonNull(persistence, "persistence");
-    this.gymStatusStrategy = Objects.requireNonNull(gymStatusStrategy, "gymStatusStrategy");
+  public GameModel(GameModelOptions options) {
+    Objects.requireNonNull(options, "options");
+    this.holder = options.holder();
+    this.newGame = options.newGame();
+    this.battle = options.battle();
+    this.healing = options.healing();
+    this.persistence = options.persistence();
+    this.gymStatusStrategy = options.gymStatusStrategy();
   }
 
   public GameState gameState() {

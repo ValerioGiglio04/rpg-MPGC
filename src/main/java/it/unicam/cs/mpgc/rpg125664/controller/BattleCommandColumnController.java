@@ -21,45 +21,52 @@ public final class BattleCommandColumnController {
 
   private static final int TEAM_PORTRAIT_SIZE = 72;
 
+  private record MoveCellRequest(
+      GridPane moveGrid,
+      Creature playerCreature,
+      GymRoom gym,
+      int index,
+      IntConsumer onMoveSelected) {}
+
+  private record TeamSwitchRowRequest(
+      VBox switches,
+      CreatureHolder playerHolder,
+      GymRoom gym,
+      PortraitAssetResolver portraitAssets,
+      int index,
+      LongConsumer onSwitchCreature) {}
+
   @FXML private GridPane moveGrid;
 
   @FXML private VBox teamSwitches;
 
   @FXML private GameButton backButton;
 
-  public void wire(
-      Creature playerCreature,
-      GymRoom gym,
-      CreatureHolder holder,
-      PortraitAssetResolver portraitAssets,
-      Runnable onBack,
-      IntConsumer onMoveSelected,
-      LongConsumer onSwitchCreature) {
-    backButton.setOnAction(event -> onBack.run());
-    populateMoveGrid(playerCreature, gym, onMoveSelected);
-    populateTeamSwitches(holder, gym, portraitAssets, onSwitchCreature);
+  public void wire(BattleCommandBindings bindings) {
+    backButton.setOnAction(event -> bindings.onBack().run());
+    populateMoveGrid(bindings.playerCreature(), bindings.gym(), bindings.onMoveSelected());
+    populateTeamSwitches(
+        bindings.holder(), bindings.gym(), bindings.portraitAssets(), bindings.onSwitchCreature());
   }
 
   private void populateMoveGrid(Creature playerCreature, GymRoom gym, IntConsumer onMoveSelected) {
     moveGrid.getChildren().clear();
     IntStream.range(0, playerCreature.moves().size())
-        .forEach(index -> addMoveCell(moveGrid, playerCreature, gym, index, onMoveSelected));
+        .forEach(
+            index ->
+                addMoveCell(
+                    new MoveCellRequest(moveGrid, playerCreature, gym, index, onMoveSelected)));
   }
 
-  private static void addMoveCell(
-      GridPane moveGrid,
-      Creature playerCreature,
-      GymRoom gym,
-      int index,
-      IntConsumer onMoveSelected) {
-    Move move = playerCreature.moves().get(index);
+  private static void addMoveCell(MoveCellRequest request) {
+    Move move = request.playerCreature().moves().get(request.index());
     GameButton moveButton = new GameButton(move.name());
     moveButton.getStyleClass().add("move-tile");
     moveButton.setTooltip(new Tooltip(moveTooltipText(move)));
-    moveButton.setDisable(gym.completed() || playerCreature.isKnockedOut());
-    int moveIndex = index;
-    moveButton.setOnAction(event -> onMoveSelected.accept(moveIndex));
-    moveGrid.add(moveButton, index % 2, index / 2);
+    moveButton.setDisable(request.gym().completed() || request.playerCreature().isKnockedOut());
+    int moveIndex = request.index();
+    moveButton.setOnAction(event -> request.onMoveSelected().accept(moveIndex));
+    request.moveGrid().add(moveButton, request.index() % 2, request.index() / 2);
   }
 
   private static String moveTooltipText(Move move) {
@@ -78,31 +85,27 @@ public final class BattleCommandColumnController {
         .forEach(
             index ->
                 appendTeamRow(
-                    teamSwitches, playerHolder, gym, portraitAssets, index, onSwitchCreature));
+                    new TeamSwitchRowRequest(
+                        teamSwitches, playerHolder, gym, portraitAssets, index, onSwitchCreature)));
   }
 
-  private static void appendTeamRow(
-      VBox switches,
-      CreatureHolder playerHolder,
-      GymRoom gym,
-      PortraitAssetResolver portraitAssets,
-      int index,
-      LongConsumer onSwitchCreature) {
-    Creature creature = playerHolder.creatures().get(index);
+  private static void appendTeamRow(TeamSwitchRowRequest request) {
+    Creature creature = request.playerHolder().creatures().get(request.index());
     long catalogId = creature.catalogId();
     GameButton switchButton =
         new GameButton(Messages.format("battle.button.send", creature.name())).asSecondary();
     switchButton.getStyleClass().add("switch-button");
     switchButton.setDisable(
-        playerHolder.isActive(creature) || !playerHolder.canSwitchTo(catalogId));
-    switchButton.setOnAction(event -> onSwitchCreature.accept(catalogId));
+        request.playerHolder().isActive(creature)
+            || !request.playerHolder().canSwitchTo(catalogId));
+    switchButton.setOnAction(event -> request.onSwitchCreature().accept(catalogId));
     CreatureCard creatureCard =
-        CreatureCard.builder(creature, portraitAssets)
-            .active(playerHolder.isActive(creature))
+        CreatureCard.builder(creature, request.portraitAssets())
+            .active(request.playerHolder().isActive(creature))
             .portraitSize(TEAM_PORTRAIT_SIZE)
             .sideStyleClass("player-creature-card")
             .build();
-    switches.getChildren().add(creatureCard);
-    switches.getChildren().add(switchButton);
+    request.switches().getChildren().add(creatureCard);
+    request.switches().getChildren().add(switchButton);
   }
 }

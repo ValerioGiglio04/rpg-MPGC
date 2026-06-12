@@ -15,6 +15,9 @@ import java.util.Objects;
 /** Esegue un round di duello (ordine turni, due attacchi, switch su KO). */
 public final class BattleRoundExecutor {
 
+  private record RoundAttack(
+      List<BattleEvent> events, GameState state, Side side, int playerMoveIndex) {}
+
   private final AttackResolutionStrategy attackResolutionStrategy;
   private final BossMoveStrategy bossMoveStrategy;
 
@@ -37,37 +40,40 @@ public final class BattleRoundExecutor {
     Side first = playerCreature.speed() >= bossCreature.speed() ? Side.PLAYER : Side.BOSS;
     events.add(new BattleEvent.RoundStarted(first, activeCreature(state, first).name()));
 
-    attackOnce(events, state, first, playerMoveIndex);
+    attackOnce(new RoundAttack(events, state, first, playerMoveIndex));
     if (!battleEnded(events, state)) {
       swapKoIfNeeded(events, state, first.opposite());
-      attackOnce(events, state, first.opposite(), playerMoveIndex);
+      attackOnce(new RoundAttack(events, state, first.opposite(), playerMoveIndex));
       battleEnded(events, state);
     }
     return events;
   }
 
-  private void attackOnce(
-      List<BattleEvent> events, GameState state, Side side, int playerMoveIndex) {
-    Creature attacker = activeCreature(state, side);
+  private void attackOnce(RoundAttack attack) {
+    Creature attacker = activeCreature(attack.state(), attack.side());
     if (attacker.isKnockedOut()) {
       return;
     }
-    Creature defender = activeCreature(state, side.opposite());
+    Creature defender = activeCreature(attack.state(), attack.side().opposite());
     Move move =
-        side == Side.PLAYER
-            ? clampedPlayerMove(attacker, playerMoveIndex)
+        attack.side() == Side.PLAYER
+            ? clampedPlayerMove(attacker, attack.playerMoveIndex())
             : bossMoveStrategy.pickMove(attacker);
-    events.add(new BattleEvent.MoveUsed(side, attacker.name(), move.name()));
+    attack.events().add(new BattleEvent.MoveUsed(attack.side(), attacker.name(), move.name()));
     AttackOutcome outcome = attackResolutionStrategy.execute(attacker, defender, move);
     if (!outcome.hit()) {
-      events.add(new BattleEvent.AttackMissed(side));
+      attack.events().add(new BattleEvent.AttackMissed(attack.side()));
       return;
     }
-    events.add(new BattleEvent.AttackHit(side, defender.name(), outcome.damage()));
+    attack
+        .events()
+        .add(new BattleEvent.AttackHit(attack.side(), defender.name(), outcome.damage()));
     if (!outcome.defenderKnockedOut()) {
       return;
     }
-    events.add(new BattleEvent.CreatureKnockedOut(side.opposite(), defender.name()));
+    attack
+        .events()
+        .add(new BattleEvent.CreatureKnockedOut(attack.side().opposite(), defender.name()));
   }
 
   private void swapKoIfNeeded(List<BattleEvent> events, GameState state, Side side) {

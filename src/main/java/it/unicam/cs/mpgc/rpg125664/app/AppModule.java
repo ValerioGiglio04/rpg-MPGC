@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.dto.CatalogSeedBund
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed.CatalogSeedJsonLoader;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.SessioneSalvataSummaryMapper;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.implementations.HibernateGameStateRepository;
+import it.unicam.cs.mpgc.rpg125664.model.persistence.session.implementations.SessionRepositoryOptions;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.implementations.SessioneSalvataJpaRepository;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.mapper.SessioneJsonMapper;
 import it.unicam.cs.mpgc.rpg125664.model.persistence.session.serializer.SessionJsonSerializer;
@@ -62,7 +63,12 @@ public final class AppModule implements AutoCloseable {
         new SessioneSalvataJpaRepository(entityManagerFactory);
     this.repository =
         new HibernateGameStateRepository(
-            entityManagerFactory, jpaRepository, serializer, summaryMapper);
+            SessionRepositoryOptions.builder()
+                .entityManagerFactory(entityManagerFactory)
+                .jpaRepository(jpaRepository)
+                .serializer(serializer)
+                .summaryMapper(summaryMapper)
+                .build());
 
     ServiceGraph.Runtime runtime = ServiceGraph.assemble(repository, catalog);
     this.gameModel = runtime.gameModel();

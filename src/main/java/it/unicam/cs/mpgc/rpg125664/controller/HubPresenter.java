@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.controller;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.model.service.HealingCheck;
 import it.unicam.cs.mpgc.rpg125664.model.service.HealingException;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;
@@ -34,14 +35,21 @@ public final class HubPresenter {
     long catalogId = creature.catalogId();
     int cost = gameModel.healCostForCreature(catalogId);
     GameState state = gameModel.gameState();
+    HealingCheck healingCheck =
+        HealingCheck.builder()
+            .creature(creature)
+            .state(state)
+            .spendableGlory(spendable)
+            .healCost(cost)
+            .build();
     return new TeamRowViewModel(
         creature,
         catalogId,
         active,
         creature.isKnockedOut(),
         cost,
-        canHeal(creature, state, spendable, cost),
-        healTooltip(state, creature, cost, spendable));
+        healingCheck.canHeal(),
+        healTooltip(healingCheck));
   }
 
   public void healCreature(long catalogId) {
@@ -62,23 +70,17 @@ public final class HubPresenter {
     }
   }
 
-  private static boolean canHeal(Creature creature, GameState state, int spendable, int cost) {
-    boolean fullHp = creature.currentHealth() >= creature.maxHealth();
-    int playerPoints = state.player().score().points();
-    return !fullHp && cost <= playerPoints && cost <= spendable;
-  }
-
-  private static String healTooltip(GameState state, Creature creature, int cost, int spendable) {
-    if (creature.currentHealth() >= creature.maxHealth()) {
+  private static String healTooltip(HealingCheck check) {
+    if (check.creature().currentHealth() >= check.creature().maxHealth()) {
       return Messages.get("hub.heal.tooltip.fullHp");
     }
-    if (cost > state.player().score().points()) {
-      return Messages.format("hub.heal.tooltip.noGlory", cost);
+    if (check.healCost() > check.state().player().score().points()) {
+      return Messages.format("hub.heal.tooltip.noGlory", check.healCost());
     }
-    if (cost > spendable) {
-      return Messages.format("hub.heal.tooltip.gymFloor", cost, spendable);
+    if (check.healCost() > check.spendableGlory()) {
+      return Messages.format("hub.heal.tooltip.gymFloor", check.healCost(), check.spendableGlory());
     }
-    return Messages.format("hub.heal.tooltip.ok", cost);
+    return Messages.format("hub.heal.tooltip.ok", check.healCost());
   }
 
   public record TeamRowViewModel(

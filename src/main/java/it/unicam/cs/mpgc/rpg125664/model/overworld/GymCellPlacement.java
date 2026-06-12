@@ -15,6 +15,15 @@ import java.util.Random;
  */
 public final class GymCellPlacement {
 
+  private record SlotSelection(
+      List<OverworldPosition> slots, boolean[][] blockedTiles, int gymCount, int minDistance) {}
+
+  private record SlotFill(
+      List<OverworldPosition> chosen,
+      List<OverworldPosition> slots,
+      boolean[][] blockedTiles,
+      int gymCount) {}
+
   private GymCellPlacement() {
     throw new UnsupportedOperationException("Utility class");
   }
@@ -23,13 +32,18 @@ public final class GymCellPlacement {
    * Sceglie {@code gyms.size()} slot da {@link OverworldGridLayout#gymSlots()}, rispettando
    * distanza minima e tile bloccati, poi associa palestra → cella.
    */
-  public static Map<String, GymRoom> assignCells(
-      List<GymRoom> gyms, boolean[][] blockedTiles, Random random, int minDistance) {
-    List<OverworldPosition> shuffledSlots = shuffledGymSlots(random);
+  public static Map<String, GymRoom> assignCells(GymPlacementRequest request) {
+    List<OverworldPosition> shuffledSlots = shuffledGymSlots(request.random());
     List<OverworldPosition> chosenSlots =
-        pickSlotsWithMinDistance(shuffledSlots, blockedTiles, gyms.size(), minDistance);
-    fillRemainingSlots(chosenSlots, shuffledSlots, blockedTiles, gyms.size());
-    return mapGymsToSlots(gyms, chosenSlots);
+        pickSlotsWithMinDistance(
+            new SlotSelection(
+                shuffledSlots,
+                request.blockedTiles(),
+                request.gyms().size(),
+                request.minDistance()));
+    fillRemainingSlots(
+        new SlotFill(chosenSlots, shuffledSlots, request.blockedTiles(), request.gyms().size()));
+    return mapGymsToSlots(request.gyms(), chosenSlots);
   }
 
   /**
@@ -37,17 +51,11 @@ public final class GymCellPlacement {
    * sinistra, sotto, sopra. Se nessuno è libero, si usa {@link
    * OverworldGridLayout#DEFAULT_PLAYER_SPAWN}.
    */
-  public static OverworldPosition findHomeTile(
-      int gymRow,
-      int gymCol,
-      boolean[][] blockedTiles,
-      Map<String, GymRoom> gymsByCell,
-      int mapRows,
-      int mapCols) {
+  public static OverworldPosition findHomeTile(int gymRow, int gymCol, MapGridContext grid) {
     for (AdjacentDirection direction : AdjacentDirection.SPAWN_SEARCH_ORDER) {
       int row = gymRow + direction.rowDelta;
       int col = gymCol + direction.columnDelta;
-      if (isWalkableSpawnTile(row, col, blockedTiles, gymsByCell, mapRows, mapCols)) {
+      if (grid.isWalkableSpawnTile(row, col)) {
         return new OverworldPosition(row, col);
       }
     }
@@ -65,29 +73,26 @@ public final class GymCellPlacement {
     return slots;
   }
 
-  private static List<OverworldPosition> pickSlotsWithMinDistance(
-      List<OverworldPosition> slots, boolean[][] blockedTiles, int gymCount, int minDistance) {
-    List<OverworldPosition> chosen = new ArrayList<>(gymCount);
-    slots.stream()
-        .filter(slot -> isFreeSlot(slot, blockedTiles))
-        .filter(slot -> isFarEnoughFromChosen(chosen, slot, minDistance))
-        .limit(gymCount)
+  private static List<OverworldPosition> pickSlotsWithMinDistance(SlotSelection selection) {
+    List<OverworldPosition> chosen = new ArrayList<>(selection.gymCount());
+    selection.slots().stream()
+        .filter(slot -> isFreeSlot(slot, selection.blockedTiles()))
+        .filter(slot -> isFarEnoughFromChosen(chosen, slot, selection.minDistance()))
+        .limit(selection.gymCount())
         .forEach(chosen::add);
     return chosen;
   }
 
-  private static void fillRemainingSlots(
-      List<OverworldPosition> chosen,
-      List<OverworldPosition> slots,
-      boolean[][] blockedTiles,
-      int gymCount) {
-    if (chosen.size() >= gymCount) return;
-    int stillNeeded = gymCount - chosen.size();
-    slots.stream()
-        .filter(slot -> isFreeSlot(slot, blockedTiles))
-        .filter(slot -> !chosen.contains(slot))
+  private static void fillRemainingSlots(SlotFill fill) {
+    if (fill.chosen().size() >= fill.gymCount()) {
+      return;
+    }
+    int stillNeeded = fill.gymCount() - fill.chosen().size();
+    fill.slots().stream()
+        .filter(slot -> isFreeSlot(slot, fill.blockedTiles()))
+        .filter(slot -> !fill.chosen().contains(slot))
         .limit(stillNeeded)
-        .forEach(chosen::add);
+        .forEach(fill.chosen()::add);
   }
 
   private static Map<String, GymRoom> mapGymsToSlots(
@@ -100,24 +105,8 @@ public final class GymCellPlacement {
     return gymsByCell;
   }
 
-  private static boolean isWalkableSpawnTile(
-      int row,
-      int col,
-      boolean[][] blockedTiles,
-      Map<String, GymRoom> gymsByCell,
-      int mapRows,
-      int mapCols) {
-    if (!isInsideMap(row, col, mapRows, mapCols)) return false;
-    if (blockedTiles[row][col]) return false;
-    return !gymsByCell.containsKey(cellKey(row, col));
-  }
-
   private static boolean isFreeSlot(OverworldPosition slot, boolean[][] blockedTiles) {
     return !blockedTiles[slot.row()][slot.column()];
-  }
-
-  private static boolean isInsideMap(int row, int col, int mapRows, int mapCols) {
-    return row >= 0 && row < mapRows && col >= 0 && col < mapCols;
   }
 
   private static boolean isFarEnoughFromChosen(

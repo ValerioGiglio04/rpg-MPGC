@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/** Posizione di fallback del giocatore sulla mappa quando non e' ancora stata salvata. */
 public final class OverworldSpawnPosition {
 
   private OverworldSpawnPosition() {
@@ -20,10 +19,19 @@ public final class OverworldSpawnPosition {
     boolean[][] blockedTiles = OverworldGridLayout.createBlockedTiles();
     Map<String, GymRoom> gymsByCell =
         GymCellPlacement.assignCells(
-            gyms,
-            blockedTiles,
-            new Random(OverworldGridLayout.LAYOUT_SEED),
-            OverworldGridLayout.GYM_MIN_DISTANCE);
+            GymPlacementRequest.builder()
+                .gyms(gyms)
+                .blockedTiles(blockedTiles)
+                .random(new Random(OverworldGridLayout.LAYOUT_SEED))
+                .minDistance(OverworldGridLayout.GYM_MIN_DISTANCE)
+                .build());
+    MapGridContext grid =
+        MapGridContext.builder()
+            .blockedTiles(blockedTiles)
+            .gymsByCell(gymsByCell)
+            .mapRows(OverworldGridLayout.MAP_ROWS)
+            .mapCols(OverworldGridLayout.MAP_COLS)
+            .build();
     for (Map.Entry<String, GymRoom> entry : gymsByCell.entrySet()) {
       if (entry.getValue().id() != currentGymId) {
         continue;
@@ -31,13 +39,7 @@ public final class OverworldSpawnPosition {
       String[] parts = entry.getKey().split(":");
       int gymRow = Integer.parseInt(parts[0]);
       int gymCol = Integer.parseInt(parts[1]);
-      return GymCellPlacement.findHomeTile(
-          gymRow,
-          gymCol,
-          blockedTiles,
-          gymsByCell,
-          OverworldGridLayout.MAP_ROWS,
-          OverworldGridLayout.MAP_COLS);
+      return GymCellPlacement.findHomeTile(gymRow, gymCol, grid);
     }
     return OverworldGridLayout.DEFAULT_PLAYER_SPAWN;
   }

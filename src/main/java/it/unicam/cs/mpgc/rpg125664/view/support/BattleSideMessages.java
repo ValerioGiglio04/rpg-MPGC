@@ -5,14 +5,16 @@ import it.unicam.cs.mpgc.rpg125664.model.event.Side;
 /** Formattazione messaggi di log battaglia dipendenti dal lato (giocatore / boss). */
 final class BattleSideMessages {
 
+  record SideMessageKeys(String playerKey, String bossKey) {}
+
   private BattleSideMessages() {}
 
-  static String get(Side side, String playerKey, String bossKey) {
-    return Messages.get(side == Side.PLAYER ? playerKey : bossKey);
+  static String get(Side side, SideMessageKeys keys) {
+    return Messages.get(side == Side.PLAYER ? keys.playerKey() : keys.bossKey());
   }
 
-  static String format(Side side, String playerKey, String bossKey, Object... formatArgs) {
-    String key = side == Side.PLAYER ? playerKey : bossKey;
+  static String format(Side side, SideMessageKeys keys, Object... formatArgs) {
+    String key = side == Side.PLAYER ? keys.playerKey() : keys.bossKey();
     return Messages.format(key, formatArgs);
   }
 

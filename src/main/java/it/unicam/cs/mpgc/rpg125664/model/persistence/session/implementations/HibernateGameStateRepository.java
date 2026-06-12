@@ -14,7 +14,6 @@ import it.unicam.cs.mpgc.rpg125664.model.session.SaveSlotLabels;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
 import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Instant;
@@ -27,19 +26,18 @@ import java.util.Optional;
 public final class HibernateGameStateRepository extends AbstractHibernateAdapter
     implements GameStateRepository {
 
+  private record PersistSessionWrite(
+      EntityManager em, SaveSessionCommand command, String json, Instant now) {}
+
   private final SessioneSalvataJpaRepository jpaRepository;
   private final SessionJsonSerializer serializer;
   private final SessioneSalvataSummaryMapper summaryMapper;
 
-  public HibernateGameStateRepository(
-      EntityManagerFactory entityManagerFactory,
-      SessioneSalvataJpaRepository jpaRepository,
-      SessionJsonSerializer serializer,
-      SessioneSalvataSummaryMapper summaryMapper) {
-    super(entityManagerFactory);
-    this.jpaRepository = Objects.requireNonNull(jpaRepository, "jpaRepository");
-    this.serializer = Objects.requireNonNull(serializer, "serializer");
-    this.summaryMapper = Objects.requireNonNull(summaryMapper, "summaryMapper");
+  public HibernateGameStateRepository(SessionRepositoryOptions options) {
+    super(options.entityManagerFactory());
+    this.jpaRepository = Objects.requireNonNull(options.jpaRepository(), "jpaRepository");
+    this.serializer = Objects.requireNonNull(options.serializer(), "serializer");
+    this.summaryMapper = Objects.requireNonNull(options.summaryMapper(), "summaryMapper");
   }
 
   @Override
@@ -78,8 +76,8 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
         em -> {
           SessioneSalvataEntity row =
               command.sessionId().isPresent()
-                  ? updateExisting(em, command, json, now)
-                  : insertNew(em, command, json, now);
+                  ? updateExisting(new PersistSessionWrite(em, command, json, now))
+                  : insertNew(new PersistSessionWrite(em, command, json, now));
           em.flush();
           return row.getIdSessione();
         });
@@ -130,25 +128,30 @@ public final class HibernateGameStateRepository extends AbstractHibernateAdapter
     }
   }
 
-  private SessioneSalvataEntity updateExisting(
-      EntityManager em, SaveSessionCommand command, String json, Instant now) {
-    long id = command.sessionId().orElseThrow();
-    SessioneSalvataEntity row = jpaRepository.requireLocal(em, id);
-    row.setDatiSalvatiJson(json);
-    row.setDataSalvataggio(now);
-    command.name().ifPresent(row::setNome);
-    jpaRepository.clearUltimaGiocata(em);
+  private SessioneSalvataEntity updateExisting(PersistSessionWrite write) {
+    long id = write.command().sessionId().orElseThrow();
+    SessioneSalvataEntity row = jpaRepository.requireLocal(write.em(), id);
+    row.setDatiSalvatiJson(write.json());
+    row.setDataSalvataggio(write.now());
+    write.command().name().ifPresent(row::setNome);
+    jpaRepository.clearUltimaGiocata(write.em());
     row.setUltimaGiocata(true);
     return row;
   }
 
-  private SessioneSalvataEntity insertNew(
-      EntityManager em, SaveSessionCommand command, String json, Instant now) {
-    String nome = command.name().filter(n -> !n.isBlank()).orElse(defaultName(now));
+  private SessioneSalvataEntity insertNew(PersistSessionWrite write) {
+    String nome = write.command().name().filter(n -> !n.isBlank()).orElse(defaultName(write.now()));
     SessioneSalvataEntity row =
-        SessioneSalvataEntity.newRow(nome, now, json, CatalogIds.GIOCATORE_UMANO, true);
-    jpaRepository.clearUltimaGiocata(em);
-    em.persist(row);
+        SessioneSalvataEntity.newRow(
+            SessioneSalvataEntity.SaveRowDraft.builder()
+                .nome(nome)
+                .now(write.now())
+                .datiSalvatiJson(write.json())
+                .idGiocatoreCatalogo(CatalogIds.GIOCATORE_UMANO)
+                .ultimaGiocata(true)
+                .build());
+    jpaRepository.clearUltimaGiocata(write.em());
+    write.em().persist(row);
     return row;
   }
 

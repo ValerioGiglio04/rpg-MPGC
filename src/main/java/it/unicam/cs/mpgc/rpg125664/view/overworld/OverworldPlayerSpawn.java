@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.view.overworld;
 import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
+import it.unicam.cs.mpgc.rpg125664.model.overworld.MapGridContext;
 import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,14 +45,14 @@ final class OverworldPlayerSpawn {
     String[] coords = cellKey.split(":");
     int gymRow = Integer.parseInt(coords[0]);
     int gymCol = Integer.parseInt(coords[1]);
-    OverworldPosition home =
-        GymCellPlacement.findHomeTile(
-            gymRow,
-            gymCol,
-            blockedTiles,
-            gymsByCell,
-            OverworldMapConstants.MAP_ROWS,
-            OverworldMapConstants.MAP_COLS);
+    MapGridContext grid =
+        MapGridContext.builder()
+            .blockedTiles(blockedTiles)
+            .gymsByCell(gymsByCell)
+            .mapRows(OverworldMapConstants.MAP_ROWS)
+            .mapCols(OverworldMapConstants.MAP_COLS)
+            .build();
+    OverworldPosition home = GymCellPlacement.findHomeTile(gymRow, gymCol, grid);
     return new Result(home.row(), home.column(), home.row(), home.column(), true);
   }
 

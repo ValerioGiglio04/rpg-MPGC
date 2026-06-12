@@ -93,6 +93,13 @@ Wiring in `ServiceGraph` (chiamato da `AppModule`): sostituire le impl strategy 
 - Costruzione via `*Builder`, poi `ValidatorFactory.get*Validator().validate(instance)`
 - Nuovo tipo: `{Type}Validator extends Validator<T>` in `validation.implementations` + registrazione in `ValidatorFactory`
 
+## Firme metodo e parameter object
+
+- Massimo **3 parametri** per metodo pubblico
+- Per raggruppare valori aggiuntivi: **builder fluente** con `.builder()…build()` (es. `GymPlacementRequest`, `BattleCommandBindings`)
+- Suffisso **`Options`** per assemblaggio/wiring (`GameModelOptions`, `SessionRepositoryOptions`); evitare `Dependencies` salvo riferimento letterale a DI esterna
+- I **record** restano per DTO JSON, comandi sessione, eventi `BattleEvent`, template catalogo — non per wiring o helper UI
+
 ---
 
 ## Lingua dell'interfaccia

@@ -41,18 +41,13 @@ public final class OverworldGymModalController {
   private GymRoom pendingGym;
 
   public OverworldGymModalController(
-      OverworldPresenter presenter,
-      Runnable onStartBattle,
-      Host host,
-      Label modalTitle,
-      HBox modalActions,
-      StackPane modalLayer) {
+      OverworldPresenter presenter, Runnable onStartBattle, Host host, GymModalUi ui) {
     this.presenter = presenter;
     this.onStartBattle = onStartBattle;
     this.host = host;
-    this.modalTitle = modalTitle;
-    this.modalActions = modalActions;
-    this.modalLayer = modalLayer;
+    this.modalTitle = ui.modalTitle();
+    this.modalActions = ui.modalActions();
+    this.modalLayer = ui.modalLayer();
   }
 
   boolean isModalOpen() {

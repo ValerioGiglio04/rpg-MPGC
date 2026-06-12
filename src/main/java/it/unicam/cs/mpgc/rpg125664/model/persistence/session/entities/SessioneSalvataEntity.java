@@ -13,6 +13,66 @@ import java.time.Instant;
 @Table(name = "sessioni_salvate")
 public class SessioneSalvataEntity {
 
+  /** Campi iniziali per una nuova riga di salvataggio locale. */
+  public static final class SaveRowDraft {
+
+    private final String nome;
+    private final Instant now;
+    private final String datiSalvatiJson;
+    private final long idGiocatoreCatalogo;
+    private final boolean ultimaGiocata;
+
+    private SaveRowDraft(Builder builder) {
+      this.nome = builder.nome;
+      this.now = builder.now;
+      this.datiSalvatiJson = builder.datiSalvatiJson;
+      this.idGiocatoreCatalogo = builder.idGiocatoreCatalogo;
+      this.ultimaGiocata = builder.ultimaGiocata;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    public static final class Builder {
+
+      private String nome;
+      private Instant now;
+      private String datiSalvatiJson;
+      private long idGiocatoreCatalogo;
+      private boolean ultimaGiocata;
+
+      public Builder nome(String nome) {
+        this.nome = nome;
+        return this;
+      }
+
+      public Builder now(Instant now) {
+        this.now = now;
+        return this;
+      }
+
+      public Builder datiSalvatiJson(String datiSalvatiJson) {
+        this.datiSalvatiJson = datiSalvatiJson;
+        return this;
+      }
+
+      public Builder idGiocatoreCatalogo(long idGiocatoreCatalogo) {
+        this.idGiocatoreCatalogo = idGiocatoreCatalogo;
+        return this;
+      }
+
+      public Builder ultimaGiocata(boolean ultimaGiocata) {
+        this.ultimaGiocata = ultimaGiocata;
+        return this;
+      }
+
+      public SaveRowDraft build() {
+        return new SaveRowDraft(this);
+      }
+    }
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id_sessione", nullable = false)
@@ -100,21 +160,16 @@ public class SessioneSalvataEntity {
     this.ultimaGiocata = ultimaGiocata;
   }
 
-  public static SessioneSalvataEntity newRow(
-      String nome,
-      Instant now,
-      String datiSalvatiJson,
-      long idGiocatoreCatalogo,
-      boolean ultimaGiocata) {
+  public static SessioneSalvataEntity newRow(SaveRowDraft draft) {
     SessioneSalvataEntity row = new SessioneSalvataEntity();
-    row.nome = nome;
-    row.dataSalvataggio = now;
-    row.dataCreazione = now;
-    row.datiSalvatiJson = datiSalvatiJson;
+    row.nome = draft.nome;
+    row.dataSalvataggio = draft.now;
+    row.dataCreazione = draft.now;
+    row.datiSalvatiJson = draft.datiSalvatiJson;
     row.formatVersion = 1;
-    row.idGiocatoreCatalogo = idGiocatoreCatalogo;
+    row.idGiocatoreCatalogo = draft.idGiocatoreCatalogo;
     row.idUtente = null;
-    row.ultimaGiocata = ultimaGiocata;
+    row.ultimaGiocata = draft.ultimaGiocata;
     return row;
   }
 }

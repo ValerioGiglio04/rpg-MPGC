@@ -60,7 +60,10 @@ Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, D
 - `SessionPersistenceFacade`, `GameStateHolder` — persistenza e stato in memoria
 - `GymStatusStrategy`, `DefaultGymStatusStrategy` — stato palestre sulla mappa
 - `GymStatus` — enum: `COMPLETED`, `AVAILABLE`, `CURRENT`, `NEEDS_POINTS`, `UNREACHABLE`
-- `OverworldGridLayout`, `OverworldSpawnPosition` — layout deterministico mappa (seed `LAYOUT_SEED = 42`)
+- `OverworldGridLayout`, `OverworldSpawnPosition`, `GymCellPlacement` — layout deterministico mappa (seed `LAYOUT_SEED = 42`)
+- `MapGridContext`, `GymPlacementRequest` — builder per contesto griglia e assegnazione palestre
+- `HealingCheck` — builder condiviso tra `HealingService` e `HubPresenter` (cura abilitata / tooltip)
+- `GameModelOptions` — builder opzioni assemblate in `ServiceGraph`
 
 ---
 
@@ -70,6 +73,8 @@ Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, D
 - `HibernateGameCatalogLoader`, `CatalogEntityMapper`, `CatalogDatabaseSeeder`, `CatalogSeedJsonLoader` — catalogo da JSON → H2 → dominio
 - `PalestraCollegamentiSupport`, `CatalogLoadSupport` — collegamenti palestre e helper seed
 - `HibernateGameStateRepository`, `SessioneSalvataJpaRepository` — persistenza slot
+- `SessionRepositoryOptions` — builder opzioni repository (EMF, JPA, serializer, mapper)
+- `SessioneSalvataEntity.SaveRowDraft` — builder campi iniziali nuova riga salvataggio
 - `SessioneSalvataSummaryMapper` — metadati slot per lista UI
 - `SessioneJsonMapper`, `SessionJsonSerializer`, `LoadedSessionPayload` — serializzazione JSON
 - `UltimaSessioneSalvataDto`, `CreaturaTeamDto`, `PalestraProgressoDto`, `PosizioneMappaDto` — DTO sessione
@@ -105,6 +110,7 @@ controller/navigation/
 ### Presenter, controller e helper schermata
 
 - `BattlePresenter`, `HubPresenter`, `OverworldPresenter` — logica schermata estratta dai controller FXML
+- `BattleCommandBindings` — builder binding colonna comandi duello (mosse, switch, callback)
 - `MainMenuController`, `LoadGameController`, `HubController`, `BattleController`, `VictoryController`
 - `BattleCommandColumnController`, `BattleEndOverlayController` — sotto-pannelli FXML battaglia
 - `SavedSessionSummaryCell` — cella lista slot in `LoadGameController`
@@ -113,6 +119,8 @@ controller/navigation/
 ### Componenti e overworld
 
 - `OverworldMap`, `OverworldZoomControls`, `OverworldGymModalController`, `OverworldLayoutSupport`, `OverworldTileRenderer`
+- `TileRenderAssets`, `GymModalUi`, `OverworldTileRenderer.PlayerMarker` — builder asset tile, UI modale, overlay giocatore
+- `ArenaLayoutSpec` — builder layout arena duello
 - `OverworldPlayerSpawn`, `OverworldMovement`, `OverworldMapChrome` — spawn, movimento e chrome UI mappa
 - `CreaturePortrait`, `CreatureCard`, `BattleArenaView`, `HealthBar`, `HamburgerMenu`
 - `PortraitAssetResolver` — path ritratti da `GameCatalog`

@@ -131,8 +131,19 @@ it.unicam.cs.mpgc.rpg125664
 | **OCP** | Nuove strategy in `model.combat.strategy.implementations`; wiring in `ServiceGraph` / `AppModule` |
 | **DIP** | Controller dipendono da `GameModel`, non da Hibernate; persistenza dietro `GameStateRepository` in `model.persistence` |
 
-Pattern ricorrenti: **Facade** (`GameModel`), **Strategy** (danno, IA boss, stato mappa), **Repository** (salvataggi), **Factory** (`ScreenFactory`, `HubTeamRowFactory`).
+Pattern ricorrenti: **Facade** (`GameModel`), **Strategy** (danno, IA boss, stato mappa), **Repository** (salvataggi), **Factory** (`ScreenFactory`, `HubTeamRowFactory`), **Builder** (parameter object e wiring).
 
 Convenzione package: interfacce nel package padre (`*Navigation`, `Validator`, `UiTheme`), implementazioni in sottocartella `implementations/`.
+
+### Firme metodo e parameter object
+
+Per evitare code smell da troppi parametri, **nessun metodo pubblico supera 3 argomenti**. Se servono più valori:
+
+1. **Builder fluente** (scelta preferita per leggibilità): es. `HealingCheck.builder().creature(...).state(...).build()`, `BattleCommandBindings.builder()`, `GymPlacementRequest.builder()`.
+2. **Record** solo per DTO, comandi e eventi immutabili (`SaveSessionCommand`, `BattleEvent`, `MoveDto`, …), non per wiring o helper UI.
+
+**Naming** dei parameter object: per assemblaggio e configurazione usiamo **`Options`** (`GameModelOptions`, `SessionRepositoryOptions`); per contesto condiviso `Context` (`MapGridContext`); per callback UI `Bindings` (`BattleCommandBindings`); per layout `Spec` (`ArenaLayoutSpec`).
+
+Esempi di builder introdotti per raggruppare parametri: `MapGridContext`, `GameModelOptions`, `SessionRepositoryOptions`, `ArenaLayoutSpec`, `TileRenderAssets`, `GymModalUi`, `OverworldTileRenderer.PlayerMarker`.
 
 Vedi anche [Classi e interfacce](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) ed [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).

@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GameState;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
+import it.unicam.cs.mpgc.rpg125664.view.component.ArenaLayoutSpec;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleArenaView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleCommandColumnView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleEndOverlay;
@@ -109,19 +110,27 @@ public final class BattleController implements Initializable {
         .add(
             0,
             BattleArenaView.create(
-                playerCreature, bossCreature, portraitAssets, PORTRAIT_FOE, PORTRAIT_PLAYER));
+                ArenaLayoutSpec.builder()
+                    .playerCreature(playerCreature)
+                    .bossCreature(bossCreature)
+                    .portraitAssets(portraitAssets)
+                    .foePortraitSize(PORTRAIT_FOE)
+                    .playerPortraitSize(PORTRAIT_PLAYER)
+                    .build()));
     transcriptLayer.toFront();
     commandHost
         .getChildren()
         .add(
             BattleCommandColumnView.create(
-                playerCreature,
-                gym,
-                state.player().holder(),
-                portraitAssets,
-                onBack,
-                this::playRound,
-                this::switchCreature));
+                BattleCommandBindings.builder()
+                    .playerCreature(playerCreature)
+                    .gym(gym)
+                    .holder(state.player().holder())
+                    .portraitAssets(portraitAssets)
+                    .onBack(onBack)
+                    .onMoveSelected(this::playRound)
+                    .onSwitchCreature(this::switchCreature)
+                    .build()));
   }
 
   private void playRound(int moveIndex) {
