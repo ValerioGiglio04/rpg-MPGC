@@ -1,5 +1,10 @@
-package it.unicam.cs.mpgc.rpg125664.controller.navigation;
+package it.unicam.cs.mpgc.rpg125664.controller.navigation.implementations;
 
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.ScreenNavigation;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.DialogHelper;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.MainView;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.PersistenceOperation;

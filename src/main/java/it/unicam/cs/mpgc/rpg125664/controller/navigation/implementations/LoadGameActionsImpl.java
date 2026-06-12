@@ -1,5 +1,7 @@
-package it.unicam.cs.mpgc.rpg125664.controller.navigation;
+package it.unicam.cs.mpgc.rpg125664.controller.navigation.implementations;
 
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameNavigation;
 import java.util.Objects;
 
 public final class LoadGameActionsImpl implements LoadGameActions {
