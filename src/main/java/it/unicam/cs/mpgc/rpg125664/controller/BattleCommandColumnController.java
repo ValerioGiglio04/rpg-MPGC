@@ -10,7 +10,6 @@ import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
-import java.util.stream.IntStream;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
@@ -51,11 +50,9 @@ public final class BattleCommandColumnController {
 
   private void populateMoveGrid(Creature playerCreature, GymRoom gym, IntConsumer onMoveSelected) {
     moveGrid.getChildren().clear();
-    IntStream.range(0, playerCreature.moves().size())
-        .forEach(
-            index ->
-                addMoveCell(
-                    new MoveCellRequest(moveGrid, playerCreature, gym, index, onMoveSelected)));
+    for (int index = 0; index < playerCreature.moves().size(); index++) {
+      addMoveCell(new MoveCellRequest(moveGrid, playerCreature, gym, index, onMoveSelected));
+    }
   }
 
   private static void addMoveCell(MoveCellRequest request) {
@@ -81,12 +78,11 @@ public final class BattleCommandColumnController {
       PortraitAssetResolver portraitAssets,
       LongConsumer onSwitchCreature) {
     teamSwitches.getChildren().clear();
-    IntStream.range(0, playerHolder.creatures().size())
-        .forEach(
-            index ->
-                appendTeamRow(
-                    new TeamSwitchRowRequest(
-                        teamSwitches, playerHolder, gym, portraitAssets, index, onSwitchCreature)));
+    for (int index = 0; index < playerHolder.creatures().size(); index++) {
+      appendTeamRow(
+          new TeamSwitchRowRequest(
+              teamSwitches, playerHolder, gym, portraitAssets, index, onSwitchCreature));
+    }
   }
 
   private static void appendTeamRow(TeamSwitchRowRequest request) {
