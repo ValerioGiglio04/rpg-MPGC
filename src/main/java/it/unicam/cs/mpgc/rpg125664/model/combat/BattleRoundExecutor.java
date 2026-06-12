@@ -59,9 +59,7 @@ public final class BattleRoundExecutor {
 
   private void attackOnce(RoundAttack attack) {
     Creature attacker = activeCreature(attack.state(), attack.side());
-    if (attacker.isKnockedOut()) {
-      return;
-    }
+    if (attacker.isKnockedOut()) return;
     Creature defender = activeCreature(attack.state(), attack.side().opposite());
     Move move =
       attack.side() == Side.PLAYER
@@ -76,9 +74,7 @@ public final class BattleRoundExecutor {
     attack
       .events()
       .add(new BattleEvent.AttackHit(attack.side(), defender.name(), outcome.damage()));
-    if (!outcome.defenderKnockedOut()) {
-      return;
-    }
+    if (!outcome.defenderKnockedOut()) return;
     attack
       .events()
       .add(new BattleEvent.CreatureKnockedOut(attack.side().opposite(), defender.name()));
@@ -86,9 +82,7 @@ public final class BattleRoundExecutor {
 
   private void swapKoIfNeeded(List<BattleEvent> events, GameState state, Side side) {
     CreatureHolder creatureHolder = sideHolder(state, side);
-    if (!creatureHolder.activeCreature().isKnockedOut()) {
-      return;
-    }
+    if (!creatureHolder.activeCreature().isKnockedOut()) return;
     String previousName = creatureHolder.activeCreature().name();
     creatureHolder.switchToFirstAliveIfNeeded();
     Creature now = creatureHolder.activeCreature();
@@ -98,9 +92,7 @@ public final class BattleRoundExecutor {
   }
 
   private boolean battleEnded(List<BattleEvent> events, GameState state) {
-    if (state.currentGym().boss().holder().allKnockedOut()) {
-      return true;
-    }
+    if (state.currentGym().boss().holder().allKnockedOut()) return true;
     if (state.player().holder().allKnockedOut()) {
       events.add(new BattleEvent.PlayerTeamWiped());
       return true;

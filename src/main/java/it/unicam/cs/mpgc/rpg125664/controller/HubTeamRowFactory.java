@@ -29,9 +29,7 @@ final class HubTeamRowFactory {
   }
 
   private static void wireSelection(CreatureCard card, TeamRowViewModel row, Runnable onSelect) {
-    if (row.active() || row.knockedOut()) {
-      return;
-    }
+    if (row.active() || row.knockedOut()) return;
     card.setCursor(Cursor.HAND);
     Tooltip.install(card, new Tooltip(Messages.get("hub.team.select.tooltip")));
     card.setOnMouseClicked(event -> onSelect.run());

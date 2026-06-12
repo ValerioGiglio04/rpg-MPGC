@@ -229,9 +229,7 @@ public final class OverworldTileRenderer {
       style.tile().getStyleClass().add("tile-wall");
       return;
     }
-    if (style.gym() != null) {
-      return;
-    }
+    if (style.gym() != null) return;
     String groundClass = style.decorByCell().containsKey(style.cellKey())
       ? "tile-ground-decor"
       : "tile-ground";
@@ -277,18 +275,14 @@ public final class OverworldTileRenderer {
   }
 
   private void maybeAppendDecor(DecorPlacement placement) {
-    if (placement.decor() == null || placement.gym() != null || placement.blocked()) {
-      return;
-    }
+    if (placement.decor() == null || placement.gym() != null || placement.blocked()) return;
     placement.tile().getChildren().add(buildDecorView(placement.decor()));
   }
 
   private void maybeAppendPlayer(PlayerOnTile overlay) {
-    if (
-      overlay.row() != overlay.player().playerRow() || overlay.col() != overlay.player().playerCol()
-    ) {
-      return;
-    }
+    boolean differentRow = overlay.row() != overlay.player().playerRow();
+    boolean differentCol = overlay.col() != overlay.player().playerCol();
+    if (differentRow || differentCol) return;
     overlay.tile().getStyleClass().add("tile-player");
     overlay
       .tile()

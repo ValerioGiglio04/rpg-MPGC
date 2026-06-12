@@ -53,17 +53,13 @@ public final class ScreenNavigator implements ScreenNavigation {
   }
 
   public void showHub() {
-    if (redirectToVictoryIfCompleted()) {
-      return;
-    }
+    if (redirectToVictoryIfCompleted()) return;
     screenStack.setScreen(screenFactory.createHub(hubActions()));
   }
 
   @Override
   public void showBattle() {
-    if (redirectToVictoryIfCompleted()) {
-      return;
-    }
+    if (redirectToVictoryIfCompleted()) return;
     GymRoom current = gameModel.currentGym();
     if (!gameModel.canChallengeGym(current)) {
       showBattleEntryDenied();
@@ -73,9 +69,7 @@ public final class ScreenNavigator implements ScreenNavigation {
   }
 
   private boolean redirectToVictoryIfCompleted() {
-    if (!gameModel.allGymsCompleted()) {
-      return false;
-    }
+    if (!gameModel.allGymsCompleted()) return false;
     showVictory();
     return true;
   }
@@ -131,14 +125,11 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   @Override
   public void deleteSession(long sessionId) {
-    if (
-      !DialogHelper.confirm(
-        Messages.get("load.delete.confirm.title"),
-        Messages.get("load.delete.confirm.body")
-      )
-    ) {
-      return;
-    }
+    boolean confirmed = DialogHelper.confirm(
+      Messages.get("load.delete.confirm.title"),
+      Messages.get("load.delete.confirm.body")
+    );
+    if (!confirmed) return;
     PersistenceUiGuard.run(() -> gameModel.deleteSession(sessionId), PersistenceOperation.DELETE);
 
     if (gameModel.hasAnySave()) {

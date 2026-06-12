@@ -42,18 +42,18 @@ public final class BattleLogRenderer {
     );
   }
 
+  private static void snapBottom(ScrollPane logScroll) {
+    logScroll.applyCss();
+    logScroll.layout();
+    logScroll.setVvalue(1.0);
+  }
+
   private static void scrollToLatest(ScrollPane logScroll, boolean empty) {
-    if (empty) {
-      return;
-    }
-    Runnable snapBottom = () -> {
-      logScroll.applyCss();
-      logScroll.layout();
-      logScroll.setVvalue(1.0);
-    };
-    Platform.runLater(snapBottom);
+    if (empty) return;
+
+    Platform.runLater(() -> snapBottom(logScroll));
     PauseTransition afterWrap = new PauseTransition(Duration.millis(SCROLL_DELAY_MS));
-    afterWrap.setOnFinished(e -> snapBottom.run());
+    afterWrap.setOnFinished(e -> snapBottom(logScroll));
     afterWrap.play();
   }
 

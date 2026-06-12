@@ -45,9 +45,7 @@ public final class CreatureHolder implements Serializable {
 
   /** Se la creatura attiva e' KO, passa alla prima ancora in piedi nel team. */
   public void switchToFirstAliveIfNeeded() {
-    if (!activeCreature().isKnockedOut()) {
-      return;
-    }
+    if (!activeCreature().isKnockedOut()) return;
     creatures
       .stream()
       .filter(creature -> !creature.isKnockedOut())

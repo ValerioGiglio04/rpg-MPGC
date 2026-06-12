@@ -93,9 +93,7 @@ public final class GymCellPlacement {
   }
 
   private static void fillRemainingSlots(SlotFill fill) {
-    if (fill.chosen().size() >= fill.gymCount()) {
-      return;
-    }
+    if (fill.chosen().size() >= fill.gymCount()) return;
     int stillNeeded = fill.gymCount() - fill.chosen().size();
     fill
       .slots()

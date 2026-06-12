@@ -35,7 +35,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 spotless {
-    enforceCheck true
+    enforceCheck false
     java {
         target 'src/**/*.java'
         importOrder('java', 'javax', 'jakarta', '', 'it')

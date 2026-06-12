@@ -50,9 +50,7 @@ public final class CatalogTable<T> {
 
   public void insertAll(EntityManager em, CatalogSeedBundle seed) {
     List<T> rows = seedRows.apply(seed);
-    if (rows.isEmpty()) {
-      return;
-    }
+    if (rows.isEmpty()) return;
     for (int i = 0; i < rows.size(); i++) {
       em.persist(rows.get(i));
       boolean isEndOfBatch = (i + 1) % INSERT_BATCH_SIZE == 0;

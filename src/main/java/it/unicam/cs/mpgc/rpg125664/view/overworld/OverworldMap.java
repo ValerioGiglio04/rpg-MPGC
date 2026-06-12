@@ -182,9 +182,7 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
     MapOffset step = OverworldMovement.stepFor(code);
     int nextRow = playerRow + step.rowDelta();
     int nextCol = playerCol + step.columnDelta();
-    if (!OverworldMovement.isWalkable(nextRow, nextCol, blockedTiles)) {
-      return;
-    }
+    if (!OverworldMovement.isWalkable(nextRow, nextCol, blockedTiles)) return;
     commitMove(nextRow, nextCol);
   }
 
