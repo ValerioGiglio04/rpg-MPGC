@@ -27,11 +27,15 @@ Tutte le schermate sono JavaFX con file FXML in `src/main/resources/fxml/`:
 | Battaglia | `Battle.fxml` | `BattleController` |
 | Vittoria | `Victory.fxml` | `VictoryController` |
 
+Sotto trovi alcuni screenshot presi dall'applicazione in esecuzione, così si capisce meglio il flusso oltre al diagramma.
+
 I controller non parlano con Hibernate: passano da `GameModel`. La navigazione tra schermate la gestisce `ScreenNavigator`, le schermate le monta `ScreenFactory` usando i path in `FxmlPaths`.
 
 ---
 
 ## Menu principale
+
+![Menu principale — nuova partita, carica, esci](images/menu-principale.png)
 
 - **Nuova partita** — `NewGameService` crea il primo `GameState` dal catalogo.
 - **Carica partita** — apre la lista slot (tabella `sessioni_salvate`); il pulsante è attivo solo se esiste almeno un save.
@@ -41,7 +45,17 @@ Se il caricamento fallisce mostro un alert e resto al menu.
 
 ---
 
+## Carica partita
+
+![Lista slot salvati con carica, elimina e ritorno al menu](images/carica-partita.png)
+
+Dalla schermata **Carica partita** si vedono nome slot, data/ora e gloria al momento del save. Si può caricare, eliminare uno slot o tornare al menu. I metadati arrivano da `GameStateRepository.listSaves()`; il dettaglio partita è nel JSON descritto in [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza).
+
+---
+
 ## Hub (overworld)
+
+![Hub con mappa, team a sinistra e zoom sulla griglia](images/hub-overworld.png)
 
 È la schermata principale di gioco:
 
@@ -52,11 +66,16 @@ Se il caricamento fallisce mostro un alert e resto al menu.
 - **Click su una palestra** — modale di conferma; se serve prima `moveTo(gymId)`, poi parte la battaglia.
 - **Team** — lista creature con carta cliccabile per cambiare quella attiva; **cura a pagamento** in gloria (`HealingService`, costo spiegato in tooltip da `HubPresenter`).
 - **Menu hamburger** — salva, salva come nuovo slot, torna al menu.
+
+![Menu hamburger nell'hub — salva, salva come nuovo, torna al menu](images/hub-menu-salvataggio.png)
+
 - Se hai già finito tutte le palestre, entrando nell'hub vai diretto alla schermata **Vittoria**.
 
 ---
 
 ## Combattimento a turni
+
+![Schermata battaglia — mosse, cronaca, arena e team](images/battaglia.png)
 
 - Puoi sfidare solo se `GameState.canChallengeGym(gym)` è vero (palestra non completata, raggiungibile, punti ok).
 - All'inizio di un nuovo tentativo `BattleService` resetta gli HP di entrambi i team e sceglie la prima creatura viva per lato.
