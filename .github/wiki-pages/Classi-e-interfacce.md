@@ -2,7 +2,7 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura)
 
-Il progetto ha circa **170 classi** in `src/main/java`. Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, DTO, entity JPA, componenti UI minori) seguono la stessa organizzazione descritta in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
+Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, DTO, entity JPA, componenti UI minori) seguono la stessa organizzazione descritta in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
 
 ---
 
