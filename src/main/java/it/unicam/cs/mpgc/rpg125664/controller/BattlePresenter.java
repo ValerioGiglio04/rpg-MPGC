@@ -63,10 +63,7 @@ public final class BattlePresenter {
           extractAcquiredCreatureNames(events),
           null);
     } catch (RuntimeException error) {
-      UiErrorReporter.reportActionError("battle round failed", error);
-      String message =
-          error.getMessage() != null ? error.getMessage() : Messages.get("battle.unknown.error");
-      battleLog.add(BattleLogLine.neutral(Messages.format("battle.invalid.action", message)));
+      logActionFailure("battle round failed", error, "battle.invalid.action");
       return RoundOutcome.failed();
     }
   }
@@ -76,14 +73,7 @@ public final class BattlePresenter {
       gameModel.switchPlayerCreature(creatureCatalogId);
       battleLog.add(BattleLogLine.neutral(Messages.get("battle.switch.message")));
     } catch (RuntimeException error) {
-      UiErrorReporter.reportActionError("battle switch failed", error);
-      battleLog.add(
-          BattleLogLine.neutral(
-              Messages.format(
-                  "battle.invalid.switch",
-                  error.getMessage() != null
-                      ? error.getMessage()
-                      : Messages.get("battle.unknown.error"))));
+      logActionFailure("battle switch failed", error, "battle.invalid.switch");
     }
   }
 
@@ -106,6 +96,15 @@ public final class BattlePresenter {
   public String victoryDialogTitle(GameState state) {
     GymRoom gym = state.currentGym();
     return Messages.format("battle.dialog.victory.title", gym.boss().name(), gym.name());
+  }
+
+  private void logActionFailure(String action, RuntimeException error, String messageKey) {
+    UiErrorReporter.reportActionError(action, error);
+    battleLog.add(BattleLogLine.neutral(Messages.format(messageKey, errorMessage(error))));
+  }
+
+  private static String errorMessage(RuntimeException error) {
+    return error.getMessage() != null ? error.getMessage() : Messages.get("battle.unknown.error");
   }
 
   private static boolean defeatNeeded(GameState state) {

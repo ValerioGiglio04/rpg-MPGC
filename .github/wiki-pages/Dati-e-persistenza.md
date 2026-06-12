@@ -23,9 +23,9 @@ Uso `long` ovunque: dominio (`Creature.catalogId`, `GymRoom.id`), seed JSON, JSO
 
 ## Catalogo vs sessione
 
-Il **catalogo** viene letto da `catalog-seed.json` all'avvio (`CatalogSeedJsonLoader`), scritto su H2 da `CatalogDatabaseSeeder` se mancano dati, e caricato in RAM come `GameCatalog` da `HibernateGameCatalogLoader`.
+Il **catalogo** viene letto da `catalog-seed.json` all'avvio (`CatalogSeedJsonLoader`), scritto su H2 da `CatalogDatabaseSeeder` (invocato da `CatalogBootstrap` in `AppModule.bootstrap()`), e caricato in RAM come `GameCatalog` da `HibernateGameCatalogLoader`.
 
-Lo **stato di partita** vive in memoria come `GameState` (`GameStateHolder`) e si persiste su richiesta dell'utente: `SessionPersistenceFacade` → `HibernateGameStateRepository` → colonna `dati_salvati_json`.
+Lo **stato di partita** vive in memoria come `GameState` (`GameStateHolder`) e si persiste su richiesta dell'utente: `GameModel` (`persistSession`) → `SessionPersistenceFacade` → `HibernateGameStateRepository` → colonna `dati_salvati_json`.
 
 Al **load**, `SessioneJsonMapper.fromDto()` reidrata nomi, mosse e statistiche base dal catalogo usando gli `id` salvati nel JSON.
 
@@ -127,7 +127,7 @@ Lo **stato di partita** non compare in questo diagramma: vive in `sessioni_salva
 Contratto in `model.persistence`, implementazione `HibernateGameStateRepository`:
 
 - `hasAnySave()` — abilita "Carica partita" nel menu
-- `listSaves()` — metadati slot per `LoadGame.fxml`
+- `listSaves()` — metadati slot per `LoadGame.fxml` (celle `SavedSessionSummaryCell`)
 - `save(SaveSessionCommand)` — crea o aggiorna slot
 - `load(sessionId)` — restituisce `LoadedSession` (stato + posizione mappa)
 - `delete(sessionId)` — rimuove slot
@@ -186,7 +186,7 @@ Radice: `UltimaSessioneSalvataDto`. Campi principali:
 
 ## Posizione mappa e layout
 
-Dopo `loadSession`, `GameModel` applica `LoadedSession.overworldPosition()` a `GameStateHolder` e `OverworldMap`. Il layout di palestre e decorazioni è **deterministico** (`OverworldLayoutSupport`, seed `OverworldGridLayout.LAYOUT_SEED = 42`).
+Dopo `loadSession`, `GameModel` applica `LoadedSession.overworldPosition()` a `GameStateHolder` e `OverworldMap` (spawn via `OverworldPlayerSpawn`). Il layout di palestre e decorazioni è **deterministico** (`OverworldLayoutSupport`, seed `OverworldGridLayout.LAYOUT_SEED = 42`).
 
 ---
 

@@ -33,16 +33,13 @@ public final class HubPresenter {
     long catalogId = creature.catalogId();
     int cost = gameModel.healCostForCreature(catalogId);
     GameState state = gameModel.gameState();
-    boolean fullHp = creature.currentHealth() >= creature.maxHealth();
-    int playerPoints = state.player().score().points();
-    boolean healEnabled = !fullHp && cost <= playerPoints && cost <= spendable;
     return new TeamRowViewModel(
         creature,
         catalogId,
         active,
         creature.isKnockedOut(),
         cost,
-        healEnabled,
+        canHeal(creature, state, spendable, cost),
         healTooltip(state, creature, cost, spendable));
   }
 
@@ -62,6 +59,12 @@ public final class HubPresenter {
     } catch (RuntimeException ex) {
       UiErrorReporter.reportActionError("creature switch failed", ex);
     }
+  }
+
+  private static boolean canHeal(Creature creature, GameState state, int spendable, int cost) {
+    boolean fullHp = creature.currentHealth() >= creature.maxHealth();
+    int playerPoints = state.player().score().points();
+    return !fullHp && cost <= playerPoints && cost <= spendable;
   }
 
   private static String healTooltip(GameState state, Creature creature, int cost, int spendable) {

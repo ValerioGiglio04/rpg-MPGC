@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import it.unicam.cs.mpgc.rpg125664.controller.BattleEndOverlayController;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlPaths;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlScreenLoader;
 import javafx.scene.layout.StackPane;
 
@@ -11,7 +12,7 @@ public final class BattleEndOverlay {
 
   public static StackPane create(String title, String message, Runnable onOk) {
     BattleEndOverlayController controller = new BattleEndOverlayController();
-    StackPane layer = (StackPane) FxmlScreenLoader.load("/fxml/BattleEndOverlay.fxml", controller);
+    StackPane layer = (StackPane) FxmlScreenLoader.load(FxmlPaths.BATTLE_END_OVERLAY, controller);
     controller.bind(title, message, onOk);
     return layer;
   }

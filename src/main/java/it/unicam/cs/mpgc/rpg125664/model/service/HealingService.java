@@ -50,19 +50,24 @@ public final class HealingService {
     Objects.requireNonNull(state, "state");
     Creature creature = creatureByCatalogId(state, creatureCatalogId);
     int missingHp = creature.maxHealth() - creature.currentHealth();
+    int cost = healCostForMissingHp(missingHp);
+    int spendable = spendableGlory(state);
+    requireHealable(creature, state, cost, spendable);
+    state.player().score().spend(cost);
+    creature.healToFull();
+  }
+
+  private static void requireHealable(Creature creature, GameState state, int cost, int spendable) {
+    int missingHp = creature.maxHealth() - creature.currentHealth();
     if (missingHp <= 0) {
       throw new HealingException(HealingError.FULL_HP);
     }
-    int cost = healCostForMissingHp(missingHp);
-    int spendable = spendableGlory(state);
     if (cost > state.player().score().points()) {
       throw new HealingException(HealingError.INSUFFICIENT_GLORY);
     }
     if (cost > spendable) {
       throw new HealingException(HealingError.GYM_FLOOR);
     }
-    state.player().score().spend(cost);
-    creature.healToFull();
   }
 
   private static Creature creatureByCatalogId(GameState state, long creatureCatalogId) {

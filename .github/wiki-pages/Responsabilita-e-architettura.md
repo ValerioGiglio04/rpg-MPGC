@@ -45,21 +45,24 @@ Le dipendenze vanno **controller → model** e **view → controller** (callback
 
 ### View
 
-- **FXML** (`MainMenu.fxml`, `Hub.fxml`, `Battle.fxml`, …) in `src/main/resources/fxml/`
+- **FXML** (`MainMenu.fxml`, `Hub.fxml`, `Battle.fxml`, …) in `src/main/resources/fxml/`; path Java in `FxmlPaths`
 - **`view.component`** — `CreatureCard`, `BattleArenaView`, `HealthBar`, …
-- **`view.overworld`** — `OverworldMap`, tile renderer, modale palestra
-- **`view.support`** — `Messages`, `BattleEventTranslator`, caricamento FXML
+- **`view.overworld`** — `OverworldMap`, tile renderer, modale palestra; helper `OverworldPlayerSpawn`, `OverworldMovement`, `OverworldMapChrome`
+- **`view.support`** — `Messages`, `BattleEventTranslator`, `BattleSideMessages`, `BattleLogRenderer`, caricamento FXML
 
 ### Controller
 
-- **`ScreenNavigator`** — flusso tra schermate e dialoghi save/load
-- **`ScreenFactory`** — monta FXML + controller
+- **`ScreenNavigator`** (`navigation.implementations`) — flusso tra schermate e dialoghi save/load
+- **`ScreenFactory`** — monta FXML + controller via `FxmlPaths`
 - **Controller FXML** (`HubController`, `BattleController`, …) — gestiscono eventi e aggiornano la view
-- **Helper** (`BattlePresenter`, `HubPresenter`, `OverworldPresenter`) — logica schermata estratta dai controller più corposi
+- **Presenter** (`BattlePresenter`, `HubPresenter`, `OverworldPresenter`) — logica schermata estratta dai controller
+- **Helper UI** — `SavedSessionSummaryCell`, `HubTeamRowFactory`
 
 ### Bootstrap
 
-- **`AppModule`** — crea EMF, catalogo, repository, servizi e **`GameModel`**
+- **`AppModule`** — crea EMF, repository, delega wiring a **`ServiceGraph`**
+- **`CatalogBootstrap`** — seed catalogo H2 e caricamento `GameCatalog` all'avvio
+- **`ServiceGraph`** — assembla servizi e **`GameModel`**
 - **`RpgApplication`** — avvia JavaFX e passa `GameModel` a `MainView`
 
 ---
@@ -68,23 +71,27 @@ Le dipendenze vanno **controller → model** e **view → controller** (callback
 
 ```
 it.unicam.cs.mpgc.rpg125664
-├── app/                    Main, RpgApplication, AppModule
+├── app/                    Main, RpgApplication, AppModule, CatalogBootstrap, ServiceGraph
 ├── model/
 │   ├── entity/             GameState, Creature, GymRoom, …
 │   ├── combat/             BattleRoundExecutor, strategy/
 │   ├── catalog/            GameCatalog, template creature
-│   ├── service/            GameModel, BattleService, NewGameService, …
+│   ├── service/            GameModel, BattleService, NewGameService, GameStateHolder, …
 │   ├── overworld/          GymStatus, layout mappa
 │   ├── persistence/        Hibernate, entità JPA, mapper, seed
 │   ├── builder/, validation/, event/, session/
 ├── view/
 │   ├── component/          widget riusabili
-│   ├── overworld/          mappa e modale palestra
-│   ├── theme/, support/, mapper/
+│   ├── overworld/          mappa, spawn/movimento, modale palestra
+│   ├── theme/implementations/
+│   └── support/, mapper/   Messages, BattleLogRenderer, BattleEventTranslator, …
 └── controller/
     ├── *Controller.java    controller FXML
-    ├── BattlePresenter, HubPresenter, …
-    └── navigation/         ScreenNavigator, ScreenFactory, *Actions
+    ├── *Presenter.java     BattlePresenter, HubPresenter, OverworldPresenter
+    ├── SavedSessionSummaryCell, HubTeamRowFactory
+    └── navigation/         interfacce *Actions/*Navigation
+        ├── implementations/  ScreenNavigator, *ActionsImpl
+        └── support/          MainView, ScreenFactory, FxmlPaths, …
 ```
 
 ---
@@ -94,7 +101,7 @@ it.unicam.cs.mpgc.rpg125664
 ### 1. Avvio
 
 1. `Main` → `RpgApplication.start()`
-2. `AppModule.bootstrap()` — seed catalogo, crea `GameModel`
+2. `AppModule.bootstrap()` — `CatalogBootstrap` (seed + catalogo), poi `ServiceGraph` → `GameModel`
 3. `MainView` + `ScreenNavigator` → menu principale
 
 ### 2. Nuova partita
@@ -107,7 +114,7 @@ it.unicam.cs.mpgc.rpg125664
 
 1. `HubController` legge stato da `GameModel`, monta `OverworldMap`
 2. Sfida palestra → `ScreenNavigator.showBattle()`
-3. `BattleController` → `GameModel.attack()` → eventi tradotti nel log
+3. `BattleController` → `GameModel.attack()` → eventi tradotti nel log (`BattleEventTranslator` + `BattleLogRenderer`)
 
 ### 4. Salvataggio
 
@@ -121,9 +128,11 @@ it.unicam.cs.mpgc.rpg125664
 | Principio | Dove nel progetto |
 |-----------|-------------------|
 | **SRP** | `BattleRoundExecutor` = un round; `BattleController` = UI duello; `GameModel` = API stabile per i controller |
-| **OCP** | Nuove strategy in `model.combat.strategy.implementations`; wiring in `AppModule` |
+| **OCP** | Nuove strategy in `model.combat.strategy.implementations`; wiring in `ServiceGraph` / `AppModule` |
 | **DIP** | Controller dipendono da `GameModel`, non da Hibernate; persistenza dietro `GameStateRepository` in `model.persistence` |
 
-Pattern ricorrenti: **Facade** (`GameModel`), **Strategy** (danno, IA boss, stato mappa), **Repository** (salvataggi), **Factory** (`ScreenFactory`).
+Pattern ricorrenti: **Facade** (`GameModel`), **Strategy** (danno, IA boss, stato mappa), **Repository** (salvataggi), **Factory** (`ScreenFactory`, `HubTeamRowFactory`).
+
+Convenzione package: interfacce nel package padre (`*Navigation`, `Validator`, `UiTheme`), implementazioni in sottocartella `implementations/`.
 
 Vedi anche [Classi e interfacce](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) ed [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita).

@@ -2,18 +2,14 @@ package it.unicam.cs.mpgc.rpg125664.controller;
 
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
-import it.unicam.cs.mpgc.rpg125664.model.session.SaveSlotLabels;
 import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
-import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.util.Callback;
 
 public final class LoadGameController implements Initializable {
 
@@ -36,7 +32,7 @@ public final class LoadGameController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     savesList.setItems(FXCollections.observableArrayList(gameModel.listSaves()));
-    savesList.setCellFactory(summaryCellFactory());
+    savesList.setCellFactory(list -> new SavedSessionSummaryCell());
     if (!savesList.getItems().isEmpty()) {
       savesList.getSelectionModel().selectFirst();
     }
@@ -66,26 +62,5 @@ public final class LoadGameController implements Initializable {
     SavedSessionSummary selected = savesList.getSelectionModel().getSelectedItem();
     if (selected == null) return;
     actions.onDeleteSelected(selected.id());
-  }
-
-  private Callback<ListView<SavedSessionSummary>, ListCell<SavedSessionSummary>>
-      summaryCellFactory() {
-    return list ->
-        new ListCell<>() {
-          @Override
-          protected void updateItem(SavedSessionSummary item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-              setText(null);
-              return;
-            }
-            setText(formatSaveRow(item));
-          }
-        };
-  }
-
-  private String formatSaveRow(SavedSessionSummary summary) {
-    String when = SaveSlotLabels.formatSavedAt(summary.savedAt());
-    return Messages.format("load.screen.row", summary.name(), when, summary.gloryPoints());
   }
 }

@@ -2,7 +2,7 @@
 
 ← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura)
 
-Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, DTO, entity JPA, componenti UI minori) seguono la stessa organizzazione descritta in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
+Il progetto ha circa **170 classi** in `src/main/java`. Qui elenco le classi e interfacce più rilevanti per layer; le altre (builder, DTO, entity JPA, componenti UI minori) seguono la stessa organizzazione descritta in [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura).
 
 ---
 
@@ -10,7 +10,9 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 - `Main` — entry point Gradle; avvia `RpgApplication`
 - `RpgApplication` — Application JavaFX: bootstrap `AppModule`, `MainView`, chiusura EMF
-- `AppModule` — bootstrap: EMF, seed catalogo, strategy combattimento, `BattleRoundExecutor`, `PortraitAssetResolver`, `GameModel`
+- `AppModule` — composition root: EMF, repository, wiring verso `GameModel`
+- `CatalogBootstrap` — seed catalogo H2 + caricamento `GameCatalog` (usato da `AppModule.bootstrap()`)
+- `ServiceGraph` — assembla servizi di gioco e restituisce `GameModel` + `PortraitAssetResolver`
 
 ---
 
@@ -52,7 +54,7 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 ## model.service
 
-- `GameModel` — facciata usata dai controller verso servizi e persistenza
+- `GameModel` — facciata usata dai controller verso servizi e persistenza; `persistSession()` unifica il flusso di salvataggio
 - `BattleService`, `NewGameService`, `HealingService` — casi d'uso principali
 - `GymCompletionHandler` — ricompense al completamento palestra
 - `SessionPersistenceFacade`, `GameStateHolder` — persistenza e stato in memoria
@@ -77,25 +79,42 @@ Il progetto ha circa **160 classi** in `src/main/java`. Qui elenco le classi e i
 
 ## controller e view
 
-### Navigazione (controller)
+### Navigazione (`controller.navigation`)
 
-- `MainView` — layout root; crea `ScreenNavigator` con `GameModel` e `PortraitAssetResolver`
-- `ScreenNavigator` — routing hub/battaglia/vittoria e save/load/delete
-- `ScreenFactory`, `RootScreenStack`, `FxmlScreenLoader`, `DialogHelper`
-- `PersistenceUiGuard`, `PersistenceOperation` — gestione errori persistenza in UI
-- `MainMenuNavigation`, `HubNavigation`, `LoadGameNavigation`, `VictoryNavigation`, `ScreenNavigation`
-- `MainMenuActions`, `HubActions`, … + `*ActionsImpl` in `actions.implementations`
+Convenzione del progetto: **interfacce nel package padre**, **implementazioni concrete in `implementations/`**, helper in `support/` (come in `model.validation`, `model.combat.strategy`, ecc.).
 
-### Presenter e controller
+```
+controller/navigation/
+├── MainMenuNavigation, HubNavigation, LoadGameNavigation, VictoryNavigation
+├── MainMenuActions, HubActions, LoadGameActions, VictoryActions
+├── ScreenNavigation
+├── implementations/
+│   ├── ScreenNavigator
+│   └── MainMenuActionsImpl, HubActionsImpl, LoadGameActionsImpl, VictoryActionsImpl
+└── support/
+    ├── MainView, ScreenFactory, FxmlScreenLoader, FxmlPaths
+    ├── RootScreenStack, DialogHelper
+    └── PersistenceUiGuard, PersistenceOperation
+```
 
-- `BattlePresenter`, `HubPresenter`, `OverworldPresenter`, `LoadGamePresenter`, `VictoryPresenter`
+- `MainView` — layout root (`FxmlPaths.MAIN_SHELL`); crea `ScreenNavigator`
+- `ScreenNavigator` — routing hub/battaglia/vittoria, save/load/delete; policy `redirectToVictoryIfCompleted()`
+- `ScreenFactory` — monta FXML + controller; path centralizzati in `FxmlPaths`
+- `*Navigation` / `*Actions` — contratti per schermata; `*ActionsImpl` delegano al navigator
+
+### Presenter, controller e helper schermata
+
+- `BattlePresenter`, `HubPresenter`, `OverworldPresenter` — logica schermata estratta dai controller FXML
 - `MainMenuController`, `LoadGameController`, `HubController`, `BattleController`, `VictoryController`
 - `BattleCommandColumnController`, `BattleEndOverlayController` — sotto-pannelli FXML battaglia
+- `SavedSessionSummaryCell` — cella lista slot in `LoadGameController`
+- `HubTeamRowFactory` — wiring riga team (carta creatura + cura) in `HubController`
 
 ### Componenti e overworld
 
 - `OverworldMap`, `OverworldZoomControls`, `OverworldGymModalController`, `OverworldLayoutSupport`, `OverworldTileRenderer`
+- `OverworldPlayerSpawn`, `OverworldMovement`, `OverworldMapChrome` — spawn, movimento e chrome UI mappa
 - `CreaturePortrait`, `CreatureCard`, `BattleArenaView`, `HealthBar`, `HamburgerMenu`
 - `PortraitAssetResolver` — path ritratti da `GameCatalog`
-- `Messages`, `BattleEventTranslator`, `UiErrorReporter` — i18n e messaggi UI
-- `DuelUiTheme` — tema schermata battaglia
+- `Messages`, `BattleEventTranslator`, `BattleSideMessages`, `BattleLogRenderer`, `UiErrorReporter` — i18n, log battaglia, rendering cronaca
+- `DuelUiTheme` — tema schermata battaglia (`view.theme.implementations`)

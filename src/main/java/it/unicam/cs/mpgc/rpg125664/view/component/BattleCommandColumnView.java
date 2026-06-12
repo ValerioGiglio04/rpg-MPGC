@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import it.unicam.cs.mpgc.rpg125664.controller.BattleCommandColumnController;
+import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlPaths;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.support.FxmlScreenLoader;
 import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.entity.CreatureHolder;
@@ -24,7 +25,7 @@ public final class BattleCommandColumnView {
       IntConsumer onMoveSelected,
       LongConsumer onSwitchCreature) {
     BattleCommandColumnController controller = new BattleCommandColumnController();
-    VBox column = (VBox) FxmlScreenLoader.load("/fxml/BattleCommandColumn.fxml", controller);
+    VBox column = (VBox) FxmlScreenLoader.load(FxmlPaths.BATTLE_COMMAND_COLUMN, controller);
     controller.wire(
         playerCreature, gym, holder, portraitAssets, onBack, onMoveSelected, onSwitchCreature);
     return column;

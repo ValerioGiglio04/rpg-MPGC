@@ -11,14 +11,12 @@ import it.unicam.cs.mpgc.rpg125664.view.component.BattleCommandColumnView;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleEndOverlay;
 import it.unicam.cs.mpgc.rpg125664.view.component.BattleUiErrorPane;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.view.support.BattleLogLine;
+import it.unicam.cs.mpgc.rpg125664.view.support.BattleLogRenderer;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -26,9 +24,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.util.Duration;
 
 public final class BattleController implements Initializable {
 
@@ -57,23 +53,10 @@ public final class BattleController implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    configureLogArea();
+    BattleLogRenderer.bindLogWidth(logFlow, logScroll);
+    VBox.setVgrow(logScroll, Priority.ALWAYS);
     presenter.startBattleIfNeeded();
     build();
-  }
-
-  private void configureLogArea() {
-    logFlow.setLineSpacing(4);
-    logFlow
-        .maxWidthProperty()
-        .bind(
-            Bindings.createDoubleBinding(
-                () -> {
-                  double w = logScroll.getWidth();
-                  return w <= 16 ? 520 : w - 12;
-                },
-                logScroll.widthProperty()));
-    VBox.setVgrow(logScroll, Priority.ALWAYS);
   }
 
   private void build() {
@@ -143,26 +126,38 @@ public final class BattleController implements Initializable {
   private void playRound(int moveIndex) {
     RoundOutcome outcome = presenter.playRound(moveIndex);
     refreshLogArea();
+    handleRoundOutcome(outcome);
+  }
+
+  private void handleRoundOutcome(RoundOutcome outcome) {
     if (!outcome.success()) {
       build();
       return;
     }
     if (outcome.defeat()) {
       build();
-      showEndBattleDialog(
-          Messages.get("battle.dialog.defeat.title"),
-          Messages.format("battle.dialog.defeat.body", presenter.currentGym().name()));
+      showDefeatDialog();
       return;
     }
     if (outcome.gymCompleted()) {
       build();
-      GameState state = presenter.state();
-      showEndBattleDialog(
-          presenter.victoryDialogTitle(state),
-          presenter.victoryDialogBody(state, outcome.acquiredCreatureNames()));
+      showVictoryDialog(outcome);
       return;
     }
     build();
+  }
+
+  private void showDefeatDialog() {
+    showEndBattleDialog(
+        Messages.get("battle.dialog.defeat.title"),
+        Messages.format("battle.dialog.defeat.body", presenter.currentGym().name()));
+  }
+
+  private void showVictoryDialog(RoundOutcome outcome) {
+    GameState state = presenter.state();
+    showEndBattleDialog(
+        presenter.victoryDialogTitle(state),
+        presenter.victoryDialogBody(state, outcome.acquiredCreatureNames()));
   }
 
   private void switchCreature(long creatureCatalogId) {
@@ -184,40 +179,6 @@ public final class BattleController implements Initializable {
   }
 
   private void refreshLogArea() {
-    logFlow.getChildren().clear();
-    String gap = System.lineSeparator() + System.lineSeparator();
-    var lines = presenter.logLines();
-    for (int i = 0; i < lines.size(); i++) {
-      BattleLogLine line = lines.get(i);
-      String suffix = i < lines.size() - 1 ? gap : "";
-      Text chunk = new Text(line.text() + suffix);
-      chunk.getStyleClass().add(styleClassFor(line.kind()));
-      logFlow.getChildren().add(chunk);
-    }
-    scrollCronacaToLatest();
-  }
-
-  private void scrollCronacaToLatest() {
-    if (presenter.logLines().isEmpty()) {
-      return;
-    }
-    Runnable snapBottom =
-        () -> {
-          logScroll.applyCss();
-          logScroll.layout();
-          logScroll.setVvalue(1.0);
-        };
-    Platform.runLater(snapBottom);
-    PauseTransition afterWrap = new PauseTransition(Duration.millis(50));
-    afterWrap.setOnFinished(e -> snapBottom.run());
-    afterWrap.play();
-  }
-
-  private static String styleClassFor(BattleLogLine.Kind kind) {
-    return switch (kind) {
-      case PLAYER -> "battle-log-player";
-      case BOSS -> "battle-log-boss";
-      case NEUTRAL -> "battle-log-neutral";
-    };
+    BattleLogRenderer.render(logFlow, logScroll, presenter.logLines());
   }
 }

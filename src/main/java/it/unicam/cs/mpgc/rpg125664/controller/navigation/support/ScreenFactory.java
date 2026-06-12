@@ -31,26 +31,26 @@ public final class ScreenFactory {
 
   public Parent createMainMenu(MainMenuActions actions) {
     return FxmlScreenLoader.load(
-        "/fxml/MainMenu.fxml", new MainMenuController(actions, gameModel.hasAnySave()));
+        FxmlPaths.MAIN_MENU, new MainMenuController(actions, gameModel.hasAnySave()));
   }
 
   public Parent createLoadGame(LoadGameActions actions) {
-    return FxmlScreenLoader.load("/fxml/LoadGame.fxml", new LoadGameController(gameModel, actions));
+    return FxmlScreenLoader.load(FxmlPaths.LOAD_GAME, new LoadGameController(gameModel, actions));
   }
 
   public Parent createHub(HubActions actions) {
     return FxmlScreenLoader.load(
-        "/fxml/Hub.fxml", new HubController(gameModel, portraitAssets, actions));
+        FxmlPaths.HUB, new HubController(gameModel, portraitAssets, actions));
   }
 
   public Parent createBattle(Runnable onBack) {
     BattleController controller = new BattleController(gameModel, portraitAssets, onBack);
-    Parent screen = FxmlScreenLoader.load("/fxml/Battle.fxml", controller);
+    Parent screen = FxmlScreenLoader.load(FxmlPaths.BATTLE, controller);
     BATTLE_THEME.applyTo(screen);
     return screen;
   }
 
   public Parent createVictory(VictoryActions actions) {
-    return FxmlScreenLoader.load("/fxml/Victory.fxml", new VictoryController(gameModel, actions));
+    return FxmlScreenLoader.load(FxmlPaths.VICTORY, new VictoryController(gameModel, actions));
   }
 }

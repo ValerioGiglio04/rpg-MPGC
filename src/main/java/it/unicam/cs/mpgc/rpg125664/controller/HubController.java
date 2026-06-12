@@ -16,17 +16,14 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public final class HubController implements Initializable {
 
   private static final int PORTRAIT_SIZE = 80;
-  private static final int GYM_ROW_SPACING = 8;
 
   private final HubPresenter presenter;
   private final OverworldPresenter overworldPresenter;
@@ -85,43 +82,30 @@ public final class HubController implements Initializable {
       TeamRowViewModel row = presenter.teamRow(creature, holder.isActive(creature), spendable);
       CreatureCard card =
           CreatureCard.builder(creature, portraitAssets).active(row.active()).build();
-      wireCreatureCardSelection(card, row);
       GameButton healButton = buildHealButton(row);
-      teamList.getChildren().add(hubTeamRow(card, healButton));
+      teamList
+          .getChildren()
+          .add(
+              HubTeamRowFactory.create(
+                  row,
+                  card,
+                  healButton,
+                  () -> {
+                    presenter.selectCreature(row.catalogId());
+                    refreshTeamAndSubtitle();
+                  }));
     }
-  }
-
-  private void wireCreatureCardSelection(CreatureCard card, TeamRowViewModel row) {
-    if (row.active() || row.knockedOut()) {
-      return;
-    }
-    card.setCursor(Cursor.HAND);
-    Tooltip.install(card, new Tooltip(Messages.get("hub.team.select.tooltip")));
-    card.setOnMouseClicked(
-        event -> {
-          presenter.selectCreature(row.catalogId());
-          refreshTeamAndSubtitle();
-        });
   }
 
   private GameButton buildHealButton(TeamRowViewModel row) {
     GameButton healButton =
         new GameButton(Messages.format("hub.heal.button", row.healCost())).asSecondary();
-    healButton.getStyleClass().add("switch-button");
-    healButton.setDisable(!row.healEnabled());
-    Tooltip.install(healButton, new Tooltip(row.healTooltip()));
     healButton.setOnAction(
         event -> {
           presenter.healCreature(row.catalogId());
           refreshTeamAndSubtitle();
         });
     return healButton;
-  }
-
-  private static VBox hubTeamRow(CreatureCard card, GameButton healButton) {
-    VBox row = new VBox(GYM_ROW_SPACING, card, healButton);
-    row.getStyleClass().add("hub-team-row");
-    return row;
   }
 
   private void initializeOverworldMap() {

@@ -48,7 +48,7 @@ Il dominio e le regole (`canChallengeGym`, danno, gloria) restano identici.
 |-------|--------|
 | 1 | Implementare `GameStateRepository` in `model.persistence.session` |
 | 2 | Opzionale: nuova impl di `GameCatalogLoader` se il catalogo non resta su H2 |
-| 3 | Registrare in `AppModule`; contratto in `model.persistence` |
+| 3 | Registrare in `ServiceGraph` / `AppModule`; contratto in `model.persistence` |
 
 **Oggi:** `HibernateGameStateRepository` salva su `sessioni_salvate` con JSON in CLOB, JPQL in `SessioneSalvataJpaRepository`.
 
@@ -63,9 +63,9 @@ Il dominio e le regole (`canChallengeGym`, danno, gloria) restano identici.
 | Danni, critici, status | Nuova `AttackResolutionStrategy` |
 | IA boss diversa | Nuova `BossMoveStrategy` |
 | Policy overworld | Nuova `GymStatusStrategy` in `model.overworld.strategy.implementations` |
-| Eventi battaglia | Nuovi record in `BattleEvent` (sealed) + `BattleEventTranslator` |
+| Eventi battaglia | Nuovi record in `BattleEvent` (sealed) + traduzione in `BattleEventTranslator` / `BattleSideMessages` |
 
-Wiring in `AppModule`: sostituire le impl strategy senza modificare `BattleService`.
+Wiring in `ServiceGraph` (chiamato da `AppModule`): sostituire le impl strategy senza modificare `BattleService`.
 
 ---
 
@@ -80,10 +80,11 @@ Wiring in `AppModule`: sostituire le impl strategy senza modificare `BattleServi
 ## Nuova schermata JavaFX
 
 1. `NuovaSchermata.fxml` in `src/main/resources/fxml/`
-2. Controller in `controller` + componenti in `view`
-3. Costruzione in `ScreenFactory`, transizione in `ScreenNavigator`
-4. Callback opzionale: `*Actions` + `*ActionsImpl` → `*Navigation`
-5. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
+2. Aggiungere il path in `FxmlPaths` (`controller.navigation.support`)
+3. Controller in `controller` + componenti in `view`
+4. Costruzione in `ScreenFactory`, transizione in `ScreenNavigator` (`navigation.implementations`)
+5. Callback opzionale: interfaccia `*Actions` nel package `navigation` + `*ActionsImpl` in `navigation.implementations` → `*Navigation`
+6. Errori utente via `UiErrorReporter`; dialoghi via `DialogHelper`
 
 ---
 

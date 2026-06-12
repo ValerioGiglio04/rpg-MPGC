@@ -121,22 +121,28 @@ public final class GameModel {
   }
 
   public void saveCurrent() {
-    long id =
-        persistence.save(
-            new SaveSessionCommand(
-                holder.current(),
-                holder.overworldPosition(),
-                holder.currentSessionId(),
-                holder.currentSessionName()));
-    refreshSessionMeta(id);
-    persistence.markLastPlayed(id);
+    persistSession(currentSaveCommand());
   }
 
   public void saveAsNew(String name) {
-    long id =
-        persistence.save(
-            new SaveSessionCommand(
-                holder.current(), holder.overworldPosition(), Optional.empty(), Optional.of(name)));
+    persistSession(newSaveCommand(name));
+  }
+
+  private SaveSessionCommand currentSaveCommand() {
+    return new SaveSessionCommand(
+        holder.current(),
+        holder.overworldPosition(),
+        holder.currentSessionId(),
+        holder.currentSessionName());
+  }
+
+  private SaveSessionCommand newSaveCommand(String name) {
+    return new SaveSessionCommand(
+        holder.current(), holder.overworldPosition(), Optional.empty(), Optional.of(name));
+  }
+
+  private void persistSession(SaveSessionCommand command) {
+    long id = persistence.save(command);
     refreshSessionMeta(id);
     persistence.markLastPlayed(id);
   }

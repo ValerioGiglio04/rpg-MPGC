@@ -26,7 +26,7 @@ Documentazione delle funzionalità presenti nella **prima release**. Feature non
 | Battaglia | `Battle.fxml` | `BattleController` | Combattimento a turni |
 | Vittoria | `Victory.fxml` | `VictoryController` | Campagna completata |
 
-I **controller** interagiscono con `GameModel`: non accedono direttamente a Hibernate né alle entità JPA. Il routing è in `ScreenNavigator`; la costruzione schermate in `ScreenFactory`. I ritratti usano `PortraitAssetResolver` (creato in `AppModule`).
+I **controller** interagiscono con `GameModel`: non accedono direttamente a Hibernate né alle entità JPA. Il routing è in `ScreenNavigator` (`controller.navigation.implementations`); la costruzione schermate in `ScreenFactory` con path da `FxmlPaths`. I ritratti usano `PortraitAssetResolver` (creato in `ServiceGraph` / `AppModule`).
 
 ---
 
@@ -42,7 +42,7 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
 
 ## Hub (overworld)
 
-- **Mappa a tile** con movimento da tastiera; il giocatore si sposta tra celle con palestre e decorazioni
+- **Mappa a tile** con movimento da tastiera (`OverworldMovement`); spawn iniziale da sessione o palestra corrente (`OverworldPlayerSpawn`)
 - **Zoom** con pulsanti +/- e rotella (`OverworldZoomControls`)
 - **Stato palestre** (via `GameModel.statusOf` e `GymStatusStrategy`):
   - `COMPLETED` — palestra già completata
@@ -51,7 +51,7 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
   - `NEEDS_POINTS` — raggiungibile ma gloria insufficiente
   - `UNREACHABLE` — non collegata alla posizione corrente
 - **Interazione palestra:** modale di conferma (`OverworldGymModalController`); se necessario `moveTo(gymId)` poi avvio battaglia
-- **Team:** elenco creature del party; selezione creatura attiva; **cura a pagamento** (costo in gloria proporzionale agli HP mancanti)
+- **Team:** elenco creature del party (`HubTeamRowFactory`); selezione creatura attiva; **cura a pagamento** (costo in gloria proporzionale agli HP mancanti, regole in `HubPresenter` / `HealingService`)
 - **Menu hamburger:** salvataggio manuale, salva come nuovo, ritorno al menu
 - Se tutte le palestre sono completate, l'ingresso all'Hub porta alla schermata **Vittoria**
 
@@ -64,7 +64,7 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
 - **Turno:** il giocatore sceglie una mossa; l'ordine nel round dipende dalla **velocità** delle creature attive
 - **Strategy:** `TurnBasedAttackResolutionStrategy` (colpo/danno/miss), `AccuracyThresholdBossMoveStrategy` (mossa del boss)
 - **Switch:** cambio creatura attiva nel team del giocatore
-- **Eventi:** lista di `BattleEvent` tradotti in italiano per il log (`BattleEventTranslator`)
+- **Eventi:** lista di `BattleEvent` tradotti in italiano (`BattleEventTranslator`, `BattleSideMessages`) e renderizzati nel log (`BattleLogRenderer`)
 - **Fine palestra:** KO di tutte le creature del boss → `GymCompletionHandler` marca completata, assegna gloria, aggiunge creature al party
 - **Palestre già completate:** modalità revisione senza reset HP all'ingresso
 
@@ -90,7 +90,7 @@ In caso di errore di caricamento viene mostrato un alert e si resta al menu.
 
 ## Catalogo e nuova partita
 
-- All'avvio `CatalogDatabaseSeeder` allinea H2 a `catalog-seed.json` se serve
+- All'avvio `CatalogBootstrap` (via `AppModule.bootstrap()`) allinea H2 a `catalog-seed.json` se serve
 - `NewGameService` costruisce il primo `GameState` da `GameCatalog` e `NewGameSettings`
 
 ---

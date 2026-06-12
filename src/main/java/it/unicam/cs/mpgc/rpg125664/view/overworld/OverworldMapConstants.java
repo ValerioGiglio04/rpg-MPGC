@@ -19,6 +19,9 @@ public final class OverworldMapConstants {
   public static final double BUSH_PROBABILITY = 0.14;
   public static final int GYM_MIN_DISTANCE = OverworldGridLayout.GYM_MIN_DISTANCE;
 
+  public static final int DEFAULT_SPAWN_ROW = 4;
+  public static final int DEFAULT_SPAWN_COLUMN = 1;
+
   private OverworldMapConstants() {
     throw new UnsupportedOperationException("Utility class");
   }

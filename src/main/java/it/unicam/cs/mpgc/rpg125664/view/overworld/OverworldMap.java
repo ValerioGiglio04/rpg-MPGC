@@ -4,11 +4,9 @@ import it.unicam.cs.mpgc.rpg125664.controller.OverworldPresenter;
 import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymCellPlacement;
 import it.unicam.cs.mpgc.rpg125664.model.overworld.GymStatus;
-import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -152,47 +150,25 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
       gymModal.handleModalKey(code);
       if (code == KeyCode.ENTER || code == KeyCode.ESCAPE) {
         event.consume();
-      } else if (movementStep(code) != MapOffset.ZERO) {
+      } else if (OverworldMovement.stepFor(code) != MapOffset.ZERO) {
         event.consume();
       }
       return;
     }
-    if (movementStep(code) != MapOffset.ZERO) {
+    if (OverworldMovement.stepFor(code) != MapOffset.ZERO) {
       handleMovementKey(code);
       event.consume();
     }
   }
 
   private void handleMovementKey(KeyCode code) {
-    MapOffset step = movementStep(code);
+    MapOffset step = OverworldMovement.stepFor(code);
     int nextRow = playerRow + step.rowDelta();
     int nextCol = playerCol + step.columnDelta();
-    if (!isWalkable(nextRow, nextCol)) return;
+    if (!OverworldMovement.isWalkable(nextRow, nextCol, blockedTiles)) {
+      return;
+    }
     commitMove(nextRow, nextCol);
-  }
-
-  private static MapOffset movementStep(KeyCode code) {
-    return switch (code) {
-      case W, UP -> MapOffset.UP;
-      case S, DOWN -> MapOffset.DOWN;
-      case A, LEFT -> MapOffset.LEFT;
-      case D, RIGHT -> MapOffset.RIGHT;
-      default -> MapOffset.ZERO;
-    };
-  }
-
-  private static boolean isInRange(int value, int min, int max) {
-    return value >= min && value <= max;
-  }
-
-  private static boolean isOutOfBounds(int row, int col) {
-    return !isInRange(col, 0, OverworldMapConstants.MAP_COLS)
-        || !isInRange(row, 0, OverworldMapConstants.MAP_ROWS);
-  }
-
-  private boolean isWalkable(int row, int col) {
-    if (isOutOfBounds(row, col)) return false;
-    return !blockedTiles[row][col];
   }
 
   private void commitMove(int nextRow, int nextCol) {
@@ -266,20 +242,8 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
 
   @Override
   public void ensureUiChromeVisible() {
-    mapScrollPane.setManaged(true);
-    mapScrollPane.setVisible(true);
-    zoomControls.root().setManaged(true);
-    zoomControls.root().setVisible(true);
-    legendLabel.setManaged(true);
-    legendLabel.setVisible(true);
-    modalLayer.setManaged(true);
-    modalLayer.setVisible(gymModal.isModalOpen());
-    if (gymModal.isModalOpen()) {
-      modalLayer.toFront();
-      return;
-    }
-    legendLabel.toFront();
-    zoomControls.root().toFront();
+    OverworldMapChrome.ensureVisible(
+        mapScrollPane, zoomControls.root(), legendLabel, modalLayer, gymModal.isModalOpen());
   }
 
   @Override
@@ -288,52 +252,14 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
   }
 
   private void initializePlayerPosition() {
-    if (presenter.savedPosition().isPresent()) {
-      OverworldPosition saved = presenter.savedPosition().orElseThrow();
-      playerRow = saved.row();
-      playerCol = saved.column();
-      lastRow = playerRow;
-      lastCol = playerCol;
-      return;
+    OverworldPlayerSpawn.Result spawn =
+        OverworldPlayerSpawn.resolve(presenter, gymsByCell, blockedTiles);
+    playerRow = spawn.row();
+    playerCol = spawn.column();
+    lastRow = spawn.lastRow();
+    lastCol = spawn.lastColumn();
+    if (spawn.syncSession()) {
+      syncOverworldPositionToSession();
     }
-    Entry<String, GymRoom> entry = findCurrentGymEntry();
-    if (entry != null) {
-      placePlayerNearGym(entry.getKey());
-    } else {
-      setDefaultPlayerSpawn();
-    }
-    syncOverworldPositionToSession();
-  }
-
-  private Entry<String, GymRoom> findCurrentGymEntry() {
-    return gymsByCell.entrySet().stream()
-        .filter(e -> e.getValue().id() == presenter.gameState().currentGym().id())
-        .findFirst()
-        .orElse(null);
-  }
-
-  private void placePlayerNearGym(String cellKey) {
-    String[] coords = cellKey.split(":");
-    int gymRow = Integer.parseInt(coords[0]);
-    int gymCol = Integer.parseInt(coords[1]);
-    OverworldPosition home =
-        GymCellPlacement.findHomeTile(
-            gymRow,
-            gymCol,
-            blockedTiles,
-            gymsByCell,
-            OverworldMapConstants.MAP_ROWS,
-            OverworldMapConstants.MAP_COLS);
-    playerRow = home.row();
-    playerCol = home.column();
-    lastRow = playerRow;
-    lastCol = playerCol;
-  }
-
-  private void setDefaultPlayerSpawn() {
-    playerRow = 4;
-    playerCol = 1;
-    lastRow = playerRow;
-    lastCol = playerCol;
   }
 }

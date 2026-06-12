@@ -48,8 +48,7 @@ public final class ScreenNavigator implements ScreenNavigation {
   }
 
   public void showHub() {
-    if (gameModel.allGymsCompleted()) {
-      showVictory();
+    if (redirectToVictoryIfCompleted()) {
       return;
     }
     screenStack.setScreen(screenFactory.createHub(hubActions()));
@@ -57,18 +56,29 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   @Override
   public void showBattle() {
-    if (gameModel.allGymsCompleted()) {
-      showVictory();
+    if (redirectToVictoryIfCompleted()) {
       return;
     }
     GymRoom current = gameModel.currentGym();
     if (!gameModel.canChallengeGym(current)) {
-      DialogHelper.showError(
-          Messages.get("battle.navigation.title"), Messages.get("battle.navigation.notAllowed"));
-      showHub();
+      showBattleEntryDenied();
       return;
     }
     screenStack.setScreen(screenFactory.createBattle(this::showHub));
+  }
+
+  private boolean redirectToVictoryIfCompleted() {
+    if (!gameModel.allGymsCompleted()) {
+      return false;
+    }
+    showVictory();
+    return true;
+  }
+
+  private void showBattleEntryDenied() {
+    DialogHelper.showError(
+        Messages.get("battle.navigation.title"), Messages.get("battle.navigation.notAllowed"));
+    showHub();
   }
 
   public void showVictory() {

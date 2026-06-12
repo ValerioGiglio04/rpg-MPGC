@@ -1,7 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.view.support;
 
 import it.unicam.cs.mpgc.rpg125664.model.event.BattleEvent;
-import it.unicam.cs.mpgc.rpg125664.model.event.Side;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,55 +18,55 @@ public final class BattleEventTranslator {
 
   private static BattleLogLine translateRoundStarted(BattleEvent.RoundStarted started) {
     String text = Messages.format("battle.event.round.started", started.firstAttackerName());
-    return new BattleLogLine(kindFor(started.firstAttacker()), text);
+    return new BattleLogLine(BattleSideMessages.logKind(started.firstAttacker()), text);
   }
 
   private static BattleLogLine translateMoveUsed(BattleEvent.MoveUsed used) {
     String sideFormatted =
-        formatForSide(
+        BattleSideMessages.format(
             used.side(),
             "battle.event.move.used.player",
             "battle.event.move.used.boss",
             used.moveName());
-    return new BattleLogLine(kindFor(used.side()), sideFormatted);
+    return new BattleLogLine(BattleSideMessages.logKind(used.side()), sideFormatted);
   }
 
   private static BattleLogLine translateAttackHit(BattleEvent.AttackHit hit) {
     String sideFormatted =
-        formatForSide(
+        BattleSideMessages.format(
             hit.side(),
             "battle.event.attack.hit.player",
             "battle.event.attack.hit.boss",
             hit.defenderName(),
             hit.damage());
-    return new BattleLogLine(kindFor(hit.side()), sideFormatted);
+    return new BattleLogLine(BattleSideMessages.logKind(hit.side()), sideFormatted);
   }
 
   private static BattleLogLine translateAttackMissed(BattleEvent.AttackMissed missed) {
     String sideFormatted =
-        getForSide(
+        BattleSideMessages.get(
             missed.side(), "battle.event.attack.missed.player", "battle.event.attack.missed.boss");
-    return new BattleLogLine(kindFor(missed.side()), sideFormatted);
+    return new BattleLogLine(BattleSideMessages.logKind(missed.side()), sideFormatted);
   }
 
   private static BattleLogLine translateCreatureKnockedOut(BattleEvent.CreatureKnockedOut ko) {
     String sideFormatted =
-        formatForSide(
+        BattleSideMessages.format(
             ko.side(),
             "battle.event.creature.knocked.out.player",
             "battle.event.creature.knocked.out.boss",
             ko.creatureName());
-    return new BattleLogLine(kindFor(ko.side()), sideFormatted);
+    return new BattleLogLine(BattleSideMessages.logKind(ko.side()), sideFormatted);
   }
 
   private static BattleLogLine translateCreatureSwitched(BattleEvent.CreatureSwitched switched) {
     String sideFormatted =
-        formatForSide(
+        BattleSideMessages.format(
             switched.side(),
             "battle.event.creature.switched.player",
             "battle.event.creature.switched.boss",
             switched.toName());
-    return new BattleLogLine(kindFor(switched.side()), sideFormatted);
+    return new BattleLogLine(BattleSideMessages.logKind(switched.side()), sideFormatted);
   }
 
   private static BattleLogLine translateBossDefeated(BattleEvent.BossDefeated defeated) {
@@ -103,19 +102,5 @@ public final class BattleEventTranslator {
           Optional.of(translateCreaturesAcquired(acquired));
       case BattleEvent.PlayerTeamWiped() -> Optional.of(translatePlayerTeamWiped());
     };
-  }
-
-  private static String getForSide(Side side, String playerKey, String bossKey) {
-    return Messages.get(side == Side.PLAYER ? playerKey : bossKey);
-  }
-
-  private static String formatForSide(
-      Side side, String playerKey, String bossKey, Object... formatArgs) {
-    String key = side == Side.PLAYER ? playerKey : bossKey;
-    return Messages.format(key, formatArgs);
-  }
-
-  private static BattleLogLine.Kind kindFor(Side side) {
-    return side == Side.PLAYER ? BattleLogLine.Kind.PLAYER : BattleLogLine.Kind.BOSS;
   }
 }

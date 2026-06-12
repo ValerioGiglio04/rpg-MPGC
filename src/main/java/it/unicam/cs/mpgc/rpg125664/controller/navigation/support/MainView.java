@@ -13,7 +13,7 @@ public final class MainView {
   private final ScreenNavigator navigator;
 
   public MainView(GameModel gameModel, PortraitAssetResolver portraitAssets) {
-    this.root = (StackPane) FxmlScreenLoader.load("/fxml/MainShell.fxml", null);
+    this.root = (StackPane) FxmlScreenLoader.load(FxmlPaths.MAIN_SHELL, null);
     this.navigator = new ScreenNavigator(root, gameModel, portraitAssets);
     navigator.showMainMenu();
   }
