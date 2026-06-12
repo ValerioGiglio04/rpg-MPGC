@@ -15,11 +15,10 @@ import java.util.Optional;
 /** Serializza {@link UltimaSessioneSalvataDto} in {@code dati_salvati_json}. */
 public final class SessionJsonSerializer {
 
-  private static final ObjectMapper MAPPER =
-      new ObjectMapper()
-          .registerModule(new JavaTimeModule())
-          .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-          .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  private static final ObjectMapper MAPPER = new ObjectMapper()
+    .registerModule(new JavaTimeModule())
+    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
   private final SessioneJsonMapper mapper;
 

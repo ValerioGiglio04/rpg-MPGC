@@ -10,6 +10,5 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
  * testo.
  */
 public interface AttackResolutionStrategy {
-
   AttackOutcome execute(Creature attacker, Creature defender, Move move);
 }

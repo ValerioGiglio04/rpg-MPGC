@@ -13,7 +13,9 @@ final class CatalogBootstrap {
   private CatalogBootstrap() {}
 
   static GameCatalog ensureCatalogPresent(
-      EntityManagerFactory entityManagerFactory, CatalogSeedBundle seed) {
+    EntityManagerFactory entityManagerFactory,
+    CatalogSeedBundle seed
+  ) {
     EntityManager em = entityManagerFactory.createEntityManager();
     try {
       em.getTransaction().begin();

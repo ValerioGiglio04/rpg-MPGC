@@ -7,9 +7,11 @@ import java.util.Locale;
 
 /** Etichette e formattazione condivise per gli slot in {@code sessioni_salvate}. */
 public final class SaveSlotLabels {
+
   private static final String DATE_STRING_PATTERN = "dd/MM/yyyy HH:mm";
-  private static final DateTimeFormatter SAVED_AT =
-      DateTimeFormatter.ofPattern(DATE_STRING_PATTERN).withLocale(Locale.ITALY);
+  private static final DateTimeFormatter SAVED_AT = DateTimeFormatter.ofPattern(
+    DATE_STRING_PATTERN
+  ).withLocale(Locale.ITALY);
 
   private SaveSlotLabels() {}
 

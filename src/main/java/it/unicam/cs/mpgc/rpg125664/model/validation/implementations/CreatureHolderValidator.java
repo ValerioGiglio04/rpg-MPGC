@@ -21,9 +21,12 @@ public final class CreatureHolderValidator extends Validator<CreatureHolder> {
       throw new IllegalArgumentException("Holder needs at least one creature");
     }
     Rules.requirePositiveId(
-        holder.activeCatalogId(), "Active creature catalog id must be positive");
-    boolean found =
-        creatures.stream().anyMatch(creature -> creature.catalogId() == holder.activeCatalogId());
+      holder.activeCatalogId(),
+      "Active creature catalog id must be positive"
+    );
+    boolean found = creatures
+      .stream()
+      .anyMatch(creature -> creature.catalogId() == holder.activeCatalogId());
     if (!found) {
       throw new IllegalArgumentException("Active creature is not in the team");
     }

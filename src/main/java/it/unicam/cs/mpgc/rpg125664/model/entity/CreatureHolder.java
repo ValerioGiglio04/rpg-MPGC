@@ -48,15 +48,17 @@ public final class CreatureHolder implements Serializable {
     if (!activeCreature().isKnockedOut()) {
       return;
     }
-    creatures.stream()
-        .filter(creature -> !creature.isKnockedOut())
-        .findFirst()
-        .ifPresent(creature -> switchTo(creature.catalogId()));
+    creatures
+      .stream()
+      .filter(creature -> !creature.isKnockedOut())
+      .findFirst()
+      .ifPresent(creature -> switchTo(creature.catalogId()));
   }
 
   public boolean canSwitchTo(long catalogId) {
-    return creatures.stream()
-        .anyMatch(creature -> creature.catalogId() == catalogId && !creature.isKnockedOut());
+    return creatures
+      .stream()
+      .anyMatch(creature -> creature.catalogId() == catalogId && !creature.isKnockedOut());
   }
 
   public boolean allKnockedOut() {
@@ -84,11 +86,11 @@ public final class CreatureHolder implements Serializable {
 
   private void assertCanSwitchTo(long catalogId) {
     Rules.requirePositiveId(catalogId, "Creature catalog id must be positive");
-    Creature creature =
-        creatures.stream()
-            .filter(c -> c.catalogId() == catalogId)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Creature is not in the team"));
+    Creature creature = creatures
+      .stream()
+      .filter(c -> c.catalogId() == catalogId)
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Creature is not in the team"));
     if (creature.isKnockedOut()) {
       throw new IllegalStateException("Cannot select a knocked-out creature");
     }

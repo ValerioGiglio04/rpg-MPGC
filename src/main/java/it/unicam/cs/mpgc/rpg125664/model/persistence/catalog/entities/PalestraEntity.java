@@ -32,12 +32,13 @@ public class PalestraEntity {
   protected PalestraEntity() {}
 
   public PalestraEntity(
-      long idPalestra,
-      String nome,
-      int ordine,
-      int puntiRichiesti,
-      int puntiRicompensaBoss,
-      long idBoss) {
+    long idPalestra,
+    String nome,
+    int ordine,
+    int puntiRichiesti,
+    int puntiRicompensaBoss,
+    long idBoss
+  ) {
     this.idPalestra = idPalestra;
     this.nome = nome;
     this.ordine = ordine;

@@ -11,11 +11,12 @@ final class OverworldMapChrome {
   private OverworldMapChrome() {}
 
   static void ensureVisible(
-      ScrollPane mapScrollPane,
-      Node zoomControls,
-      Label legendLabel,
-      StackPane modalLayer,
-      boolean modalOpen) {
+    ScrollPane mapScrollPane,
+    Node zoomControls,
+    Label legendLabel,
+    StackPane modalLayer,
+    boolean modalOpen
+  ) {
     show(mapScrollPane);
     show(zoomControls);
     show(legendLabel);

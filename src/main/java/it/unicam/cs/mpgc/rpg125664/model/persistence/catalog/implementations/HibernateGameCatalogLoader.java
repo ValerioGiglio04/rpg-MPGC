@@ -21,13 +21,17 @@ import java.util.Map;
 import java.util.Objects;
 
 /** Costruisce {@link GameCatalog} dalle tabelle catalogo su H2. */
-public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
-    implements GameCatalogLoader {
+public final class HibernateGameCatalogLoader
+  extends AbstractHibernateAdapter
+  implements GameCatalogLoader
+{
 
   private final NewGameSettings newGameSettings;
 
   public HibernateGameCatalogLoader(
-      EntityManagerFactory entityManagerFactory, NewGameSettings newGameSettings) {
+    EntityManagerFactory entityManagerFactory,
+    NewGameSettings newGameSettings
+  ) {
     super(entityManagerFactory);
     this.newGameSettings = Objects.requireNonNull(newGameSettings, "newGameSettings");
   }
@@ -46,59 +50,71 @@ public final class HibernateGameCatalogLoader extends AbstractHibernateAdapter
 
     Map<Long, String> bossNameByPlayerId = CatalogLoadSupport.loadBossNameByPlayerId(entityManager);
     Map<Long, List<Long>> bossTeamCreatureIdsByPlayerId =
-        CatalogLoadSupport.loadBossTeamCreatureIdsByPlayerId(entityManager);
-    Map<Long, List<Long>> connectedGymIdsByGymId =
-        PalestraCollegamentiSupport.linearByOrdine(gymEntities);
+      CatalogLoadSupport.loadBossTeamCreatureIdsByPlayerId(entityManager);
+    Map<Long, List<Long>> connectedGymIdsByGymId = PalestraCollegamentiSupport.linearByOrdine(
+      gymEntities
+    );
 
     CatalogLoadSupport.validateCatalogIntegrity(
-        creatureEntities, gymEntities, bossTeamCreatureIdsByPlayerId);
+      creatureEntities,
+      gymEntities,
+      bossTeamCreatureIdsByPlayerId
+    );
 
     Map<Long, List<MossaEntity>> moveEntitiesByCreatureId =
-        CatalogLoadSupport.groupMoveEntitiesByCreatureId(moveEntities);
+      CatalogLoadSupport.groupMoveEntitiesByCreatureId(moveEntities);
 
     return new GameCatalog(
-        newGameSettings,
-        toCreatureTemplates(creatureEntities, moveEntitiesByCreatureId),
-        toGymTemplates(
-            gymEntities,
-            bossNameByPlayerId,
-            bossTeamCreatureIdsByPlayerId,
-            connectedGymIdsByGymId));
+      newGameSettings,
+      toCreatureTemplates(creatureEntities, moveEntitiesByCreatureId),
+      toGymTemplates(
+        gymEntities,
+        bossNameByPlayerId,
+        bossTeamCreatureIdsByPlayerId,
+        connectedGymIdsByGymId
+      )
+    );
   }
 
   private static void ensureCatalogWasSeeded(EntityManager entityManager) {
     if (entityManager.find(GiocatoreEntity.class, CatalogIds.GIOCATORE_UMANO) == null) {
       throw new IllegalStateException(
-          "Catalog database is empty: run CatalogDatabaseSeeder before load()");
+        "Catalog database is empty: run CatalogDatabaseSeeder before load()"
+      );
     }
   }
 
   private static List<CreatureTemplate> toCreatureTemplates(
-      List<CreaturaEntity> creatureEntities,
-      Map<Long, List<MossaEntity>> moveEntitiesByCreatureId) {
-    return creatureEntities.stream()
-        .map(
-            creatureEntity ->
-                CatalogEntityMapper.toCreature(
-                    creatureEntity,
-                    moveEntitiesByCreatureId.getOrDefault(
-                        creatureEntity.getIdCreatura(), List.of())))
-        .toList();
+    List<CreaturaEntity> creatureEntities,
+    Map<Long, List<MossaEntity>> moveEntitiesByCreatureId
+  ) {
+    return creatureEntities
+      .stream()
+      .map(creatureEntity ->
+        CatalogEntityMapper.toCreature(
+          creatureEntity,
+          moveEntitiesByCreatureId.getOrDefault(creatureEntity.getIdCreatura(), List.of())
+        )
+      )
+      .toList();
   }
 
   private static List<GymTemplate> toGymTemplates(
-      List<PalestraEntity> gymEntities,
-      Map<Long, String> bossNameByPlayerId,
-      Map<Long, List<Long>> bossTeamCreatureIdsByPlayerId,
-      Map<Long, List<Long>> connectedGymIdsByGymId) {
-    return gymEntities.stream()
-        .map(
-            gymEntity ->
-                CatalogEntityMapper.toGym(
-                    gymEntity,
-                    bossNameByPlayerId,
-                    bossTeamCreatureIdsByPlayerId,
-                    connectedGymIdsByGymId))
-        .toList();
+    List<PalestraEntity> gymEntities,
+    Map<Long, String> bossNameByPlayerId,
+    Map<Long, List<Long>> bossTeamCreatureIdsByPlayerId,
+    Map<Long, List<Long>> connectedGymIdsByGymId
+  ) {
+    return gymEntities
+      .stream()
+      .map(gymEntity ->
+        CatalogEntityMapper.toGym(
+          gymEntity,
+          bossNameByPlayerId,
+          bossTeamCreatureIdsByPlayerId,
+          connectedGymIdsByGymId
+        )
+      )
+      .toList();
   }
 }

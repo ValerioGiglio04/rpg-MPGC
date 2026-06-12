@@ -58,11 +58,12 @@ public final class BattlePresenter {
       battleLog.addAll(lines);
       GameState state = gameModel.gameState();
       return new RoundOutcome(
-          true,
-          defeatNeeded(state),
-          state.currentGym().completed(),
-          extractAcquiredCreatureNames(events),
-          null);
+        true,
+        defeatNeeded(state),
+        state.currentGym().completed(),
+        extractAcquiredCreatureNames(events),
+        null
+      );
     } catch (RuntimeException error) {
       logActionFailure("battle round failed", error, "battle.invalid.action");
       return RoundOutcome.failed();
@@ -86,11 +87,12 @@ public final class BattlePresenter {
 
   public String victoryDialogBody(GameState state, List<String> acquiredNames) {
     GymRoom gym = state.currentGym();
-    String extra =
-        acquiredNames.isEmpty()
-            ? ""
-            : Messages.format(
-                "battle.dialog.victory.body.creatures.extra", String.join(", ", acquiredNames));
+    String extra = acquiredNames.isEmpty()
+      ? ""
+      : Messages.format(
+          "battle.dialog.victory.body.creatures.extra",
+          String.join(", ", acquiredNames)
+        );
     return Messages.format("battle.dialog.victory.body", gym.boss().pointsReward(), extra);
   }
 
@@ -117,22 +119,22 @@ public final class BattlePresenter {
   }
 
   private static List<String> extractAcquiredCreatureNames(List<BattleEvent> events) {
-    Optional<BattleEvent.CreaturesAcquired> firstCreaturesAcquired =
-        events.stream()
-            .filter(BattlePresenter::isCreaturesAcquiredEvent)
-            .map(BattleEvent.CreaturesAcquired.class::cast)
-            .findFirst();
+    Optional<BattleEvent.CreaturesAcquired> firstCreaturesAcquired = events
+      .stream()
+      .filter(BattlePresenter::isCreaturesAcquiredEvent)
+      .map(BattleEvent.CreaturesAcquired.class::cast)
+      .findFirst();
     if (firstCreaturesAcquired.isEmpty()) return List.of();
     return List.copyOf(firstCreaturesAcquired.get().creatureNames());
   }
 
   public record RoundOutcome(
-      boolean success,
-      boolean defeat,
-      boolean gymCompleted,
-      List<String> acquiredCreatureNames,
-      String errorMessage) {
-
+    boolean success,
+    boolean defeat,
+    boolean gymCompleted,
+    List<String> acquiredCreatureNames,
+    String errorMessage
+  ) {
     static RoundOutcome failed() {
       return new RoundOutcome(false, false, false, List.of(), "failed");
     }

@@ -19,48 +19,51 @@ public final class SessioneSalvataJpaRepository extends AbstractHibernateAdapter
   }
 
   List<SessioneSalvataEntity> findAllLocal() {
-    return withEntityManager(
-        em ->
-            em.createQuery(
-                    "select s from SessioneSalvataEntity s where "
-                        + LOCAL_SAVE_FILTER
-                        + " order by s.dataSalvataggio desc",
-                    SessioneSalvataEntity.class)
-                .getResultList());
+    return withEntityManager(em ->
+      em
+        .createQuery(
+          "select s from SessioneSalvataEntity s where " +
+            LOCAL_SAVE_FILTER +
+            " order by s.dataSalvataggio desc",
+          SessioneSalvataEntity.class
+        )
+        .getResultList()
+    );
   }
 
   Optional<Long> findLastPlayedId() {
-    return withEntityManager(
-        em -> {
-          TypedQuery<Long> query =
-              em.createQuery(
-                  "select s.idSessione from SessioneSalvataEntity s where "
-                      + LOCAL_SAVE_FILTER
-                      + " and s.ultimaGiocata = true",
-                  Long.class);
-          List<Long> ids = query.getResultList();
-          if (!ids.isEmpty()) {
-            return Optional.of(ids.getFirst());
-          }
-          TypedQuery<Long> fallback =
-              em.createQuery(
-                  "select s.idSessione from SessioneSalvataEntity s where "
-                      + LOCAL_SAVE_FILTER
-                      + " order by s.dataSalvataggio desc",
-                  Long.class);
-          fallback.setMaxResults(1);
-          List<Long> latest = fallback.getResultList();
-          return latest.isEmpty() ? Optional.empty() : Optional.of(latest.getFirst());
-        });
+    return withEntityManager(em -> {
+      TypedQuery<Long> query = em.createQuery(
+        "select s.idSessione from SessioneSalvataEntity s where " +
+          LOCAL_SAVE_FILTER +
+          " and s.ultimaGiocata = true",
+        Long.class
+      );
+      List<Long> ids = query.getResultList();
+      if (!ids.isEmpty()) {
+        return Optional.of(ids.getFirst());
+      }
+      TypedQuery<Long> fallback = em.createQuery(
+        "select s.idSessione from SessioneSalvataEntity s where " +
+          LOCAL_SAVE_FILTER +
+          " order by s.dataSalvataggio desc",
+        Long.class
+      );
+      fallback.setMaxResults(1);
+      List<Long> latest = fallback.getResultList();
+      return latest.isEmpty() ? Optional.empty() : Optional.of(latest.getFirst());
+    });
   }
 
   long countLocal() {
-    return withEntityManager(
-        em ->
-            em.createQuery(
-                    "select count(s) from SessioneSalvataEntity s where " + LOCAL_SAVE_FILTER,
-                    Long.class)
-                .getSingleResult());
+    return withEntityManager(em ->
+      em
+        .createQuery(
+          "select count(s) from SessioneSalvataEntity s where " + LOCAL_SAVE_FILTER,
+          Long.class
+        )
+        .getSingleResult()
+    );
   }
 
   SessioneSalvataEntity requireLocal(EntityManager em, long sessionId) {
@@ -73,7 +76,7 @@ public final class SessioneSalvataJpaRepository extends AbstractHibernateAdapter
 
   void clearUltimaGiocata(EntityManager em) {
     em.createQuery(
-            "update SessioneSalvataEntity s set s.ultimaGiocata = false where " + LOCAL_SAVE_FILTER)
-        .executeUpdate();
+      "update SessioneSalvataEntity s set s.ultimaGiocata = false where " + LOCAL_SAVE_FILTER
+    ).executeUpdate();
   }
 }

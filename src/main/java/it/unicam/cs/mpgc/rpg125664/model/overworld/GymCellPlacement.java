@@ -16,13 +16,18 @@ import java.util.Random;
 public final class GymCellPlacement {
 
   private record SlotSelection(
-      List<OverworldPosition> slots, boolean[][] blockedTiles, int gymCount, int minDistance) {}
+    List<OverworldPosition> slots,
+    boolean[][] blockedTiles,
+    int gymCount,
+    int minDistance
+  ) {}
 
   private record SlotFill(
-      List<OverworldPosition> chosen,
-      List<OverworldPosition> slots,
-      boolean[][] blockedTiles,
-      int gymCount) {}
+    List<OverworldPosition> chosen,
+    List<OverworldPosition> slots,
+    boolean[][] blockedTiles,
+    int gymCount
+  ) {}
 
   private GymCellPlacement() {
     throw new UnsupportedOperationException("Utility class");
@@ -34,15 +39,17 @@ public final class GymCellPlacement {
    */
   public static Map<String, GymRoom> assignCells(GymPlacementRequest request) {
     List<OverworldPosition> shuffledSlots = shuffledGymSlots(request.random());
-    List<OverworldPosition> chosenSlots =
-        pickSlotsWithMinDistance(
-            new SlotSelection(
-                shuffledSlots,
-                request.blockedTiles(),
-                request.gyms().size(),
-                request.minDistance()));
+    List<OverworldPosition> chosenSlots = pickSlotsWithMinDistance(
+      new SlotSelection(
+        shuffledSlots,
+        request.blockedTiles(),
+        request.gyms().size(),
+        request.minDistance()
+      )
+    );
     fillRemainingSlots(
-        new SlotFill(chosenSlots, shuffledSlots, request.blockedTiles(), request.gyms().size()));
+      new SlotFill(chosenSlots, shuffledSlots, request.blockedTiles(), request.gyms().size())
+    );
     return mapGymsToSlots(request.gyms(), chosenSlots);
   }
 
@@ -75,11 +82,13 @@ public final class GymCellPlacement {
 
   private static List<OverworldPosition> pickSlotsWithMinDistance(SlotSelection selection) {
     List<OverworldPosition> chosen = new ArrayList<>(selection.gymCount());
-    selection.slots().stream()
-        .filter(slot -> isFreeSlot(slot, selection.blockedTiles()))
-        .filter(slot -> isFarEnoughFromChosen(chosen, slot, selection.minDistance()))
-        .limit(selection.gymCount())
-        .forEach(chosen::add);
+    selection
+      .slots()
+      .stream()
+      .filter(slot -> isFreeSlot(slot, selection.blockedTiles()))
+      .filter(slot -> isFarEnoughFromChosen(chosen, slot, selection.minDistance()))
+      .limit(selection.gymCount())
+      .forEach(chosen::add);
     return chosen;
   }
 
@@ -88,15 +97,19 @@ public final class GymCellPlacement {
       return;
     }
     int stillNeeded = fill.gymCount() - fill.chosen().size();
-    fill.slots().stream()
-        .filter(slot -> isFreeSlot(slot, fill.blockedTiles()))
-        .filter(slot -> !fill.chosen().contains(slot))
-        .limit(stillNeeded)
-        .forEach(fill.chosen()::add);
+    fill
+      .slots()
+      .stream()
+      .filter(slot -> isFreeSlot(slot, fill.blockedTiles()))
+      .filter(slot -> !fill.chosen().contains(slot))
+      .limit(stillNeeded)
+      .forEach(fill.chosen()::add);
   }
 
   private static Map<String, GymRoom> mapGymsToSlots(
-      List<GymRoom> gyms, List<OverworldPosition> chosenSlots) {
+    List<GymRoom> gyms,
+    List<OverworldPosition> chosenSlots
+  ) {
     Map<String, GymRoom> gymsByCell = new HashMap<>();
     for (int index = 0; index < gyms.size(); index++) {
       OverworldPosition slot = chosenSlots.get(Math.min(index, chosenSlots.size() - 1));
@@ -110,7 +123,10 @@ public final class GymCellPlacement {
   }
 
   private static boolean isFarEnoughFromChosen(
-      List<OverworldPosition> chosen, OverworldPosition candidate, int minDistance) {
+    List<OverworldPosition> chosen,
+    OverworldPosition candidate,
+    int minDistance
+  ) {
     return chosen.stream().allMatch(other -> chebyshevDistance(other, candidate) >= minDistance);
   }
 
@@ -125,7 +141,7 @@ public final class GymCellPlacement {
     BELOW(1, 0),
     ABOVE(-1, 0);
 
-    static final AdjacentDirection[] SPAWN_SEARCH_ORDER = {RIGHT, LEFT, BELOW, ABOVE};
+    static final AdjacentDirection[] SPAWN_SEARCH_ORDER = { RIGHT, LEFT, BELOW, ABOVE };
 
     final int rowDelta;
     final int columnDelta;

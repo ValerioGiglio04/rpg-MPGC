@@ -43,9 +43,12 @@ public final class OverworldPresenter {
     return switch (status) {
       case COMPLETED -> Messages.format("overworld.blocked.completed", gym.name());
       case UNREACHABLE -> Messages.format("overworld.blocked.unreachable", gym.name());
-      case NEEDS_POINTS ->
-          Messages.format(
-              "overworld.blocked.needs.points", gym.name(), gym.requiredPoints(), playerPoints);
+      case NEEDS_POINTS -> Messages.format(
+        "overworld.blocked.needs.points",
+        gym.name(),
+        gym.requiredPoints(),
+        playerPoints
+      );
       case CURRENT, AVAILABLE -> "";
     };
   }

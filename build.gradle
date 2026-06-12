@@ -38,8 +38,11 @@ spotless {
     enforceCheck true
     java {
         target 'src/**/*.java'
-        googleJavaFormat('1.28.0')
+        importOrder('java', 'javax', 'jakarta', '', 'it')
         removeUnusedImports()
+        prettier(['prettier': '3.4.2', 'prettier-plugin-java': '2.9.6'])
+            .configFile('.prettierrc.json')
+            .config(['parser': 'java', 'plugins': ['prettier-plugin-java']])
         trimTrailingWhitespace()
         endWithNewline()
     }

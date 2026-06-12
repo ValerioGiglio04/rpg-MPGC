@@ -30,11 +30,16 @@ public final class ScreenNavigator implements ScreenNavigation {
   private final GameModel gameModel;
 
   public ScreenNavigator(
-      StackPane root, GameModel gameModel, PortraitAssetResolver portraitAssets) {
+    StackPane root,
+    GameModel gameModel,
+    PortraitAssetResolver portraitAssets
+  ) {
     this.screenStack = new RootScreenStack(Objects.requireNonNull(root, "root"));
     this.gameModel = Objects.requireNonNull(gameModel, "gameModel");
-    this.screenFactory =
-        new ScreenFactory(gameModel, Objects.requireNonNull(portraitAssets, "portraitAssets"));
+    this.screenFactory = new ScreenFactory(
+      gameModel,
+      Objects.requireNonNull(portraitAssets, "portraitAssets")
+    );
   }
 
   @Override
@@ -77,7 +82,9 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   private void showBattleEntryDenied() {
     DialogHelper.showError(
-        Messages.get("battle.navigation.title"), Messages.get("battle.navigation.notAllowed"));
+      Messages.get("battle.navigation.title"),
+      Messages.get("battle.navigation.notAllowed")
+    );
     showHub();
   }
 
@@ -99,11 +106,11 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   @Override
   public void saveAsNew() {
-    Optional<String> name =
-        DialogHelper.promptText(
-            Messages.get("hub.saveAsNew.title"),
-            Messages.get("hub.saveAsNew.prompt"),
-            Messages.get("hub.saveAsNew.defaultName"));
+    Optional<String> name = DialogHelper.promptText(
+      Messages.get("hub.saveAsNew.title"),
+      Messages.get("hub.saveAsNew.prompt"),
+      Messages.get("hub.saveAsNew.defaultName")
+    );
     if (name.isEmpty()) return;
     PersistenceUiGuard.run(() -> gameModel.saveAsNew(name.get()), PersistenceOperation.SAVE);
     showHub();
@@ -111,8 +118,10 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   @Override
   public void loadSession(long sessionId) {
-    boolean loaded =
-        PersistenceUiGuard.run(() -> gameModel.loadSession(sessionId), PersistenceOperation.LOAD);
+    boolean loaded = PersistenceUiGuard.run(
+      () -> gameModel.loadSession(sessionId),
+      PersistenceOperation.LOAD
+    );
     if (!loaded) {
       showLoadGame();
       return;
@@ -122,8 +131,12 @@ public final class ScreenNavigator implements ScreenNavigation {
 
   @Override
   public void deleteSession(long sessionId) {
-    if (!DialogHelper.confirm(
-        Messages.get("load.delete.confirm.title"), Messages.get("load.delete.confirm.body"))) {
+    if (
+      !DialogHelper.confirm(
+        Messages.get("load.delete.confirm.title"),
+        Messages.get("load.delete.confirm.body")
+      )
+    ) {
       return;
     }
     PersistenceUiGuard.run(() -> gameModel.deleteSession(sessionId), PersistenceOperation.DELETE);

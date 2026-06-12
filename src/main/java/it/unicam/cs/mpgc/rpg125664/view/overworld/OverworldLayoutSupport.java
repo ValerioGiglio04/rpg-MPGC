@@ -22,17 +22,20 @@ public final class OverworldLayoutSupport {
   public static Map<String, GymRoom> assignGymsDeterministic(List<GymRoom> gyms) {
     boolean[][] blockedTiles = OverworldMapConstants.createBlockedTiles();
     return GymCellPlacement.assignCells(
-        GymPlacementRequest.builder()
-            .gyms(gyms)
-            .blockedTiles(blockedTiles)
-            .random(new Random(OverworldGridLayout.LAYOUT_SEED))
-            .minDistance(OverworldGridLayout.GYM_MIN_DISTANCE)
-            .build());
+      GymPlacementRequest.builder()
+        .gyms(gyms)
+        .blockedTiles(blockedTiles)
+        .random(new Random(OverworldGridLayout.LAYOUT_SEED))
+        .minDistance(OverworldGridLayout.GYM_MIN_DISTANCE)
+        .build()
+    );
   }
 
   /** Alberi e cespugli: stesso seed del posizionamento palestre, indipendente dal numero di gym. */
   public static Map<String, OverworldDecor> assignDecorDeterministic(
-      Map<String, GymRoom> gymsByCell, boolean[][] blockedTiles) {
+    Map<String, GymRoom> gymsByCell,
+    boolean[][] blockedTiles
+  ) {
     Map<String, OverworldDecor> decorByCell = new HashMap<>();
     Random random = new Random(OverworldGridLayout.LAYOUT_SEED);
     for (int row = 1; row < OverworldGridLayout.MAP_ROWS - 1; row++) {
@@ -43,8 +46,9 @@ public final class OverworldLayoutSupport {
         double roll = random.nextDouble();
         if (roll < OverworldMapConstants.TREE_PROBABILITY) {
           decorByCell.put(key, OverworldDecor.TREE);
-        } else if (roll
-            < OverworldMapConstants.TREE_PROBABILITY + OverworldMapConstants.BUSH_PROBABILITY) {
+        } else if (
+          roll < OverworldMapConstants.TREE_PROBABILITY + OverworldMapConstants.BUSH_PROBABILITY
+        ) {
           decorByCell.put(key, OverworldDecor.BUSH);
         }
       }

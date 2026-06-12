@@ -4,7 +4,6 @@ import it.unicam.cs.mpgc.rpg125664.model.session.OverworldPosition;
 
 /** Delta applicato a una posizione overworld (step di movimento o direzione vicino). */
 public record MapOffset(int rowDelta, int columnDelta) {
-
   public static final MapOffset ZERO = new MapOffset(0, 0);
   public static final MapOffset UP = new MapOffset(-1, 0);
   public static final MapOffset DOWN = new MapOffset(1, 0);

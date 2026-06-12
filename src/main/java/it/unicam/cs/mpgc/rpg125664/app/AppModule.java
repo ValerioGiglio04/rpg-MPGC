@@ -31,9 +31,10 @@ public final class AppModule implements AutoCloseable {
   private final PortraitAssetResolver portraitAssets;
 
   public static AppModule create(
-      EntityManagerFactory entityManagerFactory,
-      GameCatalog catalog,
-      SessioneJsonMapper sessionMapper) {
+    EntityManagerFactory entityManagerFactory,
+    GameCatalog catalog,
+    SessioneJsonMapper sessionMapper
+  ) {
     return new AppModule(entityManagerFactory, catalog, sessionMapper);
   }
 
@@ -51,24 +52,28 @@ public final class AppModule implements AutoCloseable {
   }
 
   AppModule(
-      EntityManagerFactory entityManagerFactory,
-      GameCatalog catalog,
-      SessioneJsonMapper sessionMapper) {
-    this.entityManagerFactory =
-        Objects.requireNonNull(entityManagerFactory, "entityManagerFactory");
+    EntityManagerFactory entityManagerFactory,
+    GameCatalog catalog,
+    SessioneJsonMapper sessionMapper
+  ) {
+    this.entityManagerFactory = Objects.requireNonNull(
+      entityManagerFactory,
+      "entityManagerFactory"
+    );
     Objects.requireNonNull(catalog, "catalog");
     SessionJsonSerializer serializer = new SessionJsonSerializer(sessionMapper);
     SessioneSalvataSummaryMapper summaryMapper = new SessioneSalvataSummaryMapper(serializer);
-    SessioneSalvataJpaRepository jpaRepository =
-        new SessioneSalvataJpaRepository(entityManagerFactory);
-    this.repository =
-        new HibernateGameStateRepository(
-            SessionRepositoryOptions.builder()
-                .entityManagerFactory(entityManagerFactory)
-                .jpaRepository(jpaRepository)
-                .serializer(serializer)
-                .summaryMapper(summaryMapper)
-                .build());
+    SessioneSalvataJpaRepository jpaRepository = new SessioneSalvataJpaRepository(
+      entityManagerFactory
+    );
+    this.repository = new HibernateGameStateRepository(
+      SessionRepositoryOptions.builder()
+        .entityManagerFactory(entityManagerFactory)
+        .jpaRepository(jpaRepository)
+        .serializer(serializer)
+        .summaryMapper(summaryMapper)
+        .build()
+    );
 
     ServiceGraph.Runtime runtime = ServiceGraph.assemble(repository, catalog);
     this.gameModel = runtime.gameModel();

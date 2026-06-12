@@ -9,6 +9,5 @@ import it.unicam.cs.mpgc.rpg125664.model.catalog.GameCatalog;
  */
 @FunctionalInterface
 public interface GameCatalogLoader {
-
   GameCatalog load();
 }

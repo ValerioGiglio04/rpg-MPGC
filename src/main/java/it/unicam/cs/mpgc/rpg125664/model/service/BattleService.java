@@ -18,13 +18,16 @@ public final class BattleService {
   private final GymCompletionHandler gymCompletionHandler;
 
   public BattleService(
-      GameStateHolder holder,
-      BattleRoundExecutor roundExecutor,
-      GymCompletionHandler gymCompletionHandler) {
+    GameStateHolder holder,
+    BattleRoundExecutor roundExecutor,
+    GymCompletionHandler gymCompletionHandler
+  ) {
     this.holder = Objects.requireNonNull(holder, "holder");
     this.roundExecutor = Objects.requireNonNull(roundExecutor, "roundExecutor");
-    this.gymCompletionHandler =
-        Objects.requireNonNull(gymCompletionHandler, "gymCompletionHandler");
+    this.gymCompletionHandler = Objects.requireNonNull(
+      gymCompletionHandler,
+      "gymCompletionHandler"
+    );
   }
 
   public void begin() {

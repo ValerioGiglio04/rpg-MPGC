@@ -17,12 +17,20 @@ final class OverworldPlayerSpawn {
   private OverworldPlayerSpawn() {}
 
   static Result resolve(
-      OverworldPresenter presenter, Map<String, GymRoom> gymsByCell, boolean[][] blockedTiles) {
+    OverworldPresenter presenter,
+    Map<String, GymRoom> gymsByCell,
+    boolean[][] blockedTiles
+  ) {
     Optional<OverworldPosition> saved = presenter.savedPosition();
     if (saved.isPresent()) {
       OverworldPosition position = saved.orElseThrow();
       return new Result(
-          position.row(), position.column(), position.row(), position.column(), false);
+        position.row(),
+        position.column(),
+        position.row(),
+        position.column(),
+        false
+      );
     }
     Entry<String, GymRoom> currentGym = findCurrentGymEntry(presenter, gymsByCell);
     if (currentGym != null) {
@@ -32,26 +40,32 @@ final class OverworldPlayerSpawn {
   }
 
   private static Entry<String, GymRoom> findCurrentGymEntry(
-      OverworldPresenter presenter, Map<String, GymRoom> gymsByCell) {
+    OverworldPresenter presenter,
+    Map<String, GymRoom> gymsByCell
+  ) {
     long currentGymId = presenter.gameState().currentGym().id();
-    return gymsByCell.entrySet().stream()
-        .filter(entry -> entry.getValue().id() == currentGymId)
-        .findFirst()
-        .orElse(null);
+    return gymsByCell
+      .entrySet()
+      .stream()
+      .filter(entry -> entry.getValue().id() == currentGymId)
+      .findFirst()
+      .orElse(null);
   }
 
   private static Result spawnNearGym(
-      String cellKey, boolean[][] blockedTiles, Map<String, GymRoom> gymsByCell) {
+    String cellKey,
+    boolean[][] blockedTiles,
+    Map<String, GymRoom> gymsByCell
+  ) {
     String[] coords = cellKey.split(":");
     int gymRow = Integer.parseInt(coords[0]);
     int gymCol = Integer.parseInt(coords[1]);
-    MapGridContext grid =
-        MapGridContext.builder()
-            .blockedTiles(blockedTiles)
-            .gymsByCell(gymsByCell)
-            .mapRows(OverworldMapConstants.MAP_ROWS)
-            .mapCols(OverworldMapConstants.MAP_COLS)
-            .build();
+    MapGridContext grid = MapGridContext.builder()
+      .blockedTiles(blockedTiles)
+      .gymsByCell(gymsByCell)
+      .mapRows(OverworldMapConstants.MAP_ROWS)
+      .mapCols(OverworldMapConstants.MAP_COLS)
+      .build();
     OverworldPosition home = GymCellPlacement.findHomeTile(gymRow, gymCol, grid);
     return new Result(home.row(), home.column(), home.row(), home.column(), true);
   }

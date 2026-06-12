@@ -38,24 +38,26 @@ final class ServiceGraph {
     NewGameService newGame = new NewGameService(holder, catalog);
     AttackResolutionStrategy attackResolutionStrategy = new TurnBasedAttackResolutionStrategy();
     BossMoveStrategy bossMoveStrategy = new AccuracyThresholdBossMoveStrategy();
-    BattleRoundExecutor roundExecutor =
-        new BattleRoundExecutor(attackResolutionStrategy, bossMoveStrategy);
+    BattleRoundExecutor roundExecutor = new BattleRoundExecutor(
+      attackResolutionStrategy,
+      bossMoveStrategy
+    );
     GymCompletionHandler gymCompletionHandler = new GymCompletionHandler(catalog);
     BattleService battle = new BattleService(holder, roundExecutor, gymCompletionHandler);
     HealingService healing = new HealingService();
     SessionPersistenceFacade persistence = new SessionPersistenceFacade(repository);
     GymStatusStrategy gymStatusStrategy = new DefaultGymStatusStrategy();
 
-    GameModel gameModel =
-        new GameModel(
-            GameModelOptions.builder()
-                .holder(holder)
-                .newGame(newGame)
-                .battle(battle)
-                .healing(healing)
-                .persistence(persistence)
-                .gymStatusStrategy(gymStatusStrategy)
-                .build());
+    GameModel gameModel = new GameModel(
+      GameModelOptions.builder()
+        .holder(holder)
+        .newGame(newGame)
+        .battle(battle)
+        .healing(healing)
+        .persistence(persistence)
+        .gymStatusStrategy(gymStatusStrategy)
+        .build()
+    );
     PortraitAssetResolver portraitAssets = new PortraitAssetResolver(catalog);
     return new Runtime(gameModel, portraitAssets);
   }

@@ -6,4 +6,4 @@ package it.unicam.cs.mpgc.rpg125664.controller.navigation;
  * tutte le interfacce ruolo-specifiche; ogni {@code *ActionsImpl} dipende solo dalla propria.
  */
 public interface ScreenNavigation
-    extends MainMenuNavigation, LoadGameNavigation, HubNavigation, VictoryNavigation {}
+  extends MainMenuNavigation, LoadGameNavigation, HubNavigation, VictoryNavigation {}

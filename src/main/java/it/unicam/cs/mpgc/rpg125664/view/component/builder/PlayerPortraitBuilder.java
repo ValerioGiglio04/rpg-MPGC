@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.view.component.PlayerPortrait;
 
 /** Builder fluente per {@link PlayerPortrait}. */
 public final class PlayerPortraitBuilder {
+
   private String playerName;
   private String skinPath;
   private double size;

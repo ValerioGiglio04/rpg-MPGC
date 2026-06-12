@@ -74,18 +74,18 @@ public final class CreatureBuilder {
 
   public Creature build() {
     int effectiveHealth = currentHealthSet ? currentHealth : maxHealth;
-    Creature creature =
-        new Creature(
-            catalogId,
-            name,
-            role,
-            skinPath,
-            maxHealth,
-            effectiveHealth,
-            attack,
-            defense,
-            speed,
-            moves);
+    Creature creature = new Creature(
+      catalogId,
+      name,
+      role,
+      skinPath,
+      maxHealth,
+      effectiveHealth,
+      attack,
+      defense,
+      speed,
+      moves
+    );
     Validator<Creature> validator = ValidatorFactory.getCreatureValidator();
     validator.validate(creature);
     return creature;

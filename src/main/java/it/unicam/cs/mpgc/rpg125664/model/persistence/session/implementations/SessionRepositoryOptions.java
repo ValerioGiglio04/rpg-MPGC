@@ -14,8 +14,10 @@ public final class SessionRepositoryOptions {
   private final SessioneSalvataSummaryMapper summaryMapper;
 
   private SessionRepositoryOptions(Builder builder) {
-    this.entityManagerFactory =
-        Objects.requireNonNull(builder.entityManagerFactory, "entityManagerFactory");
+    this.entityManagerFactory = Objects.requireNonNull(
+      builder.entityManagerFactory,
+      "entityManagerFactory"
+    );
     this.jpaRepository = Objects.requireNonNull(builder.jpaRepository, "jpaRepository");
     this.serializer = Objects.requireNonNull(builder.serializer, "serializer");
     this.summaryMapper = Objects.requireNonNull(builder.summaryMapper, "summaryMapper");

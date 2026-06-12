@@ -23,9 +23,11 @@ public final class AccuracyThresholdBossMoveStrategy implements BossMoveStrategy
   @Override
   public Move pickMove(Creature bossCreature) {
     Objects.requireNonNull(bossCreature, "bossCreature");
-    return bossCreature.moves().stream()
-        .filter(move -> move.accuracy() >= minAccuracyInclusive)
-        .findFirst()
-        .orElseGet(() -> bossCreature.moves().getFirst());
+    return bossCreature
+      .moves()
+      .stream()
+      .filter(move -> move.accuracy() >= minAccuracyInclusive)
+      .findFirst()
+      .orElseGet(() -> bossCreature.moves().getFirst());
   }
 }

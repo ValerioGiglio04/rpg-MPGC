@@ -125,15 +125,20 @@ public final class GameModel {
 
   private SaveSessionCommand currentSaveCommand() {
     return new SaveSessionCommand(
-        holder.current(),
-        holder.overworldPosition(),
-        holder.currentSessionId(),
-        holder.currentSessionName());
+      holder.current(),
+      holder.overworldPosition(),
+      holder.currentSessionId(),
+      holder.currentSessionName()
+    );
   }
 
   private SaveSessionCommand newSaveCommand(String name) {
     return new SaveSessionCommand(
-        holder.current(), holder.overworldPosition(), Optional.empty(), Optional.of(name));
+      holder.current(),
+      holder.overworldPosition(),
+      Optional.empty(),
+      Optional.of(name)
+    );
   }
 
   private void persistSession(SaveSessionCommand command) {
@@ -146,17 +151,22 @@ public final class GameModel {
     LoadedSession loaded = persistence.load(sessionId);
     applyLoadedSession(loaded);
     persistence.markLastPlayed(sessionId);
-    SavedSessionSummary meta =
-        listSaves().stream()
-            .filter(s -> s.id() == sessionId)
-            .findFirst()
-            .orElse(new SavedSessionSummary(sessionId, "Partita", java.time.Instant.now(), 0));
+    SavedSessionSummary meta = listSaves()
+      .stream()
+      .filter(s -> s.id() == sessionId)
+      .findFirst()
+      .orElse(new SavedSessionSummary(sessionId, "Partita", java.time.Instant.now(), 0));
     holder.setCurrentSession(sessionId, meta.name());
   }
 
   public void deleteSession(long sessionId) {
     persistence.delete(sessionId);
-    if (holder.currentSessionId().filter(id -> id == sessionId).isPresent()) {
+    if (
+      holder
+        .currentSessionId()
+        .filter(id -> id == sessionId)
+        .isPresent()
+    ) {
       holder.clearCurrentSession();
     }
   }
@@ -168,9 +178,10 @@ public final class GameModel {
   }
 
   private void refreshSessionMeta(long sessionId) {
-    listSaves().stream()
-        .filter(s -> s.id() == sessionId)
-        .findFirst()
-        .ifPresent(s -> holder.setCurrentSession(sessionId, s.name()));
+    listSaves()
+      .stream()
+      .filter(s -> s.id() == sessionId)
+      .findFirst()
+      .ifPresent(s -> holder.setCurrentSession(sessionId, s.name()));
   }
 }

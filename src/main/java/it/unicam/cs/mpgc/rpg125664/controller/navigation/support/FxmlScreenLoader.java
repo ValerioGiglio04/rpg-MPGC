@@ -20,8 +20,10 @@ public final class FxmlScreenLoader {
 
   public static Parent load(String classpathLocation, Object controller) {
     String errorMessage = "Missing FXML resource: " + classpathLocation;
-    URL url =
-        Objects.requireNonNull(FxmlScreenLoader.class.getResource(classpathLocation), errorMessage);
+    URL url = Objects.requireNonNull(
+      FxmlScreenLoader.class.getResource(classpathLocation),
+      errorMessage
+    );
     assertNoFxControllerAttribute(url, classpathLocation);
     FXMLLoader loader = new FXMLLoader(url);
     loader.setResources(Messages.resourceBundle());
@@ -44,9 +46,10 @@ public final class FxmlScreenLoader {
       String document = new String(in.readAllBytes(), StandardCharsets.UTF_8);
       if (document.contains("fx:controller")) {
         throw new IllegalStateException(
-            classpathLocation
-                + " declares fx:controller but FxmlScreenLoader.load() sets the controller in code."
-                + " Remove fx:controller from the FXML file.");
+          classpathLocation +
+            " declares fx:controller but FxmlScreenLoader.load() sets the controller in code." +
+            " Remove fx:controller from the FXML file."
+        );
       }
     } catch (IOException e) {
       throw new UncheckedIOException(e);

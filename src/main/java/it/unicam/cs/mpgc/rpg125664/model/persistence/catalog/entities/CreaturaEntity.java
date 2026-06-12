@@ -41,15 +41,16 @@ public class CreaturaEntity {
   protected CreaturaEntity() {}
 
   public CreaturaEntity(
-      long idCreatura,
-      Long idGiocatore,
-      String nome,
-      String ruolo,
-      String percorsoSkin,
-      int hp,
-      int attacco,
-      int difesa,
-      int velocita) {
+    long idCreatura,
+    Long idGiocatore,
+    String nome,
+    String ruolo,
+    String percorsoSkin,
+    int hp,
+    int attacco,
+    int difesa,
+    int velocita
+  ) {
     this.idCreatura = idCreatura;
     this.idGiocatore = idGiocatore;
     this.nome = nome;

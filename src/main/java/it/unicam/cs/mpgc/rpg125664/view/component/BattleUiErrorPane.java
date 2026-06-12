@@ -11,7 +11,7 @@ public final class BattleUiErrorPane {
   public static Label labelFor(Throwable error) {
     String intro = resolveIntro();
     String detail =
-        error.getMessage() != null ? error.getMessage() : error.getClass().getSimpleName();
+      error.getMessage() != null ? error.getMessage() : error.getClass().getSimpleName();
     String text = Messages.format("battle.ui.error.block", intro, detail);
     Label problem = new Label(text);
     problem.setWrapText(true);

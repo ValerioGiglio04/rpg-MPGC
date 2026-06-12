@@ -31,14 +31,26 @@ public final class HubController implements Initializable {
   private final PortraitAssetResolver portraitAssets;
   private final HubActions actions;
 
-  @FXML private Label subtitleLabel;
-  @FXML private StackPane portraitHost;
-  @FXML private HamburgerMenu hamburgerMenu;
-  @FXML private VBox teamList;
-  @FXML private StackPane mapContentHost;
+  @FXML
+  private Label subtitleLabel;
+
+  @FXML
+  private StackPane portraitHost;
+
+  @FXML
+  private HamburgerMenu hamburgerMenu;
+
+  @FXML
+  private VBox teamList;
+
+  @FXML
+  private StackPane mapContentHost;
 
   public HubController(
-      GameModel gameModel, PortraitAssetResolver portraitAssets, HubActions actions) {
+    GameModel gameModel,
+    PortraitAssetResolver portraitAssets,
+    HubActions actions
+  ) {
     this.presenter = new HubPresenter(gameModel);
     this.overworldPresenter = new OverworldPresenter(gameModel);
     this.portraitAssets = portraitAssets;
@@ -46,12 +58,11 @@ public final class HubController implements Initializable {
   }
 
   private void initializePortrait(GameState state) {
-    PlayerPortrait portrait =
-        PlayerPortrait.builder()
-            .playerName(state.player().name())
-            .skinPath(portraitAssets.playerSkinPath())
-            .size(PORTRAIT_SIZE)
-            .build();
+    PlayerPortrait portrait = PlayerPortrait.builder()
+      .playerName(state.player().name())
+      .skinPath(portraitAssets.playerSkinPath())
+      .size(PORTRAIT_SIZE)
+      .build();
     portraitHost.getChildren().setAll(portrait);
   }
 
@@ -61,11 +72,10 @@ public final class HubController implements Initializable {
     MenuItem saveAsNewItem = new MenuItem(Messages.get("hub.menu.saveAsNew"));
     saveAsNewItem.setOnAction(event -> actions.onSaveAsNew());
     MenuItem menuItem = new MenuItem(Messages.get("hub.menu.menu"));
-    menuItem.setOnAction(
-        event -> {
-          hamburgerMenu.hide();
-          Platform.runLater(actions::onBackToMenu);
-        });
+    menuItem.setOnAction(event -> {
+      hamburgerMenu.hide();
+      Platform.runLater(actions::onBackToMenu);
+    });
     hamburgerMenu.getItems().setAll(saveItem, saveAsNewItem, menuItem);
   }
 
@@ -81,37 +91,36 @@ public final class HubController implements Initializable {
     for (int index = 0; index < holder.creatures().size(); index++) {
       var creature = holder.creatures().get(index);
       TeamRowViewModel row = presenter.teamRow(creature, holder.isActive(creature), spendable);
-      CreatureCard card =
-          CreatureCard.builder(creature, portraitAssets).active(row.active()).build();
+      CreatureCard card = CreatureCard.builder(creature, portraitAssets)
+        .active(row.active())
+        .build();
       GameButton healButton = buildHealButton(row);
-      teamList
-          .getChildren()
-          .add(
-              HubTeamRowFactory.create(
-                  row,
-                  card,
-                  healButton,
-                  () -> {
-                    presenter.selectCreature(row.catalogId());
-                    refreshTeamAndSubtitle();
-                  }));
+      teamList.getChildren().add(
+        HubTeamRowFactory.create(row, card, healButton, () -> {
+          presenter.selectCreature(row.catalogId());
+          refreshTeamAndSubtitle();
+        })
+      );
     }
   }
 
   private GameButton buildHealButton(TeamRowViewModel row) {
-    GameButton healButton =
-        new GameButton(Messages.format("hub.heal.button", row.healCost())).asSecondary();
-    healButton.setOnAction(
-        event -> {
-          presenter.healCreature(row.catalogId());
-          refreshTeamAndSubtitle();
-        });
+    GameButton healButton = new GameButton(
+      Messages.format("hub.heal.button", row.healCost())
+    ).asSecondary();
+    healButton.setOnAction(event -> {
+      presenter.healCreature(row.catalogId());
+      refreshTeamAndSubtitle();
+    });
     return healButton;
   }
 
   private void initializeOverworldMap() {
-    OverworldMap overworldMap =
-        new OverworldMap(overworldPresenter, portraitAssets, actions::onStartBattle);
+    OverworldMap overworldMap = new OverworldMap(
+      overworldPresenter,
+      portraitAssets,
+      actions::onStartBattle
+    );
     overworldMap.setMinSize(0, 0);
     overworldMap.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     mapContentHost.getChildren().setAll(overworldMap);

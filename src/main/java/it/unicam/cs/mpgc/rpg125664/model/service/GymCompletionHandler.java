@@ -31,11 +31,14 @@ public final class GymCompletionHandler {
 
   private List<Creature> transferBossCreaturesToPlayer(GameState state, GymRoom gym) {
     CreatureHolder playerHolder = state.player().holder();
-    List<Creature> rewards =
-        gym.boss().holder().creatures().stream()
-            .map(creature -> catalog.buildCreature(creature.catalogId()))
-            .peek(Creature::healToFull)
-            .toList();
+    List<Creature> rewards = gym
+      .boss()
+      .holder()
+      .creatures()
+      .stream()
+      .map(creature -> catalog.buildCreature(creature.catalogId()))
+      .peek(Creature::healToFull)
+      .toList();
     rewards.forEach(playerHolder::addCreature);
     return rewards;
   }

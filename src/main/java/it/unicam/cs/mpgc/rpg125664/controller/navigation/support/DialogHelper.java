@@ -35,6 +35,9 @@ public final class DialogHelper {
     dialog.setTitle(title);
     dialog.setHeaderText(null);
     dialog.setContentText(prompt);
-    return dialog.showAndWait().map(String::trim).filter(s -> !s.isEmpty());
+    return dialog
+      .showAndWait()
+      .map(String::trim)
+      .filter(s -> !s.isEmpty());
   }
 }

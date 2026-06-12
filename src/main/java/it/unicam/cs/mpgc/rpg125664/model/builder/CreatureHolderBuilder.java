@@ -26,11 +26,13 @@ public final class CreatureHolderBuilder {
 
   private long resolveActiveCatalogId() {
     if (activeCatalogIdSet) return activeCatalogId;
-    return creatures.stream()
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalArgumentException("Creature holder needs at least one creature"))
-        .catalogId();
+    return creatures
+      .stream()
+      .findFirst()
+      .orElseThrow(() ->
+        new IllegalArgumentException("Creature holder needs at least one creature")
+      )
+      .catalogId();
   }
 
   public CreatureHolder build() {

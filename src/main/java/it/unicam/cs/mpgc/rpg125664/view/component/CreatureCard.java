@@ -12,18 +12,20 @@ import javafx.scene.layout.VBox;
 public final class CreatureCard extends VBox {
 
   public static CreatureCardBuilder builder(
-      Creature creature, PortraitAssetResolver portraitAssets) {
+    Creature creature,
+    PortraitAssetResolver portraitAssets
+  ) {
     return new CreatureCardBuilder(creature, portraitAssets);
   }
 
   private Label createStatsLabel(Creature creature) {
-    String text =
-        Messages.format(
-            "creature.stats.line",
-            creature.role(),
-            creature.attack(),
-            creature.defense(),
-            creature.speed());
+    String text = Messages.format(
+      "creature.stats.line",
+      creature.role(),
+      creature.attack(),
+      creature.defense(),
+      creature.speed()
+    );
     Label statsLabel = new Label(text);
     statsLabel.getStyleClass().add("muted-label");
     return statsLabel;
@@ -54,11 +56,12 @@ public final class CreatureCard extends VBox {
   }
 
   public CreatureCard(
-      Creature creature,
-      PortraitAssetResolver portraitAssets,
-      boolean active,
-      double portraitSize,
-      String sideStyleClass) {
+    Creature creature,
+    PortraitAssetResolver portraitAssets,
+    boolean active,
+    double portraitSize,
+    String sideStyleClass
+  ) {
     super(8);
     initializeStyles(active, sideStyleClass, portraitSize);
     Label name = createNameLabel(creature, active);

@@ -26,16 +26,17 @@ public final class Creature implements Serializable {
   }
 
   public Creature(
-      long catalogId,
-      String name,
-      String role,
-      String skinPath,
-      int maxHealth,
-      int currentHealth,
-      int attack,
-      int defense,
-      int speed,
-      List<Move> moves) {
+    long catalogId,
+    String name,
+    String role,
+    String skinPath,
+    int maxHealth,
+    int currentHealth,
+    int attack,
+    int defense,
+    int speed,
+    List<Move> moves
+  ) {
     Objects.requireNonNull(moves, "Creature moves cannot be null");
     this.catalogId = catalogId;
     this.name = name;

@@ -31,7 +31,9 @@ public final class ScreenFactory {
 
   public Parent createMainMenu(MainMenuActions actions) {
     return FxmlScreenLoader.load(
-        FxmlPaths.MAIN_MENU, new MainMenuController(actions, gameModel.hasAnySave()));
+      FxmlPaths.MAIN_MENU,
+      new MainMenuController(actions, gameModel.hasAnySave())
+    );
   }
 
   public Parent createLoadGame(LoadGameActions actions) {
@@ -40,7 +42,9 @@ public final class ScreenFactory {
 
   public Parent createHub(HubActions actions) {
     return FxmlScreenLoader.load(
-        FxmlPaths.HUB, new HubController(gameModel, portraitAssets, actions));
+      FxmlPaths.HUB,
+      new HubController(gameModel, portraitAssets, actions)
+    );
   }
 
   public Parent createBattle(Runnable onBack) {

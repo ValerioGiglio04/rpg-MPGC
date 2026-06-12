@@ -24,10 +24,8 @@ public final class MoveValidator extends Validator<Move> {
   private static void requireAccuracy(int accuracy) {
     if (accuracy < MoveRules.MIN_ACCURACY || accuracy > MoveRules.MAX_ACCURACY) {
       throw new IllegalArgumentException(
-          "Move accuracy must be between "
-              + MoveRules.MIN_ACCURACY
-              + " and "
-              + MoveRules.MAX_ACCURACY);
+        "Move accuracy must be between " + MoveRules.MIN_ACCURACY + " and " + MoveRules.MAX_ACCURACY
+      );
     }
   }
 }

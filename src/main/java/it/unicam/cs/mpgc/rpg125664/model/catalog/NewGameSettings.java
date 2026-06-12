@@ -5,7 +5,11 @@ import java.util.Objects;
 
 /** Impostazioni nuova partita (nome, palestra iniziale, team starter). */
 public record NewGameSettings(
-    String playerName, long startingGymId, String playerSkinPath, List<Long> starterTeamIds) {
+  String playerName,
+  long startingGymId,
+  String playerSkinPath,
+  List<Long> starterTeamIds
+) {
   public NewGameSettings {
     Objects.requireNonNull(playerName, "playerName");
     Objects.requireNonNull(playerSkinPath, "playerSkinPath");

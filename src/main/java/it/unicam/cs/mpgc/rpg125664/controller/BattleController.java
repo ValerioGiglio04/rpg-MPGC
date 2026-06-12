@@ -37,17 +37,35 @@ public final class BattleController implements Initializable {
   private final PortraitAssetResolver portraitAssets;
   private final Runnable onBack;
 
-  @FXML private Label battleTitleLabel;
-  @FXML private Label battleSubtitleLabel;
-  @FXML private StackPane arenaHost;
-  @FXML private StackPane transcriptLayer;
-  @FXML private VBox logPanel;
-  @FXML private ScrollPane logScroll;
-  @FXML private TextFlow logFlow;
-  @FXML private VBox commandHost;
+  @FXML
+  private Label battleTitleLabel;
+
+  @FXML
+  private Label battleSubtitleLabel;
+
+  @FXML
+  private StackPane arenaHost;
+
+  @FXML
+  private StackPane transcriptLayer;
+
+  @FXML
+  private VBox logPanel;
+
+  @FXML
+  private ScrollPane logScroll;
+
+  @FXML
+  private TextFlow logFlow;
+
+  @FXML
+  private VBox commandHost;
 
   public BattleController(
-      GameModel gameModel, PortraitAssetResolver portraitAssets, Runnable onBack) {
+    GameModel gameModel,
+    PortraitAssetResolver portraitAssets,
+    Runnable onBack
+  ) {
     this.presenter = new BattlePresenter(gameModel);
     this.portraitAssets = portraitAssets;
     this.onBack = onBack;
@@ -88,7 +106,8 @@ public final class BattleController implements Initializable {
   private void applyHeader(GymRoom gym) {
     battleTitleLabel.setText(gym.name());
     battleSubtitleLabel.setText(
-        Messages.format("battle.subtitle", gym.boss().name(), gym.boss().pointsReward()));
+      Messages.format("battle.subtitle", gym.boss().name(), gym.boss().pointsReward())
+    );
   }
 
   private void refreshNotices(GameState state, GymRoom gym) {
@@ -106,31 +125,35 @@ public final class BattleController implements Initializable {
     Creature playerCreature = state.player().holder().activeCreature();
     Creature bossCreature = gym.boss().holder().activeCreature();
     arenaHost
-        .getChildren()
-        .add(
-            0,
-            BattleArenaView.create(
-                ArenaLayoutSpec.builder()
-                    .playerCreature(playerCreature)
-                    .bossCreature(bossCreature)
-                    .portraitAssets(portraitAssets)
-                    .foePortraitSize(PORTRAIT_FOE)
-                    .playerPortraitSize(PORTRAIT_PLAYER)
-                    .build()));
+      .getChildren()
+      .add(
+        0,
+        BattleArenaView.create(
+          ArenaLayoutSpec.builder()
+            .playerCreature(playerCreature)
+            .bossCreature(bossCreature)
+            .portraitAssets(portraitAssets)
+            .foePortraitSize(PORTRAIT_FOE)
+            .playerPortraitSize(PORTRAIT_PLAYER)
+            .build()
+        )
+      );
     transcriptLayer.toFront();
     commandHost
-        .getChildren()
-        .add(
-            BattleCommandColumnView.create(
-                BattleCommandBindings.builder()
-                    .playerCreature(playerCreature)
-                    .gym(gym)
-                    .holder(state.player().holder())
-                    .portraitAssets(portraitAssets)
-                    .onBack(onBack)
-                    .onMoveSelected(this::playRound)
-                    .onSwitchCreature(this::switchCreature)
-                    .build()));
+      .getChildren()
+      .add(
+        BattleCommandColumnView.create(
+          BattleCommandBindings.builder()
+            .playerCreature(playerCreature)
+            .gym(gym)
+            .holder(state.player().holder())
+            .portraitAssets(portraitAssets)
+            .onBack(onBack)
+            .onMoveSelected(this::playRound)
+            .onSwitchCreature(this::switchCreature)
+            .build()
+        )
+      );
   }
 
   private void playRound(int moveIndex) {
@@ -159,15 +182,17 @@ public final class BattleController implements Initializable {
 
   private void showDefeatDialog() {
     showEndBattleDialog(
-        Messages.get("battle.dialog.defeat.title"),
-        Messages.format("battle.dialog.defeat.body", presenter.currentGym().name()));
+      Messages.get("battle.dialog.defeat.title"),
+      Messages.format("battle.dialog.defeat.body", presenter.currentGym().name())
+    );
   }
 
   private void showVictoryDialog(RoundOutcome outcome) {
     GameState state = presenter.state();
     showEndBattleDialog(
-        presenter.victoryDialogTitle(state),
-        presenter.victoryDialogBody(state, outcome.acquiredCreatureNames()));
+      presenter.victoryDialogTitle(state),
+      presenter.victoryDialogBody(state, outcome.acquiredCreatureNames())
+    );
   }
 
   private void switchCreature(long creatureCatalogId) {
@@ -177,15 +202,14 @@ public final class BattleController implements Initializable {
   }
 
   private void showEndBattleDialog(String title, String message) {
-    Platform.runLater(
-        () -> {
-          try {
-            arenaHost.getChildren().add(BattleEndOverlay.create(title, message, onBack));
-          } catch (RuntimeException ex) {
-            UiErrorReporter.reportActionError("battle end overlay failed", ex);
-            onBack.run();
-          }
-        });
+    Platform.runLater(() -> {
+      try {
+        arenaHost.getChildren().add(BattleEndOverlay.create(title, message, onBack));
+      } catch (RuntimeException ex) {
+        UiErrorReporter.reportActionError("battle end overlay failed", ex);
+        onBack.run();
+      }
+    });
   }
 
   private void refreshLogArea() {

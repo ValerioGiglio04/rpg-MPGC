@@ -8,7 +8,6 @@ import java.util.List;
  * esaustivo.
  */
 public sealed interface BattleEvent {
-
   record RoundStarted(Side firstAttacker, String firstAttackerName) implements BattleEvent {}
 
   record MoveUsed(Side side, String attackerName, String moveName) implements BattleEvent {}

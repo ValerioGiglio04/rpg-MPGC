@@ -37,10 +37,11 @@ public final class GameState implements Serializable {
   }
 
   public GymRoom currentGym() {
-    return gyms.stream()
-        .filter(gym -> gym.id() == currentGymId)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Current gym does not exist"));
+    return gyms
+      .stream()
+      .filter(gym -> gym.id() == currentGymId)
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Current gym does not exist"));
   }
 
   public void moveTo(long gymId) {

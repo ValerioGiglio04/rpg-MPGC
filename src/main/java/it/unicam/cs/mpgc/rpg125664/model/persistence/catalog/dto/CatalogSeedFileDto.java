@@ -6,4 +6,7 @@ import java.util.List;
 /** Forma radice JSON di {@code catalog-seed.json}. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CatalogSeedFileDto(
-    SettingsDto configurazione, List<CreatureDto> creature, List<GymDto> palestre) {}
+  SettingsDto configurazione,
+  List<CreatureDto> creature,
+  List<GymDto> palestre
+) {}

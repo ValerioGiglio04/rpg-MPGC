@@ -26,9 +26,10 @@ public final class OverworldTileRenderer {
   private static final int PLAYER_SPRITE_SIZE = 32;
 
   private record GridLayer(
-      Map<String, GymRoom> gymsByCell,
-      Map<String, OverworldDecor> decorByCell,
-      boolean[][] blockedTiles) {}
+    Map<String, GymRoom> gymsByCell,
+    Map<String, OverworldDecor> decorByCell,
+    boolean[][] blockedTiles
+  ) {}
 
   /** Posizione e aspetto del giocatore sovrapposto al tile corrente. */
   public static final class PlayerMarker {
@@ -99,23 +100,29 @@ public final class OverworldTileRenderer {
   }
 
   private record GroundStyle(
-      StackPane tile,
-      boolean blocked,
-      GymRoom gym,
-      String cellKey,
-      Map<String, OverworldDecor> decorByCell) {}
+    StackPane tile,
+    boolean blocked,
+    GymRoom gym,
+    String cellKey,
+    Map<String, OverworldDecor> decorByCell
+  ) {}
 
   private record PlayerOnTile(StackPane tile, int row, int col, PlayerMarker player) {}
 
   private record DecorPlacement(
-      StackPane tile, OverworldDecor decor, GymRoom gym, boolean blocked) {}
+    StackPane tile,
+    OverworldDecor decor,
+    GymRoom gym,
+    boolean blocked
+  ) {}
 
   private record TileAssembly(
-      int row,
-      int col,
-      GridLayer grid,
-      PlayerMarker player,
-      Function<GymRoom, GymStatus> statusOf) {}
+    int row,
+    int col,
+    GridLayer grid,
+    PlayerMarker player,
+    Function<GymRoom, GymStatus> statusOf
+  ) {}
 
   private final TileRenderAssets assets;
 
@@ -139,6 +146,7 @@ public final class OverworldTileRenderer {
    * @see #tile(int, int)
    */
   public static final class TileBuilder {
+
     private final OverworldTileRenderer renderer;
     private final int row;
     private final int col;
@@ -153,9 +161,10 @@ public final class OverworldTileRenderer {
     }
 
     public TileBuilder gridState(
-        Map<String, GymRoom> gymsByCell,
-        Map<String, OverworldDecor> decorByCell,
-        boolean[][] blockedTiles) {
+      Map<String, GymRoom> gymsByCell,
+      Map<String, OverworldDecor> decorByCell,
+      boolean[][] blockedTiles
+    ) {
       this.grid = new GridLayer(gymsByCell, decorByCell, blockedTiles);
       return this;
     }
@@ -183,21 +192,25 @@ public final class OverworldTileRenderer {
     GymRoom gym = assembly.grid().gymsByCell().get(key);
     StackPane tile = newBaseTile();
     applyGroundStyle(
-        new GroundStyle(
-            tile,
-            assembly.grid().blockedTiles()[assembly.row()][assembly.col()],
-            gym,
-            key,
-            assembly.grid().decorByCell()));
+      new GroundStyle(
+        tile,
+        assembly.grid().blockedTiles()[assembly.row()][assembly.col()],
+        gym,
+        key,
+        assembly.grid().decorByCell()
+      )
+    );
     if (gym != null) {
       appendGymLayer(tile, gym, assembly.statusOf());
     }
     maybeAppendDecor(
-        new DecorPlacement(
-            tile,
-            assembly.grid().decorByCell().get(key),
-            gym,
-            assembly.grid().blockedTiles()[assembly.row()][assembly.col()]));
+      new DecorPlacement(
+        tile,
+        assembly.grid().decorByCell().get(key),
+        gym,
+        assembly.grid().blockedTiles()[assembly.row()][assembly.col()]
+      )
+    );
     maybeAppendPlayer(new PlayerOnTile(tile, assembly.row(), assembly.col(), assembly.player()));
     return tile;
   }
@@ -219,8 +232,9 @@ public final class OverworldTileRenderer {
     if (style.gym() != null) {
       return;
     }
-    String groundClass =
-        style.decorByCell().containsKey(style.cellKey()) ? "tile-ground-decor" : "tile-ground";
+    String groundClass = style.decorByCell().containsKey(style.cellKey())
+      ? "tile-ground-decor"
+      : "tile-ground";
     style.tile().getStyleClass().add(groundClass);
   }
 
@@ -270,20 +284,22 @@ public final class OverworldTileRenderer {
   }
 
   private void maybeAppendPlayer(PlayerOnTile overlay) {
-    if (overlay.row() != overlay.player().playerRow()
-        || overlay.col() != overlay.player().playerCol()) {
+    if (
+      overlay.row() != overlay.player().playerRow() || overlay.col() != overlay.player().playerCol()
+    ) {
       return;
     }
     overlay.tile().getStyleClass().add("tile-player");
     overlay
-        .tile()
-        .getChildren()
-        .add(
-            PlayerPortrait.builder()
-                .playerName(overlay.player().name())
-                .skinPath(overlay.player().skinPath())
-                .size(PLAYER_SPRITE_SIZE)
-                .build());
+      .tile()
+      .getChildren()
+      .add(
+        PlayerPortrait.builder()
+          .playerName(overlay.player().name())
+          .skinPath(overlay.player().skinPath())
+          .size(PLAYER_SPRITE_SIZE)
+          .build()
+      );
   }
 
   private ImageView buildDecorView(OverworldDecor decor) {

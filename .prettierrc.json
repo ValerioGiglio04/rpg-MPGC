@@ -1,0 +1,7 @@
+{
+  "plugins": ["prettier-plugin-java"],
+  "parser": "java",
+  "tabWidth": 2,
+  "printWidth": 100,
+  "useTabs": false
+}

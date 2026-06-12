@@ -11,20 +11,30 @@ import java.util.Optional;
 public final class BattleEventTranslator {
 
   private static final BattleSideMessages.SideMessageKeys MOVE_USED =
-      new BattleSideMessages.SideMessageKeys(
-          "battle.event.move.used.player", "battle.event.move.used.boss");
+    new BattleSideMessages.SideMessageKeys(
+      "battle.event.move.used.player",
+      "battle.event.move.used.boss"
+    );
   private static final BattleSideMessages.SideMessageKeys ATTACK_HIT =
-      new BattleSideMessages.SideMessageKeys(
-          "battle.event.attack.hit.player", "battle.event.attack.hit.boss");
+    new BattleSideMessages.SideMessageKeys(
+      "battle.event.attack.hit.player",
+      "battle.event.attack.hit.boss"
+    );
   private static final BattleSideMessages.SideMessageKeys ATTACK_MISSED =
-      new BattleSideMessages.SideMessageKeys(
-          "battle.event.attack.missed.player", "battle.event.attack.missed.boss");
+    new BattleSideMessages.SideMessageKeys(
+      "battle.event.attack.missed.player",
+      "battle.event.attack.missed.boss"
+    );
   private static final BattleSideMessages.SideMessageKeys KNOCKED_OUT =
-      new BattleSideMessages.SideMessageKeys(
-          "battle.event.creature.knocked.out.player", "battle.event.creature.knocked.out.boss");
+    new BattleSideMessages.SideMessageKeys(
+      "battle.event.creature.knocked.out.player",
+      "battle.event.creature.knocked.out.boss"
+    );
   private static final BattleSideMessages.SideMessageKeys SWITCHED =
-      new BattleSideMessages.SideMessageKeys(
-          "battle.event.creature.switched.player", "battle.event.creature.switched.boss");
+    new BattleSideMessages.SideMessageKeys(
+      "battle.event.creature.switched.player",
+      "battle.event.creature.switched.boss"
+    );
 
   private BattleEventTranslator() {}
 
@@ -43,8 +53,12 @@ public final class BattleEventTranslator {
   }
 
   private static BattleLogLine translateAttackHit(BattleEvent.AttackHit hit) {
-    String sideFormatted =
-        BattleSideMessages.format(hit.side(), ATTACK_HIT, hit.defenderName(), hit.damage());
+    String sideFormatted = BattleSideMessages.format(
+      hit.side(),
+      ATTACK_HIT,
+      hit.defenderName(),
+      hit.damage()
+    );
     return new BattleLogLine(BattleSideMessages.logKind(hit.side()), sideFormatted);
   }
 
@@ -64,16 +78,19 @@ public final class BattleEventTranslator {
   }
 
   private static BattleLogLine translateBossDefeated(BattleEvent.BossDefeated defeated) {
-    String text =
-        Messages.format(
-            "battle.event.boss.defeated", defeated.bossName(), defeated.pointsRewarded());
+    String text = Messages.format(
+      "battle.event.boss.defeated",
+      defeated.bossName(),
+      defeated.pointsRewarded()
+    );
     return new BattleLogLine(BattleLogLine.Kind.NEUTRAL, text);
   }
 
   private static BattleLogLine translateCreaturesAcquired(BattleEvent.CreaturesAcquired acquired) {
-    String text =
-        Messages.format(
-            "battle.event.creatures.acquired", String.join(", ", acquired.creatureNames()));
+    String text = Messages.format(
+      "battle.event.creatures.acquired",
+      String.join(", ", acquired.creatureNames())
+    );
     return new BattleLogLine(BattleLogLine.Kind.NEUTRAL, text);
   }
 
@@ -89,11 +106,13 @@ public final class BattleEventTranslator {
       case BattleEvent.AttackHit hit -> Optional.of(translateAttackHit(hit));
       case BattleEvent.AttackMissed missed -> Optional.of(translateAttackMissed(missed));
       case BattleEvent.CreatureKnockedOut ko -> Optional.of(translateCreatureKnockedOut(ko));
-      case BattleEvent.CreatureSwitched switched ->
-          Optional.of(translateCreatureSwitched(switched));
+      case BattleEvent.CreatureSwitched switched -> Optional.of(
+        translateCreatureSwitched(switched)
+      );
       case BattleEvent.BossDefeated defeated -> Optional.of(translateBossDefeated(defeated));
-      case BattleEvent.CreaturesAcquired acquired ->
-          Optional.of(translateCreaturesAcquired(acquired));
+      case BattleEvent.CreaturesAcquired acquired -> Optional.of(
+        translateCreaturesAcquired(acquired)
+      );
       case BattleEvent.PlayerTeamWiped() -> Optional.of(translatePlayerTeamWiped());
     };
   }

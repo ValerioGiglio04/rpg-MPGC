@@ -32,12 +32,13 @@ public final class HealingService {
   public int spendableGlory(GameState state) {
     Objects.requireNonNull(state, "state");
     int points = state.player().score().points();
-    int reserve =
-        state.gyms().stream()
-            .filter(g -> state.canChallengeGym(g))
-            .mapToInt(GymRoom::requiredPoints)
-            .max()
-            .orElse(0);
+    int reserve = state
+      .gyms()
+      .stream()
+      .filter(g -> state.canChallengeGym(g))
+      .mapToInt(GymRoom::requiredPoints)
+      .max()
+      .orElse(0);
     return Math.max(0, points - reserve);
   }
 
@@ -53,12 +54,13 @@ public final class HealingService {
     int cost = healCostForMissingHp(missingHp);
     int spendable = spendableGlory(state);
     requireHealable(
-        HealingCheck.builder()
-            .creature(creature)
-            .state(state)
-            .spendableGlory(spendable)
-            .healCost(cost)
-            .build());
+      HealingCheck.builder()
+        .creature(creature)
+        .state(state)
+        .spendableGlory(spendable)
+        .healCost(cost)
+        .build()
+    );
     state.player().score().spend(cost);
     creature.healToFull();
   }
@@ -78,12 +80,13 @@ public final class HealingService {
 
   private static Creature creatureByCatalogId(GameState state, long creatureCatalogId) {
     CreatureHolder holder = state.player().holder();
-    return holder.creatures().stream()
-        .filter(creature -> creature.catalogId() == creatureCatalogId)
-        .findFirst()
-        .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    "Creature catalog id not in team: " + creatureCatalogId));
+    return holder
+      .creatures()
+      .stream()
+      .filter(creature -> creature.catalogId() == creatureCatalogId)
+      .findFirst()
+      .orElseThrow(() ->
+        new IllegalArgumentException("Creature catalog id not in team: " + creatureCatalogId)
+      );
   }
 }

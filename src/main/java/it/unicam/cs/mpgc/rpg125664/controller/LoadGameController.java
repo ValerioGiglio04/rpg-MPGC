@@ -17,13 +17,17 @@ public final class LoadGameController implements Initializable {
   private final GameModel gameModel;
   private final LoadGameActions actions;
 
-  @FXML private ListView<SavedSessionSummary> savesList;
+  @FXML
+  private ListView<SavedSessionSummary> savesList;
 
-  @FXML private Button loadButton;
+  @FXML
+  private Button loadButton;
 
-  @FXML private Button deleteButton;
+  @FXML
+  private Button deleteButton;
 
-  @FXML private Button backButton;
+  @FXML
+  private Button backButton;
 
   public LoadGameController(GameModel gameModel, LoadGameActions actions) {
     this.gameModel = gameModel;
@@ -39,9 +43,9 @@ public final class LoadGameController implements Initializable {
     }
     updateActionButtons();
     savesList
-        .getSelectionModel()
-        .selectedItemProperty()
-        .addListener((obs, old, selected) -> updateActionButtons());
+      .getSelectionModel()
+      .selectedItemProperty()
+      .addListener((obs, old, selected) -> updateActionButtons());
     loadButton.setOnAction(event -> loadSelected());
     deleteButton.setOnAction(event -> deleteSelected());
     backButton.setOnAction(event -> actions.onBack());

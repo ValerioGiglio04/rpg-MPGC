@@ -33,19 +33,21 @@ public final class NewGameService {
   public static GameState buildInitialState(GameCatalog catalog) {
     Objects.requireNonNull(catalog, "catalog");
     NewGameSettings settings = catalog.settings();
-    List<Creature> starterTeam =
-        settings.starterTeamIds().stream().map(catalog::buildCreature).toList();
-    Player player =
-        Player.builder()
-            .name(settings.playerName())
-            .holder(CreatureHolder.builder().creatures(starterTeam).build())
-            .score(Score.builder().build())
-            .skinPath(settings.playerSkinPath())
-            .build();
+    List<Creature> starterTeam = settings
+      .starterTeamIds()
+      .stream()
+      .map(catalog::buildCreature)
+      .toList();
+    Player player = Player.builder()
+      .name(settings.playerName())
+      .holder(CreatureHolder.builder().creatures(starterTeam).build())
+      .score(Score.builder().build())
+      .skinPath(settings.playerSkinPath())
+      .build();
     return GameState.builder()
-        .player(player)
-        .gyms(catalog.buildAllGyms(null))
-        .currentGymId(settings.startingGymId())
-        .build();
+      .player(player)
+      .gyms(catalog.buildAllGyms(null))
+      .currentGymId(settings.startingGymId())
+      .build();
   }
 }

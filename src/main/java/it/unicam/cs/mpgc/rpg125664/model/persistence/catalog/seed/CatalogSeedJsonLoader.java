@@ -27,8 +27,10 @@ public final class CatalogSeedJsonLoader {
 
   public static final String DEFAULT_RESOURCE = "/game-data/catalog-seed.json";
 
-  private static final ObjectMapper MAPPER =
-      new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  private static final ObjectMapper MAPPER = new ObjectMapper().configure(
+    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+    false
+  );
 
   private CatalogSeedJsonLoader() {
     throw new UnsupportedOperationException("Utility class");
@@ -58,40 +60,44 @@ public final class CatalogSeedJsonLoader {
     SettingsDto settings = dto.configurazione();
     List<GiocatoreEntity> giocatori = new ArrayList<>();
     giocatori.add(
-        new GiocatoreEntity(
-            CatalogIds.GIOCATORE_UMANO,
-            settings.nomeGiocatore(),
-            false,
-            settings.percorsoSkinGiocatore()));
+      new GiocatoreEntity(
+        CatalogIds.GIOCATORE_UMANO,
+        settings.nomeGiocatore(),
+        false,
+        settings.percorsoSkinGiocatore()
+      )
+    );
 
     Map<Long, CreaturaEntity> creatureById = new HashMap<>();
     List<MossaEntity> mosse = new ArrayList<>();
     long nextMossaId = 1L;
     for (CreatureDto creatureDto : dto.creature()) {
-      CreaturaEntity row =
-          new CreaturaEntity(
-              creatureDto.id(),
-              null,
-              creatureDto.nome(),
-              creatureDto.ruolo(),
-              creatureDto.skinPath(),
-              creatureDto.saluteMassima(),
-              creatureDto.attack(),
-              creatureDto.defense(),
-              creatureDto.speed());
+      CreaturaEntity row = new CreaturaEntity(
+        creatureDto.id(),
+        null,
+        creatureDto.nome(),
+        creatureDto.ruolo(),
+        creatureDto.skinPath(),
+        creatureDto.saluteMassima(),
+        creatureDto.attack(),
+        creatureDto.defense(),
+        creatureDto.speed()
+      );
       creatureById.put(creatureDto.id(), row);
       List<MoveDto> rawMoves = creatureDto.mosse() != null ? creatureDto.mosse() : List.of();
       int moveOrder = 0;
       for (MoveDto moveDto : rawMoves) {
         mosse.add(
-            new MossaEntity(
-                nextMossaId++,
-                creatureDto.id(),
-                moveOrder++,
-                moveDto.nome(),
-                moveDto.power(),
-                moveDto.accuracy(),
-                moveDto.descrizione()));
+          new MossaEntity(
+            nextMossaId++,
+            creatureDto.id(),
+            moveOrder++,
+            moveDto.nome(),
+            moveDto.power(),
+            moveDto.accuracy(),
+            moveDto.descrizione()
+          )
+        );
       }
     }
 
@@ -109,29 +115,37 @@ public final class CatalogSeedJsonLoader {
         CreaturaEntity creature = creatureById.get(creatureId);
         if (creature == null) {
           throw new IllegalStateException(
-              "Boss creature not in catalog: " + creatureId + " gym=" + gymDto.id());
+            "Boss creature not in catalog: " + creatureId + " gym=" + gymDto.id()
+          );
         }
         creature.setIdGiocatore(bossGiocatoreId);
       }
       palestre.add(
-          new PalestraEntity(
-              gymDto.id(),
-              gymDto.nome(),
-              gymDto.ordine(),
-              gymDto.puntiMinimi(),
-              boss.ricompensaPunti(),
-              bossGiocatoreId));
+        new PalestraEntity(
+          gymDto.id(),
+          gymDto.nome(),
+          gymDto.ordine(),
+          gymDto.puntiMinimi(),
+          boss.ricompensaPunti(),
+          bossGiocatoreId
+        )
+      );
     }
 
-    NewGameSettings newGame =
-        new NewGameSettings(
-            settings.nomeGiocatore(),
-            settings.idPalestraIniziale(),
-            settings.percorsoSkinGiocatore(),
-            settings.starterTeamIds() != null ? settings.starterTeamIds() : List.of());
+    NewGameSettings newGame = new NewGameSettings(
+      settings.nomeGiocatore(),
+      settings.idPalestraIniziale(),
+      settings.percorsoSkinGiocatore(),
+      settings.starterTeamIds() != null ? settings.starterTeamIds() : List.of()
+    );
 
     return new CatalogSeedBundle(
-        giocatori, new ArrayList<>(creatureById.values()), mosse, palestre, newGame);
+      giocatori,
+      new ArrayList<>(creatureById.values()),
+      mosse,
+      palestre,
+      newGame
+    );
   }
 
   private static void validateRoot(CatalogSeedFileDto dto) {

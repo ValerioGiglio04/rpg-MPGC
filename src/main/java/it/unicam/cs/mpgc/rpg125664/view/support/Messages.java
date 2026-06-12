@@ -13,8 +13,10 @@ import java.util.ResourceBundle;
 public final class Messages {
 
   private static final String BUNDLE_BASE = "i18n.messages";
-  private static volatile ResourceBundle bundle =
-      ResourceBundle.getBundle(BUNDLE_BASE, Locale.ITALIAN);
+  private static volatile ResourceBundle bundle = ResourceBundle.getBundle(
+    BUNDLE_BASE,
+    Locale.ITALIAN
+  );
 
   private Messages() {}
 

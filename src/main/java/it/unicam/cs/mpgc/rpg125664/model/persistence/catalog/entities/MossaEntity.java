@@ -35,13 +35,14 @@ public class MossaEntity {
   protected MossaEntity() {}
 
   public MossaEntity(
-      long idMossa,
-      long idCreatura,
-      int ordine,
-      String nome,
-      int potenza,
-      int precisione,
-      String descrizione) {
+    long idMossa,
+    long idCreatura,
+    int ordine,
+    String nome,
+    int potenza,
+    int precisione,
+    String descrizione
+  ) {
     this.idMossa = idMossa;
     this.idCreatura = idCreatura;
     this.ordine = ordine;

@@ -7,6 +7,7 @@ import javafx.scene.layout.VBox;
 
 /** Barra progresso HP con etichetta e stile per rapporto corrente/max. */
 public final class HealthBar extends VBox {
+
   private ProgressBar createProgressBar(int currentHealth, int maxHealth) {
     double progressValue = maxHealth <= 0 ? 0 : (double) currentHealth / maxHealth;
     ProgressBar progressBar = new ProgressBar(progressValue);

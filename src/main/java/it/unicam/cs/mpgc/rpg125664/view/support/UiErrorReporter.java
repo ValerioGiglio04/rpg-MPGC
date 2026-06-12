@@ -17,7 +17,7 @@ public final class UiErrorReporter {
   public static void reportPersistenceError(String titleKey, Throwable error) {
     LOGGER.log(Level.WARNING, titleKey, error);
     String detail =
-        error.getMessage() != null ? error.getMessage() : error.getClass().getSimpleName();
+      error.getMessage() != null ? error.getMessage() : error.getClass().getSimpleName();
     if (error instanceof SessionPersistenceException spe && spe.getCause() != null) {
       detail = spe.getCause().getMessage() != null ? spe.getCause().getMessage() : detail;
     }

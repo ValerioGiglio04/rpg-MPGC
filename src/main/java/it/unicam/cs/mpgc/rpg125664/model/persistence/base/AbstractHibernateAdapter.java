@@ -14,8 +14,10 @@ public abstract class AbstractHibernateAdapter {
   protected final EntityManagerFactory entityManagerFactory;
 
   protected AbstractHibernateAdapter(EntityManagerFactory entityManagerFactory) {
-    this.entityManagerFactory =
-        Objects.requireNonNull(entityManagerFactory, "entityManagerFactory");
+    this.entityManagerFactory = Objects.requireNonNull(
+      entityManagerFactory,
+      "entityManagerFactory"
+    );
   }
 
   /** Lettura/scrittura senza transazione esplicita (es. query di catalogo). */

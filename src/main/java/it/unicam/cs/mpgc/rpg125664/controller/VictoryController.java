@@ -16,11 +16,14 @@ public final class VictoryController implements Initializable {
   private final GameModel gameModel;
   private final VictoryActions actions;
 
-  @FXML private Label scoreLabel;
+  @FXML
+  private Label scoreLabel;
 
-  @FXML private Button newRunButton;
+  @FXML
+  private Button newRunButton;
 
-  @FXML private Button menuButton;
+  @FXML
+  private Button menuButton;
 
   public VictoryController(GameModel gameModel, VictoryActions actions) {
     this.gameModel = gameModel;

@@ -41,7 +41,11 @@ public final class OverworldGymModalController {
   private GymRoom pendingGym;
 
   public OverworldGymModalController(
-      OverworldPresenter presenter, Runnable onStartBattle, Host host, GymModalUi ui) {
+    OverworldPresenter presenter,
+    Runnable onStartBattle,
+    Host host,
+    GymModalUi ui
+  ) {
     this.presenter = presenter;
     this.onStartBattle = onStartBattle;
     this.host = host;
@@ -57,10 +61,14 @@ public final class OverworldGymModalController {
   void showChallengeModal(GymRoom gym) {
     pendingGym = gym;
     modalTitle.setText(Messages.format("overworld.modal.challenge.prompt", gym.name()));
-    GameButton challengeButton =
-        modalButton(Messages.get("overworld.modal.challenge"), this::confirmChallenge);
-    GameButton cancelButton =
-        modalButton(Messages.get("overworld.modal.cancel"), this::cancelChallenge).asSecondary();
+    GameButton challengeButton = modalButton(
+      Messages.get("overworld.modal.challenge"),
+      this::confirmChallenge
+    );
+    GameButton cancelButton = modalButton(
+      Messages.get("overworld.modal.cancel"),
+      this::cancelChallenge
+    ).asSecondary();
     modalActions.getChildren().setAll(challengeButton, cancelButton.asSecondary());
     openModal();
   }
@@ -68,8 +76,10 @@ public final class OverworldGymModalController {
   void showBlockedModal(String reason) {
     pendingGym = null;
     modalTitle.setText(reason);
-    GameButton closeButton =
-        modalButton(Messages.get("overworld.modal.close"), this::cancelChallenge);
+    GameButton closeButton = modalButton(
+      Messages.get("overworld.modal.close"),
+      this::cancelChallenge
+    );
     modalActions.getChildren().setAll(closeButton.asSecondary());
     openModal();
   }
@@ -78,7 +88,8 @@ public final class OverworldGymModalController {
     switch (code) {
       case ENTER -> handleEnterKey();
       case ESCAPE -> cancelChallenge();
-      default -> {}
+      default -> {
+      }
     }
   }
 

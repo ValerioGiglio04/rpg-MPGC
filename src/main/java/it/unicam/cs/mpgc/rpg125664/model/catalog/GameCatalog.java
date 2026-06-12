@@ -27,17 +27,20 @@ public final class GameCatalog {
   private final List<Long> orderedGymIds;
 
   public GameCatalog(
-      NewGameSettings settings, List<CreatureTemplate> creatures, List<GymTemplate> gyms) {
+    NewGameSettings settings,
+    List<CreatureTemplate> creatures,
+    List<GymTemplate> gyms
+  ) {
     this.settings = Objects.requireNonNull(settings, "settings");
     Objects.requireNonNull(creatures, "creatures");
     Objects.requireNonNull(gyms, "gyms");
     this.creaturesById = indexById(creatures, CreatureTemplate::id, "creature");
     this.gymsById = indexById(gyms, GymTemplate::id, "gym");
-    this.orderedGymIds =
-        gyms.stream()
-            .sorted((a, b) -> Integer.compare(a.order(), b.order()))
-            .map(GymTemplate::id)
-            .toList();
+    this.orderedGymIds = gyms
+      .stream()
+      .sorted((a, b) -> Integer.compare(a.order(), b.order()))
+      .map(GymTemplate::id)
+      .toList();
   }
 
   public NewGameSettings settings() {
@@ -52,44 +55,48 @@ public final class GameCatalog {
     CreatureTemplate template = requireCreature(catalogId);
     List<Move> moves = template.moves().stream().map(this::toMove).toList();
     return Creature.builder()
-        .catalogId(template.id())
-        .name(template.name())
-        .role(template.role())
-        .skinPath(template.skinPath())
-        .maxHealth(template.maxHealth())
-        .currentHealth(currentHealth != null ? currentHealth : template.maxHealth())
-        .attack(template.attack())
-        .defense(template.defense())
-        .speed(template.speed())
-        .moves(moves)
-        .build();
+      .catalogId(template.id())
+      .name(template.name())
+      .role(template.role())
+      .skinPath(template.skinPath())
+      .maxHealth(template.maxHealth())
+      .currentHealth(currentHealth != null ? currentHealth : template.maxHealth())
+      .attack(template.attack())
+      .defense(template.defense())
+      .speed(template.speed())
+      .moves(moves)
+      .build();
   }
 
   public GymRoom buildGym(long gymId, boolean completed) {
     GymTemplate template = requireGym(gymId);
-    List<Creature> bossTeam =
-        template.boss().creatureIds().stream().map(this::buildCreature).toList();
-    GymBoss boss =
-        GymBoss.builder()
-            .name(template.boss().name())
-            .holder(CreatureHolder.builder().creatures(bossTeam).build())
-            .pointsReward(template.boss().pointsReward())
-            .build();
+    List<Creature> bossTeam = template
+      .boss()
+      .creatureIds()
+      .stream()
+      .map(this::buildCreature)
+      .toList();
+    GymBoss boss = GymBoss.builder()
+      .name(template.boss().name())
+      .holder(CreatureHolder.builder().creatures(bossTeam).build())
+      .pointsReward(template.boss().pointsReward())
+      .build();
     return GymRoom.builder()
-        .id(template.id())
-        .name(template.name())
-        .connectedGymIds(template.connectedGymIds())
-        .boss(boss)
-        .requiredPoints(template.requiredPoints())
-        .completed(completed)
-        .build();
+      .id(template.id())
+      .name(template.name())
+      .connectedGymIds(template.connectedGymIds())
+      .boss(boss)
+      .requiredPoints(template.requiredPoints())
+      .completed(completed)
+      .build();
   }
 
   public List<GymRoom> buildAllGyms(Map<Long, Boolean> completionByGymId) {
     Map<Long, Boolean> completion = completionByGymId == null ? Map.of() : completionByGymId;
-    return orderedGymIds.stream()
-        .map(gymId -> buildGym(gymId, completion.getOrDefault(gymId, false)))
-        .collect(Collectors.toCollection(ArrayList::new));
+    return orderedGymIds
+      .stream()
+      .map(gymId -> buildGym(gymId, completion.getOrDefault(gymId, false)))
+      .collect(Collectors.toCollection(ArrayList::new));
   }
 
   public List<Long> orderedGymIds() {
@@ -110,11 +117,11 @@ public final class GameCatalog {
 
   private Move toMove(MoveTemplate template) {
     return Move.builder()
-        .name(template.name())
-        .power(template.power())
-        .accuracy(template.accuracy())
-        .description(template.description())
-        .build();
+      .name(template.name())
+      .power(template.power())
+      .accuracy(template.accuracy())
+      .description(template.description())
+      .build();
   }
 
   private CreatureTemplate requireCreature(long catalogId) {
@@ -134,21 +141,23 @@ public final class GameCatalog {
   }
 
   private static <T> Map<Long, T> indexById(
-      List<T> values, java.util.function.ToLongFunction<T> idExtractor, String label) {
-    Map<Long, T> index =
-        values.stream()
-            .collect(
-                LinkedHashMap::new,
-                (map, value) -> {
-                  long id = idExtractor.applyAsLong(value);
-                  if (id <= 0) {
-                    throw new IllegalArgumentException("Catalog " + label + " is missing id");
-                  }
-                  if (map.put(id, value) != null) {
-                    throw new IllegalArgumentException("Duplicate catalog " + label + " id: " + id);
-                  }
-                },
-                LinkedHashMap::putAll);
+    List<T> values,
+    java.util.function.ToLongFunction<T> idExtractor,
+    String label
+  ) {
+    Map<Long, T> index = values.stream().collect(
+      LinkedHashMap::new,
+      (map, value) -> {
+        long id = idExtractor.applyAsLong(value);
+        if (id <= 0) {
+          throw new IllegalArgumentException("Catalog " + label + " is missing id");
+        }
+        if (map.put(id, value) != null) {
+          throw new IllegalArgumentException("Duplicate catalog " + label + " id: " + id);
+        }
+      },
+      LinkedHashMap::putAll
+    );
     return Collections.unmodifiableMap(index);
   }
 }

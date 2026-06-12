@@ -17,14 +17,20 @@ public final class CatalogTable<T> {
   private final Function<CatalogSeedBundle, List<T>> seedRows;
 
   private CatalogTable(
-      String label, String entityName, Function<CatalogSeedBundle, List<T>> seedRows) {
+    String label,
+    String entityName,
+    Function<CatalogSeedBundle, List<T>> seedRows
+  ) {
     this.label = label;
     this.entityName = entityName;
     this.seedRows = seedRows;
   }
 
   public static <T> CatalogTable<T> of(
-      String label, Class<T> entityClass, Function<CatalogSeedBundle, List<T>> seedRows) {
+    String label,
+    Class<T> entityClass,
+    Function<CatalogSeedBundle, List<T>> seedRows
+  ) {
     return new CatalogTable<>(label, entityClass.getSimpleName(), seedRows);
   }
 
@@ -33,8 +39,9 @@ public final class CatalogTable<T> {
   }
 
   public long count(EntityManager em) {
-    return em.createQuery("select count(e) from " + entityName + " e", Long.class)
-        .getSingleResult();
+    return em
+      .createQuery("select count(e) from " + entityName + " e", Long.class)
+      .getSingleResult();
   }
 
   public int expectedRows(CatalogSeedBundle seed) {

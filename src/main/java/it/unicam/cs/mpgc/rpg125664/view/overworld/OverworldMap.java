@@ -26,14 +26,14 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
   private static final Insets LABEL_BOTTOM_MARGIN = new Insets(0, 0, 12, 0);
   private static final int MAP_GRID_GAP = 2;
 
-  private static final OverworldTileRenderer TILE_RENDERER =
-      new OverworldTileRenderer(
-          TileRenderAssets.builder()
-              .tileSize(OverworldMapConstants.TILE_SIZE)
-              .gymBuildingImage(OverworldTextures.GYM_BUILDING)
-              .treeImage(OverworldTextures.TREE)
-              .bushImage(OverworldTextures.BUSH)
-              .build());
+  private static final OverworldTileRenderer TILE_RENDERER = new OverworldTileRenderer(
+    TileRenderAssets.builder()
+      .tileSize(OverworldMapConstants.TILE_SIZE)
+      .gymBuildingImage(OverworldTextures.GYM_BUILDING)
+      .treeImage(OverworldTextures.TREE)
+      .bushImage(OverworldTextures.BUSH)
+      .build()
+  );
 
   private final OverworldPresenter presenter;
   private final PortraitAssetResolver portraitAssets;
@@ -53,15 +53,22 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
   private int lastCol;
 
   public OverworldMap(
-      OverworldPresenter presenter, PortraitAssetResolver portraitAssets, Runnable onStartBattle) {
+    OverworldPresenter presenter,
+    PortraitAssetResolver portraitAssets,
+    Runnable onStartBattle
+  ) {
     this.presenter = presenter;
     this.portraitAssets = portraitAssets;
     this.mapGrid = new GridPane();
     this.gymsByCell = new HashMap<>();
     this.decorByCell = new HashMap<>();
     this.blockedTiles = OverworldMapConstants.createBlockedTiles();
-    this.scaleTransform =
-        new Scale(OverworldMapConstants.DEFAULT_ZOOM, OverworldMapConstants.DEFAULT_ZOOM, 0, 0);
+    this.scaleTransform = new Scale(
+      OverworldMapConstants.DEFAULT_ZOOM,
+      OverworldMapConstants.DEFAULT_ZOOM,
+      0,
+      0
+    );
     this.zoomControls = new OverworldZoomControls(scaleTransform);
     wireRootChrome();
     wireMapAndScroll();
@@ -71,16 +78,16 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
     this.modalLayer = OverworldModalShell.buildLayer(modalTitle, modalActions);
     modalLayer.setFocusTraversable(false);
     modalLayer.setMouseTransparent(true);
-    this.gymModal =
-        new OverworldGymModalController(
-            presenter,
-            onStartBattle,
-            this,
-            GymModalUi.builder()
-                .modalTitle(modalTitle)
-                .modalActions(modalActions)
-                .modalLayer(modalLayer)
-                .build());
+    this.gymModal = new OverworldGymModalController(
+      presenter,
+      onStartBattle,
+      this,
+      GymModalUi.builder()
+        .modalTitle(modalTitle)
+        .modalActions(modalActions)
+        .modalLayer(modalLayer)
+        .build()
+    );
     getChildren().addAll(mapScrollPane, zoomControls.root(), legendLabel, modalLayer);
     ensureUiChromeVisible();
     completeInitialPopulation();
@@ -227,8 +234,10 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
   public void redrawMap() {
     mapGrid.getChildren().clear();
     var player = presenter.gameState().player();
-    PlayerRenderInfo renderInfo =
-        new PlayerRenderInfo(player.name(), portraitAssets.playerSkinPath());
+    PlayerRenderInfo renderInfo = new PlayerRenderInfo(
+      player.name(),
+      portraitAssets.playerSkinPath()
+    );
     for (int row = 0; row < OverworldMapConstants.MAP_ROWS; row++) {
       for (int col = 0; col < OverworldMapConstants.MAP_COLS; col++) {
         addTileForCell(row, col, renderInfo);
@@ -243,26 +252,30 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
   private record PlayerRenderInfo(String name, String skinPath) {}
 
   private void addTileForCell(int row, int col, PlayerRenderInfo player) {
-    StackPane tile =
-        TILE_RENDERER
-            .tile(row, col)
-            .gridState(gymsByCell, decorByCell, blockedTiles)
-            .playerOverlay(
-                OverworldTileRenderer.PlayerMarker.builder()
-                    .playerRow(playerRow)
-                    .playerCol(playerCol)
-                    .name(player.name())
-                    .skinPath(player.skinPath())
-                    .build())
-            .statusOf(presenter::statusOf)
-            .build();
+    StackPane tile = TILE_RENDERER.tile(row, col)
+      .gridState(gymsByCell, decorByCell, blockedTiles)
+      .playerOverlay(
+        OverworldTileRenderer.PlayerMarker.builder()
+          .playerRow(playerRow)
+          .playerCol(playerCol)
+          .name(player.name())
+          .skinPath(player.skinPath())
+          .build()
+      )
+      .statusOf(presenter::statusOf)
+      .build();
     mapGrid.add(tile, col, row);
   }
 
   @Override
   public void ensureUiChromeVisible() {
     OverworldMapChrome.ensureVisible(
-        mapScrollPane, zoomControls.root(), legendLabel, modalLayer, gymModal.isModalOpen());
+      mapScrollPane,
+      zoomControls.root(),
+      legendLabel,
+      modalLayer,
+      gymModal.isModalOpen()
+    );
   }
 
   @Override
@@ -271,8 +284,11 @@ public final class OverworldMap extends StackPane implements OverworldGymModalCo
   }
 
   private void initializePlayerPosition() {
-    OverworldPlayerSpawn.Result spawn =
-        OverworldPlayerSpawn.resolve(presenter, gymsByCell, blockedTiles);
+    OverworldPlayerSpawn.Result spawn = OverworldPlayerSpawn.resolve(
+      presenter,
+      gymsByCell,
+      blockedTiles
+    );
     playerRow = spawn.row();
     playerCol = spawn.column();
     lastRow = spawn.lastRow();

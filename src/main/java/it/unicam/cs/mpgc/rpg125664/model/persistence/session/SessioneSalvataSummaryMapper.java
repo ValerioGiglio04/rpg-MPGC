@@ -19,6 +19,10 @@ public final class SessioneSalvataSummaryMapper {
   public SavedSessionSummary toSummary(SessioneSalvataEntity row) throws IOException {
     UltimaSessioneSalvataDto dto = serializer.fromJson(row.getDatiSalvatiJson());
     return new SavedSessionSummary(
-        row.getIdSessione(), row.getNome(), row.getDataSalvataggio(), dto.getNumPuntiFama());
+      row.getIdSessione(),
+      row.getNome(),
+      row.getDataSalvataggio(),
+      dto.getNumPuntiFama()
+    );
   }
 }

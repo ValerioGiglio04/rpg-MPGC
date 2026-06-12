@@ -4,15 +4,16 @@ import java.util.List;
 
 /** Template catalogo di una creatura (statistiche e mosse). */
 public record CreatureTemplate(
-    long id,
-    String name,
-    String role,
-    String skinPath,
-    int maxHealth,
-    int attack,
-    int defense,
-    int speed,
-    List<MoveTemplate> moves) {
+  long id,
+  String name,
+  String role,
+  String skinPath,
+  int maxHealth,
+  int attack,
+  int defense,
+  int speed,
+  List<MoveTemplate> moves
+) {
   public CreatureTemplate {
     moves = List.copyOf(moves);
   }

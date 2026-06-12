@@ -36,9 +36,9 @@ public final class PlayerBuilder {
 
   public Player build() {
     Player player =
-        skinPath == null
-            ? new Player(name, holder, score)
-            : new Player(name, holder, score, skinPath);
+      skinPath == null
+        ? new Player(name, holder, score)
+        : new Player(name, holder, score, skinPath);
     Validator<Player> validator = ValidatorFactory.getPlayerValidator();
     validator.validate(player);
     return player;

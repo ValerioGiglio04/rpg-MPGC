@@ -35,21 +35,21 @@ public final class HubPresenter {
     long catalogId = creature.catalogId();
     int cost = gameModel.healCostForCreature(catalogId);
     GameState state = gameModel.gameState();
-    HealingCheck healingCheck =
-        HealingCheck.builder()
-            .creature(creature)
-            .state(state)
-            .spendableGlory(spendable)
-            .healCost(cost)
-            .build();
+    HealingCheck healingCheck = HealingCheck.builder()
+      .creature(creature)
+      .state(state)
+      .spendableGlory(spendable)
+      .healCost(cost)
+      .build();
     return new TeamRowViewModel(
-        creature,
-        catalogId,
-        active,
-        creature.isKnockedOut(),
-        cost,
-        healingCheck.canHeal(),
-        healTooltip(healingCheck));
+      creature,
+      catalogId,
+      active,
+      creature.isKnockedOut(),
+      cost,
+      healingCheck.canHeal(),
+      healTooltip(healingCheck)
+    );
   }
 
   public void healCreature(long catalogId) {
@@ -84,11 +84,12 @@ public final class HubPresenter {
   }
 
   public record TeamRowViewModel(
-      Creature creature,
-      long catalogId,
-      boolean active,
-      boolean knockedOut,
-      int healCost,
-      boolean healEnabled,
-      String healTooltip) {}
+    Creature creature,
+    long catalogId,
+    boolean active,
+    boolean knockedOut,
+    int healCost,
+    boolean healEnabled,
+    String healTooltip
+  ) {}
 }

@@ -13,11 +13,14 @@ public final class MainMenuController implements Initializable {
   private final MainMenuActions actions;
   private final boolean loadEnabled;
 
-  @FXML private Button newGameButton;
+  @FXML
+  private Button newGameButton;
 
-  @FXML private Button loadButton;
+  @FXML
+  private Button loadButton;
 
-  @FXML private Button exitButton;
+  @FXML
+  private Button exitButton;
 
   public MainMenuController(MainMenuActions actions, boolean loadEnabled) {
     this.actions = actions;

@@ -16,15 +16,23 @@ import java.util.Objects;
 public final class BattleRoundExecutor {
 
   private record RoundAttack(
-      List<BattleEvent> events, GameState state, Side side, int playerMoveIndex) {}
+    List<BattleEvent> events,
+    GameState state,
+    Side side,
+    int playerMoveIndex
+  ) {}
 
   private final AttackResolutionStrategy attackResolutionStrategy;
   private final BossMoveStrategy bossMoveStrategy;
 
   public BattleRoundExecutor(
-      AttackResolutionStrategy attackResolutionStrategy, BossMoveStrategy bossMoveStrategy) {
-    this.attackResolutionStrategy =
-        Objects.requireNonNull(attackResolutionStrategy, "attackResolutionStrategy");
+    AttackResolutionStrategy attackResolutionStrategy,
+    BossMoveStrategy bossMoveStrategy
+  ) {
+    this.attackResolutionStrategy = Objects.requireNonNull(
+      attackResolutionStrategy,
+      "attackResolutionStrategy"
+    );
     this.bossMoveStrategy = Objects.requireNonNull(bossMoveStrategy, "bossMoveStrategy");
   }
 
@@ -56,9 +64,9 @@ public final class BattleRoundExecutor {
     }
     Creature defender = activeCreature(attack.state(), attack.side().opposite());
     Move move =
-        attack.side() == Side.PLAYER
-            ? clampedPlayerMove(attacker, attack.playerMoveIndex())
-            : bossMoveStrategy.pickMove(attacker);
+      attack.side() == Side.PLAYER
+        ? clampedPlayerMove(attacker, attack.playerMoveIndex())
+        : bossMoveStrategy.pickMove(attacker);
     attack.events().add(new BattleEvent.MoveUsed(attack.side(), attacker.name(), move.name()));
     AttackOutcome outcome = attackResolutionStrategy.execute(attacker, defender, move);
     if (!outcome.hit()) {
@@ -66,14 +74,14 @@ public final class BattleRoundExecutor {
       return;
     }
     attack
-        .events()
-        .add(new BattleEvent.AttackHit(attack.side(), defender.name(), outcome.damage()));
+      .events()
+      .add(new BattleEvent.AttackHit(attack.side(), defender.name(), outcome.damage()));
     if (!outcome.defenderKnockedOut()) {
       return;
     }
     attack
-        .events()
-        .add(new BattleEvent.CreatureKnockedOut(attack.side().opposite(), defender.name()));
+      .events()
+      .add(new BattleEvent.CreatureKnockedOut(attack.side().opposite(), defender.name()));
   }
 
   private void swapKoIfNeeded(List<BattleEvent> events, GameState state, Side side) {

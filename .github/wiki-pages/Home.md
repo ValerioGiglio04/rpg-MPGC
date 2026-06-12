@@ -52,7 +52,7 @@ Su Windows: `.\gradlew.bat build` e `.\gradlew.bat run`. Dettagli nel [README](h
 | **Linguaggio** | Java 25 (toolchain in `build.gradle`) |
 | **Build** | Gradle 8.14.4 (Wrapper) |
 | **UI** | JavaFX 25.0.1 + FXML |
-| **Qualità codice** | Spotless 7.0.4 + google-java-format 1.28.0 |
+| **Qualità codice** | Spotless 7.0.4 + Prettier 3.4.2 / prettier-plugin-java 2.9.6 |
 | **Persistenza** | Hibernate 6 + H2 in `~/.rpg-palestre-creature/save`; snapshot partita in `sessioni_salvate.dati_salvati_json` |
 | **Package** | `it.unicam.cs.mpgc.rpg125664` |
 

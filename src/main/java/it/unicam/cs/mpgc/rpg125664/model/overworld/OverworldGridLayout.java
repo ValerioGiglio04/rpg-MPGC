@@ -28,17 +28,18 @@ public final class OverworldGridLayout {
    */
   public static List<OverworldPosition> gymSlots() {
     return List.of(
-        slot(2, 2),
-        slot(2, 5),
-        slot(2, 8),
-        slot(2, 11),
-        slot(4, 3),
-        slot(4, 6),
-        slot(4, 10),
-        slot(6, 2),
-        slot(6, 5),
-        slot(6, 8),
-        slot(6, 11));
+      slot(2, 2),
+      slot(2, 5),
+      slot(2, 8),
+      slot(2, 11),
+      slot(4, 3),
+      slot(4, 6),
+      slot(4, 10),
+      slot(6, 2),
+      slot(6, 5),
+      slot(6, 8),
+      slot(6, 11)
+    );
   }
 
   public static boolean[][] createBlockedTiles() {

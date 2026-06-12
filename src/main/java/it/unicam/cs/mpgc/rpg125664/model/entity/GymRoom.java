@@ -21,12 +21,13 @@ public final class GymRoom implements Serializable {
   }
 
   public GymRoom(
-      long id,
-      String name,
-      List<Long> connectedGymIds,
-      GymBoss boss,
-      int requiredPoints,
-      boolean completed) {
+    long id,
+    String name,
+    List<Long> connectedGymIds,
+    GymBoss boss,
+    int requiredPoints,
+    boolean completed
+  ) {
     Objects.requireNonNull(connectedGymIds, "Gym needs connections list");
     Objects.requireNonNull(boss, "Gym needs a boss");
     this.id = id;

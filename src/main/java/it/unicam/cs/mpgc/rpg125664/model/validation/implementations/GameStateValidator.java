@@ -23,7 +23,10 @@ public final class GameStateValidator extends Validator<GameState> {
       throw new IllegalArgumentException("Game state needs at least one gym");
     }
     Rules.requirePositiveId(state.currentGymId(), "Current gym id must be positive");
-    boolean found = state.gyms().stream().anyMatch(gym -> gym.id() == state.currentGymId());
+    boolean found = state
+      .gyms()
+      .stream()
+      .anyMatch(gym -> gym.id() == state.currentGymId());
     if (!found) {
       throw new IllegalStateException("Current gym does not exist");
     }

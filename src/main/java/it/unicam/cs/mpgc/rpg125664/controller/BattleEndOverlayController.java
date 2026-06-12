@@ -7,11 +7,14 @@ import javafx.scene.control.Label;
 /** Controller per {@code BattleEndOverlay.fxml} (overlay vittoria/sconfitta). */
 public final class BattleEndOverlayController {
 
-  @FXML private Label titleLabel;
+  @FXML
+  private Label titleLabel;
 
-  @FXML private Label bodyLabel;
+  @FXML
+  private Label bodyLabel;
 
-  @FXML private GameButton okButton;
+  @FXML
+  private GameButton okButton;
 
   public void bind(String title, String message, Runnable onOk) {
     titleLabel.setText(title);

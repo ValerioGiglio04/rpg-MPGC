@@ -16,7 +16,11 @@ final class HubTeamRowFactory {
   private HubTeamRowFactory() {}
 
   static VBox create(
-      TeamRowViewModel row, CreatureCard card, GameButton healButton, Runnable onSelectCreature) {
+    TeamRowViewModel row,
+    CreatureCard card,
+    GameButton healButton,
+    Runnable onSelectCreature
+  ) {
     wireSelection(card, row, onSelectCreature);
     wireHealButton(healButton, row);
     VBox teamRow = new VBox(ROW_SPACING, card, healButton);

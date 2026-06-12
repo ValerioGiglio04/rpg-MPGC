@@ -9,8 +9,9 @@ import java.util.List;
 
 /** Bundle entità catalogo e impostazioni nuova partita post-seed. */
 public record CatalogSeedBundle(
-    List<GiocatoreEntity> giocatori,
-    List<CreaturaEntity> creature,
-    List<MossaEntity> mosse,
-    List<PalestraEntity> palestre,
-    NewGameSettings newGameSettings) {}
+  List<GiocatoreEntity> giocatori,
+  List<CreaturaEntity> creature,
+  List<MossaEntity> mosse,
+  List<PalestraEntity> palestre,
+  NewGameSettings newGameSettings
+) {}

@@ -10,5 +10,5 @@ public enum GymStatus {
   CURRENT,
   AVAILABLE,
   NEEDS_POINTS,
-  UNREACHABLE
+  UNREACHABLE,
 }

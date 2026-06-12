@@ -28,13 +28,17 @@ public final class SessionPersistenceFacade {
   }
 
   public long save(SaveSessionCommand command) {
-    OverworldPosition position =
-        command
-            .overworldPosition()
-            .orElseGet(() -> OverworldSpawnPosition.defaultFor(command.state()));
+    OverworldPosition position = command
+      .overworldPosition()
+      .orElseGet(() -> OverworldSpawnPosition.defaultFor(command.state()));
     return repository.save(
-        new SaveSessionCommand(
-            command.state(), Optional.of(position), command.sessionId(), command.name()));
+      new SaveSessionCommand(
+        command.state(),
+        Optional.of(position),
+        command.sessionId(),
+        command.name()
+      )
+    );
   }
 
   public LoadedSession load(long sessionId) {

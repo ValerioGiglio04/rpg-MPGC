@@ -13,7 +13,6 @@ import java.util.Optional;
  * it.unicam.cs.mpgc.rpg125664.model.entity.GameState}.
  */
 public interface GameStateRepository {
-
   boolean hasAnySave();
 
   List<SavedSessionSummary> listSaves();

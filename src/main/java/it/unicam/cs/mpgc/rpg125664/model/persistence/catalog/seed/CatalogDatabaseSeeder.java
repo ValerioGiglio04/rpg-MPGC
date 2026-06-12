@@ -24,20 +24,40 @@ public final class CatalogDatabaseSeeder {
 
   private static final Logger LOGGER = Logger.getLogger(CatalogDatabaseSeeder.class.getName());
 
-  private static final CatalogTable<GiocatoreEntity> GIOCATORI =
-      CatalogTable.of("giocatori", GiocatoreEntity.class, CatalogSeedBundle::giocatori);
-  private static final CatalogTable<CreaturaEntity> CREATURE =
-      CatalogTable.of("creature", CreaturaEntity.class, CatalogSeedBundle::creature);
-  private static final CatalogTable<MossaEntity> MOSSE =
-      CatalogTable.of("mosse", MossaEntity.class, CatalogSeedBundle::mosse);
-  private static final CatalogTable<PalestraEntity> PALESTRE =
-      CatalogTable.of("palestre", PalestraEntity.class, CatalogSeedBundle::palestre);
+  private static final CatalogTable<GiocatoreEntity> GIOCATORI = CatalogTable.of(
+    "giocatori",
+    GiocatoreEntity.class,
+    CatalogSeedBundle::giocatori
+  );
+  private static final CatalogTable<CreaturaEntity> CREATURE = CatalogTable.of(
+    "creature",
+    CreaturaEntity.class,
+    CatalogSeedBundle::creature
+  );
+  private static final CatalogTable<MossaEntity> MOSSE = CatalogTable.of(
+    "mosse",
+    MossaEntity.class,
+    CatalogSeedBundle::mosse
+  );
+  private static final CatalogTable<PalestraEntity> PALESTRE = CatalogTable.of(
+    "palestre",
+    PalestraEntity.class,
+    CatalogSeedBundle::palestre
+  );
 
-  private static final List<CatalogTable<?>> PERSIST_ORDER =
-      List.of(GIOCATORI, CREATURE, MOSSE, PALESTRE);
+  private static final List<CatalogTable<?>> PERSIST_ORDER = List.of(
+    GIOCATORI,
+    CREATURE,
+    MOSSE,
+    PALESTRE
+  );
 
-  private static final List<CatalogTable<?>> WIPE_ORDER =
-      List.of(MOSSE, PALESTRE, CREATURE, GIOCATORI);
+  private static final List<CatalogTable<?>> WIPE_ORDER = List.of(
+    MOSSE,
+    PALESTRE,
+    CREATURE,
+    GIOCATORI
+  );
 
   private static final List<CatalogTable<?>> CATALOG_TABLES = PERSIST_ORDER;
 
@@ -68,17 +88,17 @@ public final class CatalogDatabaseSeeder {
     if (!existsHumanPlayer(em)) {
       return false;
     }
-    boolean someTableHasMoreRowsThanExpected =
-        CATALOG_TABLES.stream().anyMatch(table -> table.count(em) != table.expectedRows(seed));
+    boolean someTableHasMoreRowsThanExpected = CATALOG_TABLES.stream().anyMatch(
+      table -> table.count(em) != table.expectedRows(seed)
+    );
     return !someTableHasMoreRowsThanExpected;
   }
 
   private static boolean existsHumanPlayer(EntityManager em) {
-    Long found =
-        em.createQuery(
-                "select count(g) from GiocatoreEntity g where g.idGiocatore = :id", Long.class)
-            .setParameter("id", CatalogIds.GIOCATORE_UMANO)
-            .getSingleResult();
+    Long found = em
+      .createQuery("select count(g) from GiocatoreEntity g where g.idGiocatore = :id", Long.class)
+      .setParameter("id", CatalogIds.GIOCATORE_UMANO)
+      .getSingleResult();
     return found > 0;
   }
 
@@ -96,20 +116,21 @@ public final class CatalogDatabaseSeeder {
     EntityTransaction tx = em.getTransaction();
     if (tx == null || !tx.isActive()) {
       throw new IllegalStateException(
-          "Catalog reseed requires an active transaction on the EntityManager");
+        "Catalog reseed requires an active transaction on the EntityManager"
+      );
     }
   }
 
   private static String describeCounts(EntityManager em) {
     return CATALOG_TABLES.stream()
-        .map(table -> table.getLabel() + "=" + table.count(em))
-        .collect(Collectors.joining(", "));
+      .map(table -> table.getLabel() + "=" + table.count(em))
+      .collect(Collectors.joining(", "));
   }
 
   private static String describeSeed(CatalogSeedBundle seed) {
     return CATALOG_TABLES.stream()
-        .map(table -> table.expectedRows(seed) + " " + table.getLabel())
-        .collect(Collectors.joining(", "));
+      .map(table -> table.expectedRows(seed) + " " + table.getLabel())
+      .collect(Collectors.joining(", "));
   }
 
   private static void insertSeed(EntityManager em, CatalogSeedBundle seed) {

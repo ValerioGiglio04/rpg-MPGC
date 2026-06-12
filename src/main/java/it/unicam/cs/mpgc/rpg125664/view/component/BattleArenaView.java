@@ -40,8 +40,11 @@ public final class BattleArenaView {
     AnchorPane layer = new AnchorPane();
     layer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     VBox foeColumn = foeColumn(spec.bossCreature(), spec.portraitAssets(), spec.foePortraitSize());
-    VBox allyColumn =
-        allyColumn(spec.playerCreature(), spec.portraitAssets(), spec.playerPortraitSize());
+    VBox allyColumn = allyColumn(
+      spec.playerCreature(),
+      spec.portraitAssets(),
+      spec.playerPortraitSize()
+    );
     layer.getChildren().addAll(foeColumn, allyColumn);
     AnchorPane.setTopAnchor(foeColumn, FOE_TOP_INSET);
     AnchorPane.setRightAnchor(foeColumn, FOE_RIGHT_INSET);
@@ -51,7 +54,10 @@ public final class BattleArenaView {
   }
 
   private static VBox foeColumn(
-      Creature bossCreature, PortraitAssetResolver portraitAssets, double foePortraitSize) {
+    Creature bossCreature,
+    PortraitAssetResolver portraitAssets,
+    double foePortraitSize
+  ) {
     VBox foeColumn = new VBox(FOE_COLUMN_SPACING);
     foeColumn.setAlignment(Pos.TOP_RIGHT);
     Label foeName = new Label(bossCreature.name());
@@ -59,22 +65,34 @@ public final class BattleArenaView {
     Label foeRole = new Label(bossCreature.role());
     foeRole.getStyleClass().add("muted-label");
     HealthBar foeHp = new HealthBar("", bossCreature.currentHealth(), bossCreature.maxHealth());
-    CreaturePortrait foePortrait =
-        new CreaturePortrait(bossCreature, portraitAssets, foePortraitSize);
+    CreaturePortrait foePortrait = new CreaturePortrait(
+      bossCreature,
+      portraitAssets,
+      foePortraitSize
+    );
     foeColumn.getChildren().addAll(foeName, foeRole, foeHp, foePortrait);
     return foeColumn;
   }
 
   private static VBox allyColumn(
-      Creature playerCreature, PortraitAssetResolver portraitAssets, double playerPortraitSize) {
+    Creature playerCreature,
+    PortraitAssetResolver portraitAssets,
+    double playerPortraitSize
+  ) {
     VBox allyColumn = new VBox(ALLY_COLUMN_SPACING);
     allyColumn.setAlignment(Pos.BOTTOM_LEFT);
     Label allyName = new Label(playerCreature.name());
     allyName.getStyleClass().add("battle-arena-ally-name");
-    CreaturePortrait allyPortrait =
-        new CreaturePortrait(playerCreature, portraitAssets, playerPortraitSize);
-    HealthBar allyHp =
-        new HealthBar("", playerCreature.currentHealth(), playerCreature.maxHealth());
+    CreaturePortrait allyPortrait = new CreaturePortrait(
+      playerCreature,
+      portraitAssets,
+      playerPortraitSize
+    );
+    HealthBar allyHp = new HealthBar(
+      "",
+      playerCreature.currentHealth(),
+      playerCreature.maxHealth()
+    );
     Label allyStats = statsLabel(playerCreature);
     allyStats.getStyleClass().add("muted-label");
     allyColumn.getChildren().addAll(allyName, allyPortrait, allyHp, allyStats);
@@ -82,13 +100,13 @@ public final class BattleArenaView {
   }
 
   private static Label statsLabel(Creature creature) {
-    String text =
-        Messages.format(
-            "creature.stats.line",
-            creature.role(),
-            creature.attack(),
-            creature.defense(),
-            creature.speed());
+    String text = Messages.format(
+      "creature.stats.line",
+      creature.role(),
+      creature.attack(),
+      creature.defense(),
+      creature.speed()
+    );
     return new Label(text);
   }
 }

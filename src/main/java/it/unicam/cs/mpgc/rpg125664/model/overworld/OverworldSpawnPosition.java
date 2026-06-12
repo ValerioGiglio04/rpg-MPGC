@@ -17,21 +17,20 @@ public final class OverworldSpawnPosition {
     List<GymRoom> gyms = state.gyms();
     long currentGymId = state.currentGymId();
     boolean[][] blockedTiles = OverworldGridLayout.createBlockedTiles();
-    Map<String, GymRoom> gymsByCell =
-        GymCellPlacement.assignCells(
-            GymPlacementRequest.builder()
-                .gyms(gyms)
-                .blockedTiles(blockedTiles)
-                .random(new Random(OverworldGridLayout.LAYOUT_SEED))
-                .minDistance(OverworldGridLayout.GYM_MIN_DISTANCE)
-                .build());
-    MapGridContext grid =
-        MapGridContext.builder()
-            .blockedTiles(blockedTiles)
-            .gymsByCell(gymsByCell)
-            .mapRows(OverworldGridLayout.MAP_ROWS)
-            .mapCols(OverworldGridLayout.MAP_COLS)
-            .build();
+    Map<String, GymRoom> gymsByCell = GymCellPlacement.assignCells(
+      GymPlacementRequest.builder()
+        .gyms(gyms)
+        .blockedTiles(blockedTiles)
+        .random(new Random(OverworldGridLayout.LAYOUT_SEED))
+        .minDistance(OverworldGridLayout.GYM_MIN_DISTANCE)
+        .build()
+    );
+    MapGridContext grid = MapGridContext.builder()
+      .blockedTiles(blockedTiles)
+      .gymsByCell(gymsByCell)
+      .mapRows(OverworldGridLayout.MAP_ROWS)
+      .mapCols(OverworldGridLayout.MAP_COLS)
+      .build();
     for (Map.Entry<String, GymRoom> entry : gymsByCell.entrySet()) {
       if (entry.getValue().id() != currentGymId) {
         continue;

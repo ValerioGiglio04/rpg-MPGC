@@ -25,8 +25,10 @@ final class OverworldMovement {
   }
 
   private static boolean isOutOfBounds(int row, int col) {
-    return !isInRange(col, 0, OverworldMapConstants.MAP_COLS)
-        || !isInRange(row, 0, OverworldMapConstants.MAP_ROWS);
+    return (
+      !isInRange(col, 0, OverworldMapConstants.MAP_COLS) ||
+      !isInRange(row, 0, OverworldMapConstants.MAP_ROWS)
+    );
   }
 
   private static boolean isInRange(int value, int min, int max) {

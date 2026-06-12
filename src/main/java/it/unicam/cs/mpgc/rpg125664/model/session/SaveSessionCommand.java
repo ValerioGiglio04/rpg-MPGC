@@ -6,11 +6,11 @@ import java.util.Optional;
 
 /** Comando persistenza con stato, posizione, id e nome slot. */
 public record SaveSessionCommand(
-    GameState state,
-    Optional<OverworldPosition> overworldPosition,
-    Optional<Long> sessionId,
-    Optional<String> name) {
-
+  GameState state,
+  Optional<OverworldPosition> overworldPosition,
+  Optional<Long> sessionId,
+  Optional<String> name
+) {
   public SaveSessionCommand {
     Objects.requireNonNull(state, "state");
     Objects.requireNonNull(overworldPosition, "overworldPosition");

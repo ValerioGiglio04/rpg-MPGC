@@ -21,31 +21,40 @@ public final class BattleCommandColumnController {
   private static final int TEAM_PORTRAIT_SIZE = 72;
 
   private record MoveCellRequest(
-      GridPane moveGrid,
-      Creature playerCreature,
-      GymRoom gym,
-      int index,
-      IntConsumer onMoveSelected) {}
+    GridPane moveGrid,
+    Creature playerCreature,
+    GymRoom gym,
+    int index,
+    IntConsumer onMoveSelected
+  ) {}
 
   private record TeamSwitchRowRequest(
-      VBox switches,
-      CreatureHolder playerHolder,
-      GymRoom gym,
-      PortraitAssetResolver portraitAssets,
-      int index,
-      LongConsumer onSwitchCreature) {}
+    VBox switches,
+    CreatureHolder playerHolder,
+    GymRoom gym,
+    PortraitAssetResolver portraitAssets,
+    int index,
+    LongConsumer onSwitchCreature
+  ) {}
 
-  @FXML private GridPane moveGrid;
+  @FXML
+  private GridPane moveGrid;
 
-  @FXML private VBox teamSwitches;
+  @FXML
+  private VBox teamSwitches;
 
-  @FXML private GameButton backButton;
+  @FXML
+  private GameButton backButton;
 
   public void wire(BattleCommandBindings bindings) {
     backButton.setOnAction(event -> bindings.onBack().run());
     populateMoveGrid(bindings.playerCreature(), bindings.gym(), bindings.onMoveSelected());
     populateTeamSwitches(
-        bindings.holder(), bindings.gym(), bindings.portraitAssets(), bindings.onSwitchCreature());
+      bindings.holder(),
+      bindings.gym(),
+      bindings.portraitAssets(),
+      bindings.onSwitchCreature()
+    );
   }
 
   private void populateMoveGrid(Creature playerCreature, GymRoom gym, IntConsumer onMoveSelected) {
@@ -67,40 +76,52 @@ public final class BattleCommandColumnController {
   }
 
   private static String moveTooltipText(Move move) {
-    String stats =
-        Messages.format("battle.move.tooltip.stats", move.name(), move.power(), move.accuracy());
+    String stats = Messages.format(
+      "battle.move.tooltip.stats",
+      move.name(),
+      move.power(),
+      move.accuracy()
+    );
     return stats + System.lineSeparator() + move.description();
   }
 
   private void populateTeamSwitches(
-      CreatureHolder playerHolder,
-      GymRoom gym,
-      PortraitAssetResolver portraitAssets,
-      LongConsumer onSwitchCreature) {
+    CreatureHolder playerHolder,
+    GymRoom gym,
+    PortraitAssetResolver portraitAssets,
+    LongConsumer onSwitchCreature
+  ) {
     teamSwitches.getChildren().clear();
     for (int index = 0; index < playerHolder.creatures().size(); index++) {
       appendTeamRow(
-          new TeamSwitchRowRequest(
-              teamSwitches, playerHolder, gym, portraitAssets, index, onSwitchCreature));
+        new TeamSwitchRowRequest(
+          teamSwitches,
+          playerHolder,
+          gym,
+          portraitAssets,
+          index,
+          onSwitchCreature
+        )
+      );
     }
   }
 
   private static void appendTeamRow(TeamSwitchRowRequest request) {
     Creature creature = request.playerHolder().creatures().get(request.index());
     long catalogId = creature.catalogId();
-    GameButton switchButton =
-        new GameButton(Messages.format("battle.button.send", creature.name())).asSecondary();
+    GameButton switchButton = new GameButton(
+      Messages.format("battle.button.send", creature.name())
+    ).asSecondary();
     switchButton.getStyleClass().add("switch-button");
     switchButton.setDisable(
-        request.playerHolder().isActive(creature)
-            || !request.playerHolder().canSwitchTo(catalogId));
+      request.playerHolder().isActive(creature) || !request.playerHolder().canSwitchTo(catalogId)
+    );
     switchButton.setOnAction(event -> request.onSwitchCreature().accept(catalogId));
-    CreatureCard creatureCard =
-        CreatureCard.builder(creature, request.portraitAssets())
-            .active(request.playerHolder().isActive(creature))
-            .portraitSize(TEAM_PORTRAIT_SIZE)
-            .sideStyleClass("player-creature-card")
-            .build();
+    CreatureCard creatureCard = CreatureCard.builder(creature, request.portraitAssets())
+      .active(request.playerHolder().isActive(creature))
+      .portraitSize(TEAM_PORTRAIT_SIZE)
+      .sideStyleClass("player-creature-card")
+      .build();
     request.switches().getChildren().add(creatureCard);
     request.switches().getChildren().add(switchButton);
   }

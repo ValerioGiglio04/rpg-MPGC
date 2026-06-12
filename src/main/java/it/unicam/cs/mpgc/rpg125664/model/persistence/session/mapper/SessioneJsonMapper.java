@@ -37,18 +37,21 @@ public final class SessioneJsonMapper {
     dto.setNumPuntiFama(player.score().points());
     dto.setIdCreaturaAttivaSelezionata(active.catalogId());
     dto.setIdPalestraCorrente(state.currentGymId());
-    List<CreaturaTeamDto> creatureTeamGiocatore =
-        creatures.stream()
-            .map(creature -> new CreaturaTeamDto(creature.catalogId(), creature.currentHealth()))
-            .toList();
+    List<CreaturaTeamDto> creatureTeamGiocatore = creatures
+      .stream()
+      .map(creature -> new CreaturaTeamDto(creature.catalogId(), creature.currentHealth()))
+      .toList();
     dto.setListaCreatureTeamGiocatore(creatureTeamGiocatore);
-    List<PalestraProgressoDto> palestreCompletateGiocatore =
-        state.gyms().stream()
-            .map(gym -> new PalestraProgressoDto(gym.id(), gym.completed()))
-            .toList();
+    List<PalestraProgressoDto> palestreCompletateGiocatore = state
+      .gyms()
+      .stream()
+      .map(gym -> new PalestraProgressoDto(gym.id(), gym.completed()))
+      .toList();
     dto.setPalestreCompletate(palestreCompletateGiocatore);
-    PosizioneMappaDto posizioneGiocatoreMappa =
-        new PosizioneMappaDto(overworldPosition.column(), overworldPosition.row());
+    PosizioneMappaDto posizioneGiocatoreMappa = new PosizioneMappaDto(
+      overworldPosition.column(),
+      overworldPosition.row()
+    );
     dto.setPosizioneGiocatoreMappa(posizioneGiocatoreMappa);
     return dto;
   }
@@ -57,15 +60,16 @@ public final class SessioneJsonMapper {
     Objects.requireNonNull(dto, "dto");
     List<Creature> team = rebuildTeam(dto.getListaCreatureTeamGiocatore());
     long activeCatalogId = dto.getIdCreaturaAttivaSelezionata();
-    CreatureHolder holder =
-        CreatureHolder.builder().creatures(team).activeCatalogId(activeCatalogId).build();
-    Player player =
-        Player.builder()
-            .name(catalog.settings().playerName())
-            .holder(holder)
-            .score(Score.builder().points(dto.getNumPuntiFama()).build())
-            .skinPath(catalog.settings().playerSkinPath())
-            .build();
+    CreatureHolder holder = CreatureHolder.builder()
+      .creatures(team)
+      .activeCatalogId(activeCatalogId)
+      .build();
+    Player player = Player.builder()
+      .name(catalog.settings().playerName())
+      .holder(holder)
+      .score(Score.builder().points(dto.getNumPuntiFama()).build())
+      .skinPath(catalog.settings().playerSkinPath())
+      .build();
     Map<Long, Boolean> gymCompletionMap = toCompletionMap(dto.getPalestreCompletate());
     List<GymRoom> gyms = catalog.buildAllGyms(gymCompletionMap);
     long currentGymId = dto.getIdPalestraCorrente();
@@ -85,9 +89,10 @@ public final class SessioneJsonMapper {
     if (stored == null || stored.isEmpty()) {
       throw new IllegalStateException("Saved player team is empty");
     }
-    return stored.stream()
-        .map(row -> catalog.buildCreature(row.getIdCreatura(), row.getHp()))
-        .toList();
+    return stored
+      .stream()
+      .map(row -> catalog.buildCreature(row.getIdCreatura(), row.getHp()))
+      .toList();
   }
 
   private Map<Long, Boolean> toCompletionMap(List<PalestraProgressoDto> progress) {

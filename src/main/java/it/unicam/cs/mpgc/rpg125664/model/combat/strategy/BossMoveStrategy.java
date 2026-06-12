@@ -10,6 +10,5 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Move;
  */
 @FunctionalInterface
 public interface BossMoveStrategy {
-
   Move pickMove(Creature bossCreature);
 }

@@ -9,7 +9,6 @@ package it.unicam.cs.mpgc.rpg125664.model.combat;
  * @param defenderKnockedOut se il difensore e' arrivato a zero HP
  */
 public record AttackOutcome(boolean hit, int damage, boolean defenderKnockedOut) {
-
   public static AttackOutcome miss() {
     return new AttackOutcome(false, 0, false);
   }

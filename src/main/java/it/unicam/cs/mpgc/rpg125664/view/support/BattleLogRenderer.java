@@ -34,29 +34,23 @@ public final class BattleLogRenderer {
 
   public static void bindLogWidth(TextFlow logFlow, ScrollPane logScroll) {
     logFlow.setLineSpacing(4);
-    logFlow
-        .maxWidthProperty()
-        .bind(
-            Bindings.createDoubleBinding(
-                () -> {
-                  double width = logScroll.getWidth();
-                  return width <= MIN_SCROLL_PANE_WIDTH
-                      ? MIN_SCROLL_WIDTH
-                      : width - SCROLL_WIDTH_PADDING;
-                },
-                logScroll.widthProperty()));
+    logFlow.maxWidthProperty().bind(
+      Bindings.createDoubleBinding(() -> {
+        double width = logScroll.getWidth();
+        return width <= MIN_SCROLL_PANE_WIDTH ? MIN_SCROLL_WIDTH : width - SCROLL_WIDTH_PADDING;
+      }, logScroll.widthProperty())
+    );
   }
 
   private static void scrollToLatest(ScrollPane logScroll, boolean empty) {
     if (empty) {
       return;
     }
-    Runnable snapBottom =
-        () -> {
-          logScroll.applyCss();
-          logScroll.layout();
-          logScroll.setVvalue(1.0);
-        };
+    Runnable snapBottom = () -> {
+      logScroll.applyCss();
+      logScroll.layout();
+      logScroll.setVvalue(1.0);
+    };
     Platform.runLater(snapBottom);
     PauseTransition afterWrap = new PauseTransition(Duration.millis(SCROLL_DELAY_MS));
     afterWrap.setOnFinished(e -> snapBottom.run());
