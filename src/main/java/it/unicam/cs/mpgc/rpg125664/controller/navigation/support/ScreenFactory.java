@@ -11,7 +11,7 @@ import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.VictoryActions;
 import it.unicam.cs.mpgc.rpg125664.model.service.GameModel;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
-import it.unicam.cs.mpgc.rpg125664.view.theme.DuelUiTheme;
+import it.unicam.cs.mpgc.rpg125664.view.theme.implementations.DuelUiTheme;
 import it.unicam.cs.mpgc.rpg125664.view.theme.UiTheme;
 import java.util.Objects;
 import javafx.scene.Parent;
