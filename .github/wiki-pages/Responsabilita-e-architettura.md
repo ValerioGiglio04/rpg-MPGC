@@ -11,6 +11,7 @@ La specifica chiede anche estendibilità su più dispositivi: tenendo il model i
 ## Layer e dipendenze
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart TB
   View[view]
   Controller[controller]

@@ -13,6 +13,7 @@ Ho tenuto **stabile** il package `model` (regole, entità, servizi) e **sostitui
 Oggi c'è solo client **JavaFX desktop**. Un client web o mobile dovrebbe chiamare **`GameModel`** (o un wrapper REST sopra di esso) senza importare Hibernate o JavaFX.
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart LR
   View[view e controller]
   Model[model]

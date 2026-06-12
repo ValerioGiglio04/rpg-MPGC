@@ -101,6 +101,7 @@ Messaggi UI e log battaglia in `messages_it.properties`, letti tramite `Messages
 ## Flusso tipico
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart TD
   Boot[Avvio] --> MainMenu[Menu principale]
   MainMenu -->|Nuova partita| Hub[Hub]
