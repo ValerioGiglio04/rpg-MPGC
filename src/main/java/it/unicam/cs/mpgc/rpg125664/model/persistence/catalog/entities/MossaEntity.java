@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/** Entità JPA tabella {@code mosse} associate a una creatura. */
 @Entity
 @Table(name = "mosse")
 public class MossaEntity {

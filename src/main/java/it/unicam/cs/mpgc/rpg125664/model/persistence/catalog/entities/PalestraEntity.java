@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/** Entità JPA tabella {@code palestra} del catalogo. */
 @Entity
 @Table(name = "palestra")
 public class PalestraEntity {

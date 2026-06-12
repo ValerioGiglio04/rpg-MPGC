@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Facciata salvataggio e caricamento sessioni verso il repository. */
 public final class SessionPersistenceFacade {
 
   private final GameStateRepository repository;

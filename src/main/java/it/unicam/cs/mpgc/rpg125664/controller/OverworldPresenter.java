@@ -9,6 +9,7 @@ import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Presenter mappa overworld: posizione, spostamento e stato palestre. */
 public final class OverworldPresenter {
 
   private final GameModel gameModel;

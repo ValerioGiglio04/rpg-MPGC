@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.MoveRules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
+/** Validatore {@link Move} (nome, potenza, precisione, descrizione). */
 public final class MoveValidator extends Validator<Move> {
 
   @Override

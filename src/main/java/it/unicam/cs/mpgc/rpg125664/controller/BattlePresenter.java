@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Presenter del duello: avvio turni, log eventi ed esito round. */
 public final class BattlePresenter {
 
   private final GameModel gameModel;

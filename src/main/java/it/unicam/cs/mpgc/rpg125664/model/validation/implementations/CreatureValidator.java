@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Creature;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
+/** Validatore invarianti di {@link Creature}. */
 public final class CreatureValidator extends Validator<Creature> {
 
   @Override

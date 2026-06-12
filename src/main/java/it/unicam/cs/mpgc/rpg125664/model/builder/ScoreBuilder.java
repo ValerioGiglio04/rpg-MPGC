@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Score;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 
+/** Builder per {@link Score} (punti gloria iniziali). */
 public final class ScoreBuilder {
 
   private int points;

@@ -1,5 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.controller.navigation.support;
 
+/** Costanti percorsi risorse FXML dell'applicazione. */
 public final class FxmlPaths {
 
   public static final String MAIN_SHELL = "/fxml/MainShell.fxml";

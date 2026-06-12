@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.io.Serializable;
 
+/** Punteggio gloria spendibile e accumulabile del giocatore. */
 public final class Score implements Serializable {
 
   private int points;

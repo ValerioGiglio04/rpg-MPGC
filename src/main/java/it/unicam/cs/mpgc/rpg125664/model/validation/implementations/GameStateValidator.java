@@ -7,6 +7,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 
+/** Validatore coerenza {@link GameState} (giocatore, palestre, corrente). */
 public final class GameStateValidator extends Validator<GameState> {
 
   @Override

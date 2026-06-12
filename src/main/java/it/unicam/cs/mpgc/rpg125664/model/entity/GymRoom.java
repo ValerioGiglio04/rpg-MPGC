@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/** Palestra overworld con collegamenti, requisiti e completamento. */
 public final class GymRoom implements Serializable {
 
   private final long id;

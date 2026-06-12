@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+/** Pannello UI scheda creatura (ritratto, nome, ruolo, statistiche). */
 public final class CreatureCard extends VBox {
 
   public static CreatureCardBuilder builder(

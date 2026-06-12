@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.MoveRules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 
+/** Builder per {@link Move} con precisione e validazione. */
 public final class MoveBuilder {
 
   private String name;

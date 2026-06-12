@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.rpg125664.view.component;
 
 import javafx.scene.control.Button;
 
+/** Pulsante stilizzato tema gioco (secondario, pericolo). */
 public final class GameButton extends Button {
 
   public GameButton() {

@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 
+/** Controller FXML caricamento partite (lista, load, delete). */
 public final class LoadGameController implements Initializable {
 
   private final GameModel gameModel;

@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
+/** Riquadro ritratto creatura con fallback sull'iniziale del nome. */
 public final class CreaturePortrait extends StackPane {
 
   private static final double INNER_PADDING = 14;

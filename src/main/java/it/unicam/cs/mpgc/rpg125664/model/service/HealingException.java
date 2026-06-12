@@ -1,5 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.model.service;
 
+/** Eccezione runtime per fallimento cura ({@link HealingError}). */
 public final class HealingException extends RuntimeException {
 
   private final HealingError error;

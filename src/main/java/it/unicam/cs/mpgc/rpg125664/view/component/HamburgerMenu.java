@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.view.component;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 
+/** MenuButton hamburger con voci azione hub. */
 public final class HamburgerMenu extends MenuButton {
 
   private static final String GLYPH = "\u2630";

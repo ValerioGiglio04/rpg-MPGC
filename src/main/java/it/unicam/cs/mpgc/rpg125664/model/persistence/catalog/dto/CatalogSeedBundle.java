@@ -7,6 +7,7 @@ import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.MossaEntit
 import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.entities.PalestraEntity;
 import java.util.List;
 
+/** Bundle entità catalogo e impostazioni nuova partita post-seed. */
 public record CatalogSeedBundle(
     List<GiocatoreEntity> giocatori,
     List<CreaturaEntity> creature,

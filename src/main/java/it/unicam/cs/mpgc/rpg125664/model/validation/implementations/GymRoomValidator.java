@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.GymRoom;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
+/** Validatore {@link GymRoom} (id, nome, boss, collegamenti). */
 public final class GymRoomValidator extends Validator<GymRoom> {
 
   @Override

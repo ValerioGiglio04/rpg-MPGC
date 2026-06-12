@@ -26,6 +26,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
+/** Controller FXML della schermata duello (arena, comandi, log). */
 public final class BattleController implements Initializable {
 
   private static final double PORTRAIT_FOE = 168;

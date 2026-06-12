@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.entity;
 import it.unicam.cs.mpgc.rpg125664.model.builder.GymBossBuilder;
 import java.io.Serializable;
 
+/** Boss di palestra con team e ricompensa punti gloria. */
 public final class GymBoss implements Serializable {
 
   private final String name;

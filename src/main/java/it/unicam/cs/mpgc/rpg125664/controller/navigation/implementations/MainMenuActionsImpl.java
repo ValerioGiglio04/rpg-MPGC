@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.controller.navigation.MainMenuNavigation;
 import java.util.Objects;
 import javafx.application.Platform;
 
+/** Implementazione {@link MainMenuActions} delegata a {@link MainMenuNavigation}. */
 public final class MainMenuActionsImpl implements MainMenuActions {
 
   private final MainMenuNavigation navigation;

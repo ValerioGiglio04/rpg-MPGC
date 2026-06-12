@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.persistence.session.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/** DTO JSON stato completamento di una palestra salvata. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class PalestraProgressoDto {
 

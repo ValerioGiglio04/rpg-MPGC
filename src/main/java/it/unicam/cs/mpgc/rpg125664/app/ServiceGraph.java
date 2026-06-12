@@ -20,6 +20,7 @@ import it.unicam.cs.mpgc.rpg125664.model.service.SessionPersistenceFacade;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import java.util.Objects;
 
+/** Assembla i servizi di runtime ({@code GameModel}, asset ritratti). */
 final class ServiceGraph {
 
   record Runtime(GameModel gameModel, PortraitAssetResolver portraitAssets) {}

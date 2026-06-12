@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
+/** Entità JPA riga tabella {@code sessioni_salvate}. */
 @Entity
 @Table(name = "sessioni_salvate")
 public class SessioneSalvataEntity {

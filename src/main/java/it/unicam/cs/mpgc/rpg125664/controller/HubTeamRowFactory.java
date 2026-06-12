@@ -8,6 +8,7 @@ import javafx.scene.Cursor;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 
+/** Factory righe team nell'hub (selezione creatura e pulsante cura). */
 final class HubTeamRowFactory {
 
   private static final int ROW_SPACING = 8;

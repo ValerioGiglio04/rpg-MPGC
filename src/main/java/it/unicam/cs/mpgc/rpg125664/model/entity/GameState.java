@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+/** Stato partita corrente (giocatore, palestre, palestra attiva). */
 public final class GameState implements Serializable {
 
   private final Player player;

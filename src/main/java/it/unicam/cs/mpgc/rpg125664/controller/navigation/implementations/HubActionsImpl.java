@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.HubNavigation;
 import java.util.Objects;
 
+/** Implementazione {@link HubActions} delegata a {@link HubNavigation}. */
 public final class HubActionsImpl implements HubActions {
 
   private final HubNavigation navigation;

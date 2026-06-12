@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.util.List;
 
+/** Builder per {@link CreatureHolder} (team e creatura attiva). */
 public final class CreatureHolderBuilder {
 
   private List<Creature> creatures;

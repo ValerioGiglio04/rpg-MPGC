@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
+/** Riquadro ritratto giocatore da skin classpath o filesystem. */
 public final class PlayerPortrait extends StackPane {
 
   private static final double INNER_PADDING = 12;

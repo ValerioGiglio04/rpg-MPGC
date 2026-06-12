@@ -7,6 +7,7 @@ import it.unicam.cs.mpgc.rpg125664.model.persistence.catalog.seed.CatalogDatabas
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
+/** Bootstrap del catalogo: seed DB e caricamento Hibernate. */
 final class CatalogBootstrap {
 
   private CatalogBootstrap() {}

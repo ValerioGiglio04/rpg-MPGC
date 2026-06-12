@@ -21,6 +21,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+/** Controller FXML dell'hub (team, mappa overworld, menu azioni). */
 public final class HubController implements Initializable {
 
   private static final int PORTRAIT_SIZE = 80;

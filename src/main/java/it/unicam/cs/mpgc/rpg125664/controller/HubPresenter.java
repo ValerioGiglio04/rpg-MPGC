@@ -8,6 +8,7 @@ import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import it.unicam.cs.mpgc.rpg125664.view.support.UiErrorReporter;
 import java.util.Objects;
 
+/** Presenter dell'hub: stato gioco, cura e righe team. */
 public final class HubPresenter {
 
   private final GameModel gameModel;

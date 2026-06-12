@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.entity;
 import it.unicam.cs.mpgc.rpg125664.model.builder.PlayerBuilder;
 import java.io.Serializable;
 
+/** Giocatore con nome, team, punteggio e percorso skin. */
 public final class Player implements Serializable {
 
   public static final String DEFAULT_SKIN_PATH = "/images/player/player-skin.png";

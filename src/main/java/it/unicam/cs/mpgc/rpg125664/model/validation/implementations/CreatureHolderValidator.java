@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import java.util.List;
 
+/** Validatore team e creatura attiva in {@link CreatureHolder}. */
 public final class CreatureHolderValidator extends Validator<CreatureHolder> {
 
   @Override

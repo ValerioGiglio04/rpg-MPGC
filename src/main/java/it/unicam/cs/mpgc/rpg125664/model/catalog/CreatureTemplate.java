@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.rpg125664.model.catalog;
 
 import java.util.List;
 
+/** Template catalogo di una creatura (statistiche e mosse). */
 public record CreatureTemplate(
     long id,
     String name,

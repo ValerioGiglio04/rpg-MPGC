@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/** Mapper tra {@link GameState} e payload JSON sessione salvata. */
 public final class SessioneJsonMapper {
 
   private final GameCatalog catalog;

@@ -1,5 +1,6 @@
 package it.unicam.cs.mpgc.rpg125664.model.validation;
 
+/** Costanti intervallo precisione mosse (min, max, default). */
 public final class MoveRules {
 
   public static final int MIN_ACCURACY = 1;

@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 
+/** Controller FXML menu principale (nuova partita, load, uscita). */
 public final class MainMenuController implements Initializable {
 
   private final MainMenuActions actions;

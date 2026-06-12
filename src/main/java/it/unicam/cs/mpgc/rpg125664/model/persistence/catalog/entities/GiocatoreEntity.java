@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/** Entità JPA tabella {@code giocatore} (umano o boss). */
 @Entity
 @Table(name = "giocatore")
 public class GiocatoreEntity {

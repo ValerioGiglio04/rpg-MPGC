@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+/** Pannello UI titolo più contenuto con classi CSS tema. */
 public final class GamePanel extends VBox {
 
   public GamePanel(String title, Node... content) {

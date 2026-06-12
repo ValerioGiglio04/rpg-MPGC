@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Scale;
 
+/** Vista mappa overworld navigabile (griglia palestre, zoom, modale gym). */
 public final class OverworldMap extends StackPane implements OverworldGymModalController.Host {
 
   private static final Insets LABEL_BOTTOM_MARGIN = new Insets(0, 0, 12, 0);

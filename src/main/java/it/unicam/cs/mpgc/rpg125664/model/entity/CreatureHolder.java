@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/** Contenitore team creatura con creatura attiva selezionabile. */
 public final class CreatureHolder implements Serializable {
 
   private final List<Creature> creatures;

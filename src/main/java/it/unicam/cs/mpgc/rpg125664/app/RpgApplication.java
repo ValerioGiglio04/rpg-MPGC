@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/** Applicazione JavaFX principale (stage, scena, bootstrap moduli). */
 public final class RpgApplication extends Application {
 
   private static final int WIDTH = 1200;

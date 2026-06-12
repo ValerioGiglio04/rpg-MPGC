@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.rpg125664.model.catalog;
 import java.util.List;
 import java.util.Objects;
 
+/** Impostazioni nuova partita (nome, palestra iniziale, team starter). */
 public record NewGameSettings(
     String playerName, long startingGymId, String playerSkinPath, List<Long> starterTeamIds) {
   public NewGameSettings {

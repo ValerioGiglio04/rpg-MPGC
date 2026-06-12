@@ -6,6 +6,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 
+/** Utility dialoghi JavaFX (errore, conferma, input testo). */
 public final class DialogHelper {
 
   private DialogHelper() {

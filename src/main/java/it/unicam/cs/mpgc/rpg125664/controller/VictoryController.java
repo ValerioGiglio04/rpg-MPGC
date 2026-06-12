@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
+/** Controller FXML schermata vittoria (punteggio, nuova run, menu). */
 public final class VictoryController implements Initializable {
 
   private final GameModel gameModel;

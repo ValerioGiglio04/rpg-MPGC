@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 import it.unicam.cs.mpgc.rpg125664.model.validation.support.ValidatorFactory;
 import java.util.List;
 
+/** Builder per {@link GymRoom} (collegamenti, boss, punti richiesti). */
 public final class GymRoomBuilder {
 
   private long id;

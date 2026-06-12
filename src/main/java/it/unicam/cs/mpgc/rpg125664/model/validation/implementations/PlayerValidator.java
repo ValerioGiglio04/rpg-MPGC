@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.model.entity.Player;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Rules;
 import it.unicam.cs.mpgc.rpg125664.model.validation.Validator;
 
+/** Validatore {@link Player} (nome, holder, score, skin). */
 public final class PlayerValidator extends Validator<Player> {
 
   @Override

@@ -4,6 +4,7 @@ import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameActions;
 import it.unicam.cs.mpgc.rpg125664.controller.navigation.LoadGameNavigation;
 import java.util.Objects;
 
+/** Implementazione {@link LoadGameActions} delegata a {@link LoadGameNavigation}. */
 public final class LoadGameActionsImpl implements LoadGameActions {
 
   private final LoadGameNavigation navigation;

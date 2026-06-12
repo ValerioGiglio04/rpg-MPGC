@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/** Entità creatura combattente (statistiche, HP, mosse, skin). */
 public final class Creature implements Serializable {
 
   private final long catalogId;

@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.model.session.SavedSessionSummary;
 import it.unicam.cs.mpgc.rpg125664.view.support.Messages;
 import javafx.scene.control.ListCell;
 
+/** Cella lista con riepilogo nome, data e punti gloria del salvataggio. */
 final class SavedSessionSummaryCell extends ListCell<SavedSessionSummary> {
 
   @Override

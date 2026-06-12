@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.model.session.SessionPersistenceException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/** Segnalazione errori UI verso log e {@link DialogHelper}. */
 public final class UiErrorReporter {
 
   private static final Logger LOGGER = Logger.getLogger(UiErrorReporter.class.getName());

@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg125664.view.component.CreatureCard;
 import it.unicam.cs.mpgc.rpg125664.view.mapper.PortraitAssetResolver;
 import java.util.Objects;
 
+/** Builder configurabile per {@link CreatureCard} (attiva, dimensioni). */
 public final class CreatureCardBuilder {
 
   private final Creature creature;
