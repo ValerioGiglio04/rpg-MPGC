@@ -1,63 +1,103 @@
 # Dichiarazione dettagliata di uso di strumenti di AI
 
-← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Repository](https://github.com/ValerioGiglio04/rpg-MPGC)
+## Premessa
 
-La specifica del corso chiede una dichiarazione **dettagliata** sull'uso di AI, oltre al paragrafo breve nel [README](https://github.com/ValerioGiglio04/rpg-MPGC#-uso-di-strumenti-di-ai).
+Nel corso della realizzazione e dell'evoluzione di questa repository sono stati utilizzati strumenti di AI generativa come supporto tecnico e documentale.
 
-**GymQuest, le regole di gioco, l'architettura MVC e le scelte di persistenza le ho progettate e implementate io.** Ho usato strumenti di AI come supporto: spiegazioni quando bloccavo su Hibernate o JavaFX, bozze di codice o testi che poi ho modificato, autocompletamento. Prima di tenere qualcosa nel repo l'ho letto, provato con `./gradlew build` e adattato al mio codice.
+La presente dichiarazione documenta:
 
----
+- quali attività sono state supportate dall'AI;
+- con quale scopo;
+- quali limiti e controlli umani sono stati adottati.
 
-## Strumenti usati
+Un riepilogo breve è presente anche nel [README del repository](https://github.com/ValerioGiglio04/rpg-MPGC#-uso-di-strumenti-di-ai).
 
-| Strumento | Per cosa l'ho usato |
-|-----------|---------------------|
-| **ChatGPT** | Domande su MVC, Hibernate, SOLID; bozze diagrammi per la wiki |
-| **Claude** | Errori JPA, configurazione Gradle/Spotless; revisione testi wiki |
-| **Gemini** | Dubbi su JavaFX/FXML; alcune texture PNG in `src/main/resources/images/` |
-| **GitHub Copilot** | Autocompletamento metodi semplici, Javadoc, stringhe in `messages_it.properties`, correzioni Markdown wiki |
+## Strumenti utilizzati
 
----
+Sono stati utilizzati, in modo non esclusivo:
 
-## Dove l'AI ha aiutato (e cosa ho fatto io dopo)
+- **ChatGPT** — domande su MVC, Hibernate, SOLID; bozze diagrammi per la wiki;
+- **Claude** — errori JPA, configurazione Gradle e Spotless; revisione testi wiki;
+- **Gemini** — dubbi su JavaFX e FXML; alcune texture PNG in `src/main/resources/images/`;
+- **GitHub Copilot** — autocompletamento metodi semplici, Javadoc, stringhe in `messages_it.properties`, correzioni Markdown wiki.
 
-### Codice e architettura
+## Scopo dell'uso
 
-- **ChatGPT / Claude** — mi hanno spiegato pattern visti a lezione (MVC, Repository, Strategy, Builder). La struttura package, `GameModel`, separazione catalogo/sessione e validator li ho applicati io sul progetto reale.
-- **Copilot** — suggerimenti su getter, boilerplate JavaFX, Javadoc su classi semplici. Ho controllato nomi e responsabilità prima di committare.
+L'AI è stata usata per accelerare attività che altrimenti avrebbero richiesto più tempo operativo, in particolare:
 
-### Interfaccia
+- produrre bozze iniziali di classi e metodi;
+- suggerire organizzazioni architetturali (MVC, Repository, Strategy, Builder);
+- proporre soluzioni per scene JavaFX, layout e navigazione;
+- velocizzare la scrittura di testi e diagrammi per la documentazione;
+- aiutare nella diagnosi di errori o incoerenze tra componenti.
 
-- **Gemini** — alcune immagini overworld e idee layout; ho integrato quelle che encavano col resto del gioco.
-- **Copilot** — bozze righe in `messages_it.properties` e messaggi log battaglia, poi rivisti in italiano.
+## Ambiti di supporto effettivo
 
-### Documentazione e build
+### Modellazione e backend
 
-- **ChatGPT / Claude** — bozze iniziali di diagrammi Mermaid (flusso utente, persistenza). Li ho corretti e allineati al codice effettivo.
-- **Claude** — bozza plugin Spotless in `build.gradle`; oggi uso Prettier via Spotless (versione aggiornata nel tempo).
-- **Copilot** — link tra pagine wiki, sidebar, piccole correzioni di forma.
+- definizione iniziale o revisione di classi del dominio;
+- stesura o adattamento di servizi applicativi (`GameModel`, `BattleService`, …);
+- supporto alla separazione tra logica di gioco, catalogo statico e persistenza sessione.
 
----
+### Frontend
 
-## Esempi puntuali
+- supporto alla creazione e modifica di scene JavaFX e FXML;
+- rifinitura di componenti mappa, hub e battaglia;
+- adattamento messaggi UI e log di cronaca in italiano.
 
-| Situazione | Strumento | Esito |
-|------------|-----------|--------|
-| Errore Hibernate su collection | ChatGPT / Claude | Spiegazione del messaggio; fix scritto da me |
-| Dove mettere la cura (service vs dominio) | ChatGPT / Claude | Confronto opzioni; scelta `HealingService` |
-| Texture mappa / palestra | Gemini | File PNG usati o sostituiti |
-| Spotless / formattazione | Claude | Bozza `build.gradle`; io ho scelto regole e quando applicarle |
-| Testi wiki e diagrammi | ChatGPT / Claude / Copilot | Bozze riviste manualmente (questa pagina inclusa) |
+### Persistenza e build
 
----
+- supporto alla configurazione Hibernate, H2 e mapper JSON;
+- bozza plugin Spotless in `build.gradle` (formattazione Prettier via Spotless).
 
-## Cosa non ho delegato
+### Documentazione
 
-- Scelta del gioco (RPG palestre), regole combattimento, progressione gloria.
-- Design persistenza catalogo H2 + JSON sessione.
-- Refactoring MVC, navigazione, presenter, naming package `rpg125664`.
-- Verifica finale: build Gradle, prova manuale delle schermate, commit Git.
+- organizzazione dei contenuti su responsabilità, persistenza ed estendibilità;
+- diagrammi Mermaid (flusso utente, persistenza, architettura) rivisti rispetto al codice effettivo;
+- formalizzazione della presente dichiarazione.
 
----
+## Modalità di utilizzo
+
+L'AI non è stata usata come sostituto del controllo umano, ma come assistente operativo.
+
+Il flusso adottato è stato il seguente:
+
+1. definizione umana del requisito o del problema;
+2. generazione di una proposta da parte dell'AI;
+3. lettura critica della proposta;
+4. modifica e integrazione manuale nel progetto;
+5. verifica tramite compilazione (`./gradlew build`) e prova manuale delle schermate;
+6. accettazione solo dopo revisione.
+
+## Controlli umani adottati
+
+Per mitigare errori o suggerimenti non coerenti, è stato mantenuto il controllo umano su:
+
+- scelta dell'architettura finale e naming package `rpg125664`;
+- responsabilità assegnate ai package e ai servizi;
+- correttezza semantica del gameplay (combattimento, gloria, palestre);
+- coerenza della UI con i requisiti funzionali;
+- correzione di risposte AI non accurate o incomplete prima del commit.
+
+## Limiti riconosciuti
+
+Gli strumenti di AI generativa possono:
+
+- produrre codice formalmente corretto ma concettualmente inadatto;
+- introdurre duplicazioni o accoppiamenti non desiderati;
+- proporre documentazione non allineata alla versione reale del codice;
+- confondere il comportamento effettivo con una descrizione teorica.
+
+Per questo nessun codice o testo dell'AI è stato considerato definitivo senza revisione.
+
+## Responsabilità finale
+
+La responsabilità finale delle scelte progettuali (RPG palestre, regole combattimento, persistenza catalogo H2 + JSON sessione), del codice integrato e della documentazione pubblicata resta umana.
+
+## Sintesi conclusiva
+
+- **Uso dichiarato dell'AI:** sì, come assistente tecnico e documentale;
+- **Scopo principale:** accelerare implementazione, revisione e documentazione;
+- **Controllo finale:** umano, con verifica di coerenza e build Gradle.
 
 **Valerio Giglio — matricola 125664 — valerio.giglio@studenti.unicam.it**

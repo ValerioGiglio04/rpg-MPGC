@@ -1,68 +1,59 @@
-# Wiki — GymQuest
+# GymQuest Wiki
 
-**Valerio Giglio** — matricola `125664` — Metodologie di Programmazione, Modellazione e Gestione della Conoscenza (AA 2025/26)
+Questa wiki descrive l'architettura, le funzionalità implementate e le scelte progettuali del progetto `rpg-MPGC` (package `it.unicam.cs.mpgc.rpg125664`).
 
-← [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) · [Classi](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) · [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) · [AI](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dichiarazione-AI)
+Il progetto è una demo RPG desktop sviluppata in Java 25 e JavaFX. La struttura del codice separa:
 
----
-
-## Cos'è GymQuest
-
-Ho scelto di fare un RPG a palestre in stile Pokémon: si esplora una mappa, si sfidano i boss delle palestre con combattimenti a turni tra creature e si accumula gloria per sbloccare le palestre successive. L'obiettivo di campagna è completarle tutte.
-
-L'applicazione ha **interfaccia grafica** (JavaFX + FXML) e **persistenza** dei salvataggi su file H2 locale. Il codice sta nel package `it.unicam.cs.mpgc.rpg125664`, come richiesto dalla specifica.
+- presentazione JavaFX e navigazione tra schermate;
+- persistenza su H2 con Hibernate e snapshot di partita in JSON;
+- regole di gioco e servizi applicativi nel model, indipendenti dalla UI.
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-overworld.png">
-    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-overworld.png" alt="Hub di gioco" width="640">
+    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-overworld.png" alt="Hub di gioco con mappa e team" width="640">
   </a>
 </p>
 
-Screenshot e descrizione schermata per schermata in [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate).
+## Premessa
 
----
+L'applicazione è progettata per favorire l'estensione funzionale grazie alla separazione tra dominio, servizi, persistenza e interfaccia.
+Questa organizzazione rende possibile il riuso della logica applicativa in futuri client desktop, web o mobile.
+Tuttavia, l'attuale livello di presentazione è implementato con JavaFX ed è quindi specifico per il contesto desktop; il supporto multi-dispositivo richiederebbe lo sviluppo di interfacce dedicate sopra i servizi già esistenti (in particolare `GameModel`).
 
-## Cosa trovi in questa wiki
+## Contenuti
 
-La specifica del corso chiede di documentare il progetto al posto di una relazione scritta. Ho organizzato la wiki così:
+- [Funzionalità implementate](Funzionalita-implementate)
+- [Responsabilità e architettura](Responsabilita-e-architettura)
+- [Classi e interfacce](Classi-e-interfacce)
+- [Dati e persistenza](Dati-e-persistenza)
+- [Estendibilità](Estendibilita)
+- [Dichiarazione uso AI](Dichiarazione-AI)
 
-| Requisito specifica | Pagina wiki |
-|---------------------|-------------|
-| Funzionalità implementate | [Funzionalità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Funzionalita-implementate) |
-| Responsabilità delle classi | [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) |
-| Classi e interfacce (con responsabilità) | [Classi e interfacce](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Classi-e-interfacce) |
-| Dati e persistenza | [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza) |
-| Integrazione di nuove funzionalità / altri dispositivi | [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) |
-| Dichiarazione uso AI | [Dichiarazione AI](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dichiarazione-AI) |
+## Sintesi del progetto
 
-Per il codice vero e proprio il riferimento resta il repository; qui spiego le scelte che ho fatto.
+La demo comprende:
 
----
+- menù principale e schermata di caricamento slot;
+- hub con mappa overworld a tile, zoom e gestione del team;
+- combattimenti a turni tra creature con log di cronaca in italiano;
+- progressione per gloria e palestre collegate;
+- cura delle creature a pagamento in hub;
+- schermata di vittoria al completamento della campagna;
+- persistenza multi-slot su database H2 locale;
+- catalogo statico (creature, mosse, palestre) caricato da seed JSON.
 
-## Avvio rapido
+## Organizzazione della documentazione
 
-Prerequisiti: **Java 25** (Gradle arriva col Wrapper).
+La wiki è organizzata per responsabilità:
 
-```bash
-git clone https://github.com/ValerioGiglio04/rpg-MPGC.git
-cd rpg-MPGC
-./gradlew build
-./gradlew run
-```
+- la pagina funzionale descrive cosa può fare il gioco;
+- la pagina architetturale descrive perché il codice è stato separato in quel modo;
+- la pagina dei tipi elenca i componenti concreti della codebase;
+- la pagina persistenza spiega struttura dati, file e regole di ripristino;
+- la pagina estendibilità evidenzia i meccanismi predisposti per nuove funzionalità;
+- la dichiarazione AI documenta uso e scopo degli strumenti di AI.
 
-Su Windows: `.\gradlew.bat build` e `.\gradlew.bat run`. Nel [README](https://github.com/ValerioGiglio04/rpg-MPGC) c'è la stessa cosa più la dichiarazione sintetica sull'uso di AI.
+## Nota pratica
 
----
-
-## Stack tecnico
-
-| | |
-|:--|:--|
-| Linguaggio | Java 25 |
-| Build | Gradle 8.14.4 (Wrapper) |
-| UI | JavaFX 25.0.1 + FXML |
-| Persistenza | Hibernate 6 + H2 (`~/.rpg-palestre-creature/save`) |
-| Formattazione | Spotless + Prettier (opzionale in sviluppo) |
-| Repository | [github.com/ValerioGiglio04/rpg-MPGC](https://github.com/ValerioGiglio04/rpg-MPGC) |
-
-Ho usato **MVC**: il `model` non dipende da JavaFX, così in futuro potrei cambiare solo la parte grafica senza riscrivere le regole di gioco (lo approfondisco in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita)).
+I sorgenti Markdown si trovano in `.github/wiki-pages/` nel repository principale e possono essere sincronizzati nella repository `rpg-MPGC.wiki` mantenendo gli stessi nomi file.
+Istruzioni per build ed esecuzione: [README del repository](https://github.com/ValerioGiglio04/rpg-MPGC).

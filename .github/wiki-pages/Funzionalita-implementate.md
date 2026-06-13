@@ -1,55 +1,43 @@
 # Funzionalità implementate
 
-← [Home](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Home) · [Architettura](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Responsabilita-e-architettura) · [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza)
+## 1. Avvio e navigazione
 
-Qui descrivo cosa fa **GymQuest nella prima release**. Non ho messo tutto quello che si potrebbe fare in un RPG (inventario, multiplayer, versione web…), ma le funzionalità che ci sono coprono il ciclo di gioco completo: menu → hub → battaglia → salvataggio → vittoria.
+L'applicazione avvia una finestra desktop JavaFX e utilizza un navigatore centralizzato (`ScreenNavigator`) per cambiare scena senza duplicare la logica di bootstrap.
 
----
+Funzionalità presenti:
 
-## Regole di gioco (in breve)
+* apertura del menù principale;
+* accesso alla schermata di caricamento degli slot;
+* ingresso nell'hub con mappa overworld;
+* transizione verso il duello in palestra;
+* schermata finale di vittoria campagna.
 
-- Il giocatore controlla un **team di creature** con HP, attacco, difesa e velocità.
-- Il mondo è fatto di **palestre collegate**: per sfidare un boss serve avere abbastanza **gloria** (`requiredPoints` sulla palestra).
-- Se batti tutte le creature del boss, la palestra risulta completata: guadagni gloria e spesso le creature del boss entrano nel tuo team.
-- La partita finisce quando **tutte le palestre** sono completate.
-
----
-
-## Interfaccia grafica
-
-Tutte le schermate sono JavaFX con file FXML in `src/main/resources/fxml/`:
+Riferimento tecnico schermate:
 
 | Schermata | FXML | Controller |
-|-----------|------|------------|
-| Menu principale | `MainMenu.fxml` | `MainMenuController` |
+| --- | --- | --- |
+| Menù principale | `MainMenu.fxml` | `MainMenuController` |
 | Carica partita | `LoadGame.fxml` | `LoadGameController` |
 | Hub / mappa | `Hub.fxml` | `HubController` |
 | Battaglia | `Battle.fxml` | `BattleController` |
 | Vittoria | `Victory.fxml` | `VictoryController` |
 
-Sotto trovi alcuni screenshot presi dall'applicazione in esecuzione (clic per aprirli a dimensione piena). Li mostro a **640px** di larghezza così su GitHub restano nitidi e non vengono ingranditi oltre la risoluzione originale.
-
-I controller non parlano con Hibernate: passano da `GameModel`. La navigazione tra schermate la gestisce `ScreenNavigator`, le schermate le monta `ScreenFactory` usando i path in `FxmlPaths`.
-
----
-
-## Menu principale
-
 <p align="center">
   <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/menu-principale.png">
-    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/menu-principale.png" alt="Menu principale" width="640">
+    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/menu-principale.png" alt="Menù principale" width="640">
   </a>
 </p>
 
-- **Nuova partita** — `NewGameService` crea il primo `GameState` dal catalogo.
-- **Carica partita** — apre la lista slot (tabella `sessioni_salvate`); il pulsante è attivo solo se esiste almeno un save.
-- **Esci** — chiude l'applicazione.
+## 2. Gestione della partita
 
-Se il caricamento fallisce mostro un alert e resto al menu.
+Dal frontend l'utente può:
 
----
-
-## Carica partita
+* iniziare una nuova partita;
+* caricare una partita da uno slot esistente;
+* salvare la partita corrente dall'hub;
+* creare un nuovo slot con "Salva come nuovo";
+* eliminare uno slot dalla schermata di caricamento;
+* tornare al menù principale.
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/carica-partita.png">
@@ -57,11 +45,24 @@ Se il caricamento fallisce mostro un alert e resto al menu.
   </a>
 </p>
 
-Dalla schermata **Carica partita** si vedono nome slot, data/ora e gloria al momento del save. Si può caricare, eliminare uno slot o tornare al menu. I metadati arrivano da `GameStateRepository.listSaves()`; il dettaglio partita è nel JSON descritto in [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza).
+<p align="center">
+  <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-menu-salvataggio.png">
+    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-menu-salvataggio.png" alt="Menù salvataggio hub" width="640">
+  </a>
+</p>
 
----
+In caso di errore di caricamento viene mostrato un messaggio e la navigazione resta al menù.
 
-## Hub (overworld)
+## 3. Hub e overworld
+
+L'hub è la schermata principale di gioco. Contiene:
+
+* mappa a tile con movimento da tastiera (WASD o frecce);
+* zoom con pulsanti +/- e rotella del mouse;
+* palestre con stato visivo (corrente, disponibile, completata, bloccata per gloria o per raggiungibilità);
+* pannello team con selezione creatura attiva;
+* cura a pagamento in gloria, con costo proporzionale agli HP mancanti;
+* menù hamburger per salvataggio e ritorno al menù.
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-overworld.png">
@@ -69,27 +70,25 @@ Dalla schermata **Carica partita** si vedono nome slot, data/ora e gloria al mom
   </a>
 </p>
 
-È la schermata principale di gioco:
+Interazione con una palestra:
 
-- **Mappa a tile** con frecce da tastiera (`OverworldMovement`); lo spawn iniziale viene da sessione salvata o dalla palestra corrente (`OverworldPlayerSpawn`).
-- **Zoom** con +/- e rotella del mouse (`OverworldZoomControls`).
-- **Colori/stato palestre** sulla mappa (calcolati da `GameModel.statusOf` + `GymStatusStrategy`):
-  - completata, disponibile, corrente, gloria insufficiente, non raggiungibile.
-- **Click su una palestra** — modale di conferma; se serve prima `moveTo(gymId)`, poi parte la battaglia.
-- **Team** — lista creature con carta cliccabile per cambiare quella attiva; **cura a pagamento** in gloria (`HealingService`, costo spiegato in tooltip da `HubPresenter`).
-- **Menu hamburger** — salva, salva come nuovo slot, torna al menu.
+* modale di conferma;
+* spostamento automatico verso la palestra se necessario;
+* avvio del duello se le condizioni di gioco lo consentono.
 
-<p align="center">
-  <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-menu-salvataggio.png">
-    <img src="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/hub-menu-salvataggio.png" alt="Menu salvataggio hub" width="640">
-  </a>
-</p>
+Se tutte le palestre risultano completate, l'ingresso nell'hub porta alla schermata di vittoria.
 
-- Se hai già finito tutte le palestre, entrando nell'hub vai diretto alla schermata **Vittoria**.
+## 4. Combattimento
 
----
+Il combattimento è gestito a turni: il giocatore sceglie una mossa; l'ordine nel round dipende dalla velocità delle creature attive.
 
-## Combattimento a turni
+Caratteristiche:
+
+* attacco del giocatore e risposta del boss;
+* calcolo danno, miss e KO;
+* cambio creatura attiva nel team del giocatore;
+* cronaca degli eventi tradotta in italiano nel pannello centrale;
+* ricompense al completamento della palestra (gloria e creature del boss nel team).
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/ValerioGiglio04/rpg-MPGC/main/.github/wiki-pages/images/battaglia.png">
@@ -97,65 +96,57 @@ Dalla schermata **Carica partita** si vedono nome slot, data/ora e gloria al mom
   </a>
 </p>
 
-- Puoi sfidare solo se `GameState.canChallengeGym(gym)` è vero (palestra non completata, raggiungibile, punti ok).
-- All'inizio di un nuovo tentativo `BattleService` resetta gli HP di entrambi i team e sceglie la prima creatura viva per lato.
-- Il giocatore sceglie la mossa; chi colpisce per primo dipende dalla **velocità** delle creature attive nel round.
-- Danno e miss: `TurnBasedAttackResolutionStrategy`. Mossa del boss: `AccuracyThresholdBossMoveStrategy`.
-- Puoi **cambiare creatura** durante il duello.
-- Gli eventi di combattimento (`BattleEvent`) li traduco in italiano con `BattleEventTranslator` e li mostro nel log con `BattleLogRenderer`.
-- Se metti KO tutte le creature del boss, `GymCompletionHandler` segna la palestra completata, dà gloria e aggiunge le creature al party.
-- Se rientri in una palestra già completata, c'è una modalità "revisione" senza reset HP.
+Precondizioni per sfidare un boss:
+
+* palestra non già completata (oppure modalità revisione senza reset HP);
+* palestra raggiungibile dalla posizione corrente;
+* gloria del giocatore sufficiente rispetto alla soglia della palestra.
+
+## 5. Progressione tra palestre
+
+Il mondo è organizzato in palestre collegate: lo spostamento avviene solo verso palestre adiacenti.
+
+Elementi principali:
+
+* soglia minima di gloria per sfidare ogni boss;
+* tracciamento della palestra corrente;
+* completamento palestra al KO di tutte le creature del boss;
+* vittoria di campagna quando tutte le palestre risultano completate.
+
+## 6. Catalogo e nuova partita
+
+All'avvio il catalogo statico (creature, mosse, palestre, boss) viene allineato da `catalog-seed.json` verso H2 se necessario, poi caricato in memoria.
+
+Una nuova partita costruisce il primo stato di gioco a partire da quel catalogo e dalle impostazioni di default.
+
+## 7. Feedback visivo e internazionalizzazione
+
+Il frontend include:
+
+* legende colore sulle palestre in mappa;
+* barre HP e statistiche sulle carte creatura;
+* messaggi UI e log di battaglia in italiano tramite bundle condiviso (`messages_it.properties`).
 
 ---
 
-## Spostamento tra palestre
-
-Ogni `GymRoom` ha `connectedGymIds`: puoi spostarti solo verso palestre **adiacenti** (`GameState.moveTo`). La gloria decide quali boss puoi affrontare; `currentGymId` tiene traccia di dove sei.
-
----
-
-## Salvataggi (persistenza in gioco)
-
-- Più **slot** sulla stessa macchina (`sessioni_salvate`).
-- **Salva** dall'hub — aggiorna lo slot corrente.
-- **Salva come nuovo** — chiede un nome e crea una riga nuova.
-- **Elimina slot** dalla schermata Carica.
-
-Nel JSON salvo id di catalogo, HP correnti, gloria, palestre completate e coordinate `{x,y}` sulla mappa. Il dettaglio del formato è in [Persistenza](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Dati-e-persistenza).
-
----
-
-## Catalogo e avvio
-
-All'avvio `CatalogBootstrap` (da `AppModule`) legge `catalog-seed.json`, se serve popola H2 e carica `GameCatalog` in memoria. Da lì `NewGameService` costruisce una nuova partita.
-
----
-
-## Testi in italiano
-
-Messaggi UI e log battaglia in `messages_it.properties`, letti tramite `Messages`. FXML e controller condividono lo stesso bundle grazie a `FxmlScreenLoader`.
-
----
-
-## Flusso tipico
+## Flusso utente
 
 ```mermaid
 %%{init: {"flowchart": {"curve": "linear"}}}%%
 flowchart TD
-  Boot[Avvio] --> MainMenu[Menu principale]
+  Boot[Avvio] --> MainMenu[Menù principale]
   MainMenu -->|Nuova partita| Hub[Hub]
   MainMenu -->|Continua| Hub
   MainMenu -->|Esci| End[Fine]
   Hub -->|Salva| Hub
-  Hub -->|Menu| MainMenu
+  Hub -->|Menù| MainMenu
   Hub -->|Palestra| Battle[Battaglia]
   Battle --> Hub
   Hub -->|Campagna finita| Victory[Vittoria]
-  Victory -->|Menu| MainMenu
+  Victory -->|Menù| MainMenu
 ```
 
----
+## Fuori scope della prima release
 
-## Cosa non c'è in v1
-
-Multiplayer, mobile/web, negozio, cattura selvatica. Ho lasciato fuori scope volutamente per concentrarmi su un flusso giocabile end-to-end; in [Estendibilità](https://github.com/ValerioGiglio04/rpg-MPGC/wiki/Estendibilita) spiego dove aggancierei queste cose nel codice attuale.
+Multiplayer, client web o mobile, inventario, negozio e cattura selvatica non sono implementati.
+I punti di aggancio per integrarli sono descritti in [Estendibilità](Estendibilita).
